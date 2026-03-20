@@ -4,18 +4,22 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Check your .env.local file or Lovable environment variables."
+  console.error(
+    "Critical Warning: Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Las variables de entorno son requeridas en Lovable y Render."
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-});
+export const supabase = createClient(
+  supabaseUrl || "https://placeholder.supabase.co", 
+  supabaseAnonKey || "placeholder-key", 
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  }
+);
 
 export type Database = {
   public: {
