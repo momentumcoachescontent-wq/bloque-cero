@@ -56,18 +56,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Obtener sesión inicial
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          }
+        }
+      } catch (e) {
+        console.error("Error obteniendo sesión inicial:", e);
+      } finally {
+        if (mounted) setIsLoading(false);
       }
-      
-      setIsLoading(false);
     };
 
     initAuth();
@@ -75,23 +84,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Escuchar cambios de auth
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      // Si estamos cargando inicialmente, no interrumpir con el evento
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      
+      // Ignoramos INITIAL_SESSION porque choca con initAuth y deja la app colgada
+      if (event === 'INITIAL_SESSION') return;
+      
       setIsLoading(true);
       
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
+      try {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
+      } catch (e) {
+        console.error("Error en auth state change:", e);
+      } finally {
+        if (mounted) setIsLoading(false);
       }
-      
-      setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
