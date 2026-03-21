@@ -9,6 +9,9 @@ import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
 import Diagnostic from "./pages/Diagnostic.tsx";
+import Privacidad from "./pages/Privacidad.tsx";
+import Terminos from "./pages/Terminos.tsx";
+import Contacto from "./pages/Contacto.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +34,11 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/diagnostico" element={<Diagnostic />} />
+
+            {/* Páginas legales y contacto — Fase 2.5 */}
+            <Route path="/privacidad" element={<Privacidad />} />
+            <Route path="/terminos" element={<Terminos />} />
+            <Route path="/contacto" element={<Contacto />} />
 
             {/* Rutas protegidas — se añaden en Fase 3 */}
             {/* <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> */}
