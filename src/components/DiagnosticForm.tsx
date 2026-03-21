@@ -102,6 +102,7 @@ const DiagnosticForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<ScoringResult | null>(null);
+  const [submitError, setSubmitError] = useState<any>(null);
   const [form, setForm] = useState<FormData>({
     name: "", email: "", whatsapp: "",
     businessIdea: "",
@@ -204,12 +205,38 @@ const DiagnosticForm = () => {
 
     if (error) {
       console.error("Supabase insert error:", JSON.stringify(error, null, 2));
-      toast.error("Error al enviar el diagnóstico. Intenta de nuevo.");
+      setSubmitError(error);
+      toast.error("Error al guardar el diagnóstico en la base de datos.");
       return;
     }
 
     setResult(scoring);
   };
+
+  // ─── Pantalla de Error DB ────────────────────────────────────
+  if (submitError) {
+    return (
+      <div className="space-y-6 py-6 px-4 bg-destructive/5 border border-destructive/20 rounded-2xl">
+        <div className="text-center">
+          <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mb-3">
+            <AlertTriangle className="w-6 h-6 text-destructive" />
+          </div>
+          <h3 className="text-xl font-bold text-destructive mb-2">Error de Base de Datos (Supabase)</h3>
+          <p className="text-sm text-foreground mb-4">
+            El motor evaluó tu negocio correctamente, pero el acceso a la base de datos está bloqueado. Por favor provee este código exacto:
+          </p>
+        </div>
+        
+        <div className="bg-card p-4 rounded-xl text-xs overflow-auto border font-mono text-destructive/80 whitespace-pre-wrap break-all shadow-inner">
+          {JSON.stringify(submitError, null, 2)}
+        </div>
+
+        <Button variant="default" onClick={() => setSubmitError(null)} className="w-full rounded-full">
+          Entendido, intentar de nuevo
+        </Button>
+      </div>
+    );
+  }
 
   // ─── Pantalla de resultado ───────────────────────────────────
   if (result) {

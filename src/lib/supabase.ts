@@ -31,6 +31,7 @@ export type Database = {
           full_name: string | null;
           whatsapp: string | null;
           role: "admin" | "client";
+          is_premium: boolean;
           avatar_url: string | null;
           created_at: string;
           updated_at: string;
