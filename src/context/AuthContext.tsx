@@ -58,37 +58,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    // Obtener sesión inicial
-    const initAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
-        
-        if (mounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            await fetchProfile(session.user.id);
-          }
-        }
-      } catch (e) {
-        console.error("Error obteniendo sesión inicial:", e);
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    };
-
-    initAuth();
-
-    // Escuchar cambios de auth
+    // Supabase emitirá automáticamente INITIAL_SESSION cuando nos suscribimos
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
-      
-      // Ignoramos INITIAL_SESSION porque choca con initAuth y deja la app colgada
-      if (event === 'INITIAL_SESSION') return;
       
       setIsLoading(true);
       
