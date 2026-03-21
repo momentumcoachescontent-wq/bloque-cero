@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { LogIn, User } from "lucide-react";
+import { LogIn, User, LogOut } from "lucide-react";
 
 const Navbar = () => {
-  const { session, profile, isLoading } = useAuth();
+  const { session, profile, isLoading, signOut } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/80">
@@ -24,12 +24,21 @@ const Navbar = () => {
           {/* CTA dinámico: si hay sesión → ir al dashboard, si no → diagnóstico */}
           {!isLoading && (
             session ? (
-              <a href="/dashboard">
-                <Button size="sm" variant="outline" className="rounded-full px-5 font-medium gap-2">
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" className="rounded-full px-5 font-medium gap-2 cursor-default pointer-events-none">
                   <User className="w-3.5 h-3.5" />
                   {profile?.full_name?.split(" ")[0] || "Mi Panel"}
                 </Button>
-              </a>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={() => signOut()}
+                  className="rounded-full w-9 h-9 p-0 text-muted-foreground hover:text-destructive transition-colors"
+                  title="Cerrar sesión"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
             ) : (
               <div className="flex items-center gap-3">
                 <a href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
