@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Target, Zap, Activity, Trash2 } from "lucide-react";
+import { Users, Target, Zap, Activity, Trash2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const AdminIndex = () => {
@@ -51,6 +51,27 @@ const AdminIndex = () => {
     } catch (error: any) {
       toast.error("Error al eliminar: " + error.message);
     }
+  };
+
+  const toggleFlag = async (id: string, field: 'is_analysis_generated' | 'is_analysis_sent', currentValue: boolean) => {
+    try {
+      const { error } = await supabase.from("leads").update({ [field]: !currentValue }).eq("id", id);
+      if (error) throw error;
+      setLeadsList(prev => prev.map(l => l.id === id ? { ...l, [field]: !currentValue } : l));
+      toast.success("Estado actualizado");
+    } catch (error: any) {
+      toast.error("Error al actualizar: " + error.message);
+    }
+  };
+
+  const downloadJson = (lead: any) => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lead.diagnostic_answers, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `analisis_${lead.email}_${lead.id.substring(0,8)}.json`);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
   };
 
   const metricCards = [
@@ -157,10 +178,21 @@ const AdminIndex = () => {
                         <td colSpan={4} className="px-6 py-8">
                           
                           <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-                              <Target className="w-5 h-5 text-primary" />
-                              Panel de Análisis de Emprendedor 
-                            </h3>
+                            <div className="flex items-center gap-4">
+                              <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                                <Target className="w-5 h-5 text-primary" />
+                                Panel de Análisis de Emprendedor 
+                              </h3>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  downloadJson(lead);
+                                }}
+                                className="text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
+                              >
+                                Descargar JSON
+                              </button>
+                            </div>
                             <button 
                               onClick={async (e) => {
                                 e.stopPropagation();
@@ -207,11 +239,69 @@ const AdminIndex = () => {
                                     <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.etapa}</span>
                                   </li>
                                   
+                                  <li className="grid grid-cols-3 gap-2 border-b border-border/20 pb-2">
+                                    <span className="text-muted-foreground col-span-1">Tiempo Disponible:</span> 
+                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.time_availability}</span>
+                                  </li>
+                                  <li className="grid grid-cols-3 gap-2 border-b border-border/20 pb-2">
+                                    <span className="text-muted-foreground col-span-1">Logística:</span> 
+                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.needs_logistics ? 'Sí' : 'No'}</span>
+                                  </li>
+                                  <li className="grid grid-cols-3 gap-2 border-b border-border/20 pb-2">
+                                    <span className="text-muted-foreground col-span-1">Pagos Especiales:</span> 
+                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.needs_special_payments ? 'Sí' : 'No'}</span>
+                                  </li>
+                                  <li className="grid grid-cols-1 gap-2 pb-2 mt-4">
+                                    <span className="text-muted-foreground font-semibold block mb-1">Dolores Principales:</span> 
+                                    <div className="flex flex-wrap gap-2">
+                                      {lead.diagnostic_answers.n8n_payload.business_profile.pain_points.map((pain: string, idx: number) => (
+                                        <span key={idx} className="bg-muted px-2 py-1 rounded-md text-xs font-medium text-foreground/80">{pain}</span>
+                                      ))}
+                                    </div>
+                                  </li>
+                                  
                                   <li className="pt-4 mt-4 border-t border-border/50">
                                     <span className="text-primary font-semibold block mb-2">💡 Idea a Evaluar:</span>
                                     <p className="p-4 bg-muted/30 rounded-xl border border-border/50 text-foreground/90 italic leading-relaxed">
                                       "{lead.diagnostic_answers.n8n_payload.business_profile.business_idea}"
                                     </p>
+                                  </li>
+
+                                  {/* Checkboxes Administrativos */}
+                                  <li className="pt-4 mt-4 border-t border-border/50 flex flex-col gap-3">
+                                    <span className="text-primary font-semibold block mb-2">⚙️ Controles de Operación (48h):</span>
+                                    
+                                    <label className="flex items-center gap-3 cursor-pointer group">
+                                      <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${lead.is_analysis_generated ? 'bg-primary border-primary text-primary-foreground' : 'border-input bg-background group-hover:border-primary/50'}`}>
+                                        {lead.is_analysis_generated && <CheckCircle className="w-3.5 h-3.5" />}
+                                      </div>
+                                      <input 
+                                        type="checkbox" 
+                                        className="hidden" 
+                                        checked={lead.is_analysis_generated} 
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          toggleFlag(lead.id, 'is_analysis_generated', lead.is_analysis_generated);
+                                        }} 
+                                      />
+                                      <span className="text-sm font-medium text-foreground select-none">Análisis Generado por el Coach</span>
+                                    </label>
+
+                                    <label className="flex items-center gap-3 cursor-pointer group">
+                                      <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${lead.is_analysis_sent ? 'bg-primary border-primary text-primary-foreground' : 'border-input bg-background group-hover:border-primary/50'}`}>
+                                        {lead.is_analysis_sent && <CheckCircle className="w-3.5 h-3.5" />}
+                                      </div>
+                                      <input 
+                                        type="checkbox" 
+                                        className="hidden" 
+                                        checked={lead.is_analysis_sent} 
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          toggleFlag(lead.id, 'is_analysis_sent', lead.is_analysis_sent);
+                                        }} 
+                                      />
+                                      <span className="text-sm font-medium text-foreground select-none">Análisis Enviado al Prospecto</span>
+                                    </label>
                                   </li>
                                 </ul>
                               ) : (

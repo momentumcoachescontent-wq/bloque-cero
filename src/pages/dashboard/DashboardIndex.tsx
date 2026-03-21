@@ -99,6 +99,15 @@ const DashboardIndex = () => {
           </div>
         ) : (
           <div className="space-y-6">
+            <div className="bg-muted/10 border border-border/50 rounded-2xl p-6 shadow-sm">
+              <h3 className="text-sm font-bold uppercase tracking-wide text-primary flex items-center gap-2 mb-3">
+                <Target className="w-4 h-4" /> Idea Evaluada
+              </h3>
+              <p className="text-foreground/90 italic leading-relaxed text-lg">
+                "{lead.diagnostic_answers?.n8n_payload?.business_profile?.business_idea || 'Idea no disponible para este análisis histórico'}"
+              </p>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Score principal */}
               <div className={`rounded-2xl border p-6 flex flex-col items-center justify-center text-center ${SCORE_BG(lead.score || 0)}`}>

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, CheckCircle, Loader2, AlertTriangle, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, Loader2, AlertTriangle, Zap, Target } from "lucide-react";
 
 type LeadInsert = Database["public"]["Tables"]["leads"]["Insert"];
 
@@ -242,6 +242,15 @@ const DiagnosticForm = () => {
   if (result) {
     return (
       <div className="space-y-6 py-2">
+        <div className="bg-muted/10 border border-border/50 rounded-2xl p-6 shadow-sm">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-primary flex items-center gap-2 mb-3">
+            <Target className="w-4 h-4" /> Idea Evaluada
+          </h3>
+          <p className="text-foreground/90 italic leading-relaxed text-lg">
+            "{form.businessIdea || 'No disponible'}"
+          </p>
+        </div>
+
         {/* Score principal */}
         <div className={`rounded-2xl border p-5 text-center ${SCORE_BG(result.viability_score)}`}>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
@@ -255,7 +264,51 @@ const DiagnosticForm = () => {
             Complejidad: <span className="font-semibold text-foreground capitalize">{result.complexity_level}</span>
             {" · "}Riesgo regulatorio: <span className="font-semibold text-foreground capitalize">{result.regulatory_risk}</span>
           </p>
+          {result.verdict && (
+            <div className="mt-4 px-4 py-2 bg-primary/10 text-primary rounded-xl text-sm font-bold border border-primary/20 inline-block">
+              Veredicto: {result.verdict}
+            </div>
+          )}
         </div>
+
+        {/* BIG 6 METRICS */}
+        {result.big6 && (
+          <div className="mt-8">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary" />
+              Evaluación de Ejes Estratégicos (Big 6)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {result.big6.map((metric: any, idx: number) => (
+                <div key={idx} className="bg-muted/10 border border-border/50 rounded-xl p-4 flex flex-col justify-between hover:border-primary/30 transition-colors">
+                  <div>
+                    <div className="flex justify-between items-start mb-2">
+                      <p className="text-sm font-bold text-foreground leading-tight">{metric.name}</p>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                        metric.signal === 'Alto' ? 'bg-green-500/10 text-green-500' :
+                        metric.signal === 'Medio' ? 'bg-yellow-500/10 text-yellow-500' :
+                        'bg-red-500/10 text-red-500'
+                      }`}>
+                        {metric.signal}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+                      {metric.rationale}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between mt-auto">
+                    <span className="text-xs text-muted-foreground/70 font-medium tracking-wide">PUNTUACIÓN</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <div key={star} className={`w-2 h-2 rounded-full ${star <= metric.score ? 'bg-primary' : 'bg-muted-foreground/20'}`} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Bloque recomendado */}
         <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5">
@@ -297,7 +350,7 @@ const DiagnosticForm = () => {
         )}
 
         <p className="text-xs text-muted-foreground text-center">
-          Te contactaremos en las próximas 24h al correo <span className="font-medium text-foreground">{form.email}</span>
+          Te contactaremos en las próximas 48h al correo <span className="font-medium text-foreground">{form.email}</span>
           {form.whatsapp && <> y WhatsApp <span className="font-medium text-foreground">{form.whatsapp}</span></>}
         </p>
 
