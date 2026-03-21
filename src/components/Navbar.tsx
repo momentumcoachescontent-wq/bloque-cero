@@ -25,7 +25,7 @@ const Navbar = () => {
           {!isLoading && (
             session ? (
               <div className="flex items-center gap-2">
-                <a href={profile?.role === "admin" ? "/admin" : "/dashboard"}>
+                <a href="/dashboard">
                   <Button size="sm" variant="outline" className="rounded-full px-5 font-medium gap-2 hover:bg-muted transition-colors">
                     <User className="w-3.5 h-3.5" />
                     {profile?.full_name?.split(" ")[0] || "Mi Panel"}

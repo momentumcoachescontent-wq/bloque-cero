@@ -8,6 +8,10 @@ import {
   User,
   LogOut,
   Lock,
+  FileText,
+  Rocket,
+  Settings,
+  Brain,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -18,29 +22,43 @@ const Sidebar = () => {
   const blocks = [
     {
       id: "freemium",
-      label: "Radar de Idea",
+      label: "1. Radar de Idea",
       icon: Target,
       path: "/dashboard",
       isLocked: false,
     },
     {
       id: "blueprint",
-      label: "Blueprint Operativo",
-      icon: LayoutDashboard,
+      label: "2. Blueprint Operativo",
+      icon: FileText,
       path: "/dashboard/blueprint",
-      isLocked: !isPremium && !isAdmin, // Reemplazar lógica con DB status en el futuro
+      isLocked: !isPremium && !isAdmin,
+    },
+    {
+      id: "mvp",
+      label: "3. MVP de Validación",
+      icon: Rocket,
+      path: "/dashboard/mvp",
+      isLocked: !isPremium && !isAdmin,
+    },
+    {
+      id: "kit",
+      label: "4. Kit Operacional",
+      icon: Settings,
+      path: "/dashboard/kit-operacional",
+      isLocked: !isPremium && !isAdmin,
     },
     {
       id: "automas",
-      label: "Automatizaciones",
+      label: "5. Automatización Inicial",
       icon: Workflow,
       path: "/dashboard/automatizaciones",
       isLocked: !isPremium && !isAdmin,
     },
     {
       id: "ia",
-      label: "Agentes IA",
-      icon: Sparkles,
+      label: "6. Operación IA",
+      icon: Brain,
       path: "/dashboard/agentes-ia",
       isLocked: !isPremium && !isAdmin,
     },
