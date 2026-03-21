@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Users, Target, Zap, Activity } from "lucide-react";
 
@@ -9,6 +9,7 @@ const AdminIndex = () => {
     avgScore: 0,
   });
   const [leadsList, setLeadsList] = useState<any[]>([]);
+  const [expandedLead, setExpandedLead] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -101,32 +102,114 @@ const AdminIndex = () => {
                 </tr>
               ) : (
                 leadsList.map((lead: any) => (
-                  <tr key={lead.id} className="border-b border-border/30 hover:bg-muted/10 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="font-bold text-foreground">{lead.name}</p>
-                      <p className="text-muted-foreground">{lead.email}</p>
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground">
-                      {lead.whatsapp && <p>WA: {lead.whatsapp}</p>}
-                      <p className="capitalize text-xs mt-1 px-2 py-0.5 bg-muted rounded-full inline-block">
-                        Status: {lead.status}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className={`inline-flex items-center justify-center w-12 h-12 rounded-full font-black text-lg ${
-                        (lead.score || 0) >= 75 ? "bg-green-500/10 text-green-500" :
-                        (lead.score || 0) >= 50 ? "bg-yellow-500/10 text-yellow-500" :
-                        "bg-red-500/10 text-red-500"
-                      }`}>
-                        {lead.score || 0}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right text-muted-foreground">
-                      {new Date(lead.created_at).toLocaleDateString('es-MX', {
-                        year: 'numeric', month: 'short', day: 'numeric'
-                      })}
-                    </td>
-                  </tr>
+                  <React.Fragment key={lead.id}>
+                    <tr 
+                      className="border-b border-border/30 hover:bg-muted/10 transition-colors cursor-pointer"
+                      onClick={() => setExpandedLead(expandedLead === lead.id ? null : lead.id)}
+                    >
+                      <td className="px-6 py-4">
+                        <p className="font-bold text-foreground">{lead.name}</p>
+                        <p className="text-muted-foreground">{lead.email}</p>
+                      </td>
+                      <td className="px-6 py-4 text-muted-foreground">
+                        {lead.whatsapp && <p>WA: {lead.whatsapp}</p>}
+                        <p className="capitalize text-xs mt-1 px-2 py-0.5 bg-muted rounded-full inline-block">
+                          Status: {lead.status}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`inline-flex items-center justify-center w-12 h-12 rounded-full font-black text-lg ${
+                          (lead.score || 0) >= 75 ? "bg-green-500/10 text-green-500" :
+                          (lead.score || 0) >= 50 ? "bg-yellow-500/10 text-yellow-500" :
+                          "bg-red-500/10 text-red-500"
+                        }`}>
+                          {lead.score || 0}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right text-muted-foreground flex flex-col items-end gap-1">
+                        <span>{new Date(lead.created_at).toLocaleDateString('es-MX', {
+                          year: 'numeric', month: 'short', day: 'numeric'
+                        })}</span>
+                        <span className="text-xs text-primary font-medium flex items-center gap-1 opacity-70">
+                          {expandedLead === lead.id ? "Ocultar Detalles ▲" : "Ver Detalles ▼"}
+                        </span>
+                      </td>
+                    </tr>
+                    
+                    {/* Fila expandida con detalles completos */}
+                    {expandedLead === lead.id && (
+                      <tr className="bg-muted/5 border-b border-border/50">
+                        <td colSpan={4} className="px-6 py-8">
+                          
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            
+                            {/* Inputs del Usuario */}
+                            <div>
+                              <h4 className="text-sm font-bold uppercase tracking-wide text-muted-foreground border-b border-border pb-2 mb-4">
+                                Datos Originales Ingresados (Inputs)
+                              </h4>
+                              {lead.diagnostic_answers?.n8n_payload?.business_profile ? (
+                                <ul className="space-y-3 text-sm">
+                                  <li><span className="text-muted-foreground">País:</span> <span className="font-medium text-foreground">{lead.diagnostic_answers.n8n_payload.country}</span></li>
+                                  <li><span className="text-muted-foreground">Tipo de Negocio:</span> <span className="font-medium text-foreground capitalize">{lead.diagnostic_answers.n8n_payload.business_profile.type}</span></li>
+                                  <li><span className="text-muted-foreground">Audiencia:</span> <span className="font-medium text-foreground uppercase">{lead.diagnostic_answers.n8n_payload.business_profile.audience}</span></li>
+                                  <li><span className="text-muted-foreground">Canal de Venta:</span> <span className="font-medium text-foreground capitalize">{lead.diagnostic_answers.n8n_payload.business_profile.channel}</span></li>
+                                  <li><span className="text-muted-foreground">Ticket Estimado:</span> <span className="font-medium text-foreground capitalize">{lead.diagnostic_answers.n8n_payload.business_profile.ticket}</span></li>
+                                  <li><span className="text-muted-foreground">Etapa Actual:</span> <span className="font-medium text-foreground capitalize">{lead.diagnostic_answers.n8n_payload.business_profile.etapa}</span></li>
+                                  
+                                  <li className="pt-2"><span className="text-muted-foreground block mb-1">Idea de Negocio (Abierta):</span>
+                                    <p className="p-3 bg-background rounded-xl border border-border/50 text-foreground/80 italic">
+                                      "{lead.diagnostic_answers.n8n_payload.business_profile.business_idea}"
+                                    </p>
+                                  </li>
+                                </ul>
+                              ) : (
+                                <p className="text-sm text-muted-foreground italic">No hay detalles de inputs resguardados.</p>
+                              )}
+                            </div>
+
+                            {/* Outputs del Scoring */}
+                            <div>
+                              <h4 className="text-sm font-bold uppercase tracking-wide text-muted-foreground border-b border-border pb-2 mb-4">
+                                Análisis de Viabilidad (Output)
+                              </h4>
+                              
+                              <div className="flex gap-4 mb-4">
+                                <span className="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-bold">
+                                  Recomienda: {lead.diagnostic_answers?.recommended_block || "N/A"}
+                                </span>
+                                {lead.diagnostic_answers?.verdict && (
+                                  <span className="px-3 py-1 bg-background border border-border rounded-lg text-xs font-bold text-foreground">
+                                    Veredicto: {lead.diagnostic_answers.verdict}
+                                  </span>
+                                )}
+                              </div>
+
+                              {lead.diagnostic_answers?.big6 && (
+                                <div className="space-y-3 mt-4">
+                                  {lead.diagnostic_answers.big6.map((m: any, idx: number) => (
+                                    <div key={idx} className="flex flex-col sm:flex-row gap-2 sm:items-start text-sm p-3 bg-background rounded-xl border border-border/50">
+                                      <div className="flex items-center gap-2 min-w-[200px]">
+                                        <div className={`w-2 h-2 rounded-full ${
+                                            m.signal === 'Alto' ? 'bg-green-500' :
+                                            m.signal === 'Medio' ? 'bg-yellow-500' :
+                                            'bg-red-500'
+                                          }`} />
+                                        <span className="font-bold text-foreground">{m.name}</span>
+                                        <span className="text-xs text-muted-foreground">({m.score}/5)</span>
+                                      </div>
+                                      <span className="text-muted-foreground text-xs align-top leading-relaxed">{m.rationale}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))
               )}
             </tbody>

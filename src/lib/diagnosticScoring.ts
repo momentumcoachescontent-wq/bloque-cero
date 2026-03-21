@@ -49,11 +49,25 @@ export interface BusinessProfile {
   tiempo: TiempoDisponible;
 }
 
+export interface Big6Indicator {
+  name: string;
+  score: number; // 1 to 5
+  signal: "Alto" | "Medio" | "Bajo";
+  rationale: string;
+}
+
+export type FinalVerdict = "Avanzar" | "Avanzar con nicho" | "Pivotear" | "No priorizar";
+
 export interface ScoringResult {
   viability_score: number;           // 0-100
   complexity_level: "baja" | "media" | "alta";
   digital_readiness_required: "baja" | "media" | "alta";
   regulatory_risk: "bajo" | "medio" | "alto";
+  
+  // Big 6 Framework
+  big6: Big6Indicator[];
+  verdict: FinalVerdict;
+  
   recommended_block: string;
   recommended_block_num: number;
   rationale: string;
@@ -211,7 +225,78 @@ export function scoreBusinessProfile(profile: BusinessProfile): ScoringResult {
 
   const viabilityScore = Math.round(Math.max(10, Math.min(98, rawScore * 100)));
 
-  // ── 6. Dimensiones cualitativas ───────────────────────────────
+  // ── 6. BIG 6 FRAMEWORK (McKinsey/BCG style) ───────────────────
+  
+  // 1. Potencial de Demanda
+  const demandScoreValue = scaleScore(marketSizeIndex + (profile.etapa === "escalando" ? 0.2 : 0) + (profile.audience === "b2b" ? 0.1 : 0));
+  const demandScore = Math.min(5, Math.max(1, Math.round((demandScoreValue / 100) * 4) + 1));
+  const demandSignal = demandScore >= 4 ? "Alto" : demandScore === 3 ? "Medio" : "Bajo";
+  const demandRationale = demandScore >= 4 
+    ? `El tamaño del mercado en ${country.name} y tu enfoque ${profile.audience} sugieren una oportunidad expansiva sólida.`
+    : `Oportunidad de volumen limitada en ${country.name}; el nicho de demanda debe ser extremadamente preciso.`;
+
+  // 2. Capacidad de Monetización
+  const monetizationScoreValue = scaleScore((country.gdpPerCapita / 20000) + ticketMod[profile.ticket] + (profile.audience === "b2b" ? 0.2 : 0));
+  const monetizationScore = Math.min(5, Math.max(1, Math.round((monetizationScoreValue / 100) * 4) + 1));
+  const monetizationSignal = monetizationScore >= 4 ? "Alto" : monetizationScore === 3 ? "Medio" : "Bajo";
+  const monetizationRationale = monetizationScore >= 4
+    ? `El poder adquisitivo local soporta tu ticket ${profile.ticket}, indicando alta disposición a pagar en el segmento.`
+    : `Fricción de precio detectada: el ticket ${profile.ticket} enfrentará resistencia frente al GDP per cápita de ${country.name}.`;
+
+  // 3. Intensidad Competitiva / Saturación
+  const competitionScoreValue = scaleScore(country.informalEconomy + (bizType.digitalDependency > 0.8 ? 0.2 : 0));
+  const competitionScore = Math.min(5, Math.max(1, Math.round(((100 - competitionScoreValue) / 100) * 4) + 1)); // Invertido: menos inf/sat = mejor score
+  const competitionSignal = competitionScore >= 4 ? "Alto" : competitionScore === 3 ? "Medio" : "Bajo";
+  const competitionRationale = competitionScore >= 4
+    ? `Baja saturación detectada. El mercado para ${profile.type} tiene un océano azul razonable disponible.`
+    : `Entorno denso: alta penetración u oferta informal significa que la diferenciación será tú única barrera de defensa.`;
+
+  // 4. Rentabilidad Potencial (Economía Unitaria)
+  const profitabilityScoreValue = scaleScore(bizType.scalabilityIndex - logisticsPenalty + ticketMod[profile.ticket]);
+  const profitabilityScore = Math.min(5, Math.max(1, Math.round((profitabilityScoreValue / 100) * 4) + 1));
+  const profitabilitySignal = profitabilityScore >= 4 ? "Alto" : profitabilityScore === 3 ? "Medio" : "Bajo";
+  const profitabilityRationale = profitabilityScore >= 4
+    ? `Estructura de costos ligera. Escalar este modelo (${profile.type}) no destruirá tus márgenes operacionales.`
+    : `Presión sobre unit economics debido a dependencia física o escalabilidad limitada intrínseca.`;
+
+  // 5. Riesgo de Entrada y Operación
+  const riskScoreValue = scaleScore(1 - (regulatoryIndex - (profile.needs_special_payments ? 0.2 : 0) - logisticsPenalty));
+  const riskScore = Math.min(5, Math.max(1, Math.round((riskScoreValue / 100) * 4) + 1)); 
+  const riskSignal = riskScore >= 4 ? "Bajo" : riskScore === 3 ? "Medio" : "Alto"; // Ojo, señal invertida para riesgo
+  const riskRationale = riskScore >= 4
+    ? `Barreras operativas limpias. Ejecución sin frenos regulatorios o dependencias de infraestructura pesada.`
+    : `Alerta: licencias especiales, logística rígida o regulaciones financieras aumentan significativamente el costo de entrada.`;
+
+  // 6. Readiness del Mercado / Facilidad de Adopción
+  const readinessScoreValue = scaleScore(digitalReadinessIndex);
+  const readinessScore = Math.min(5, Math.max(1, Math.round((readinessScoreValue / 100) * 4) + 1));
+  const readinessSignal = readinessScore >= 4 ? "Alto" : readinessScore === 3 ? "Medio" : "Bajo";
+  const readinessRationale = readinessScore >= 4
+    ? `La madurez digital de ${country.name} está alineada con la fricción tecnológica de tu modelo.`
+    : `La alfabetización o infraestructura digital del cliente promedio exigirá un onboarding largo y costoso.`;
+
+  const big6: Big6Indicator[] = [
+    { name: "Potencial de Demanda", score: demandScore, signal: demandSignal, rationale: demandRationale },
+    { name: "Capacidad de Monetización", score: monetizationScore, signal: monetizationSignal, rationale: monetizationRationale },
+    { name: "Saturación Competitiva", score: competitionScore, signal: competitionSignal, rationale: competitionRationale },
+    { name: "Rentabilidad Potencial", score: profitabilityScore, signal: profitabilitySignal, rationale: profitabilityRationale },
+    { name: "Riesgo de Entrada", score: riskScore, signal: riskSignal, rationale: riskRationale },
+    { name: "Facilidad de Adopción", score: readinessScore, signal: readinessSignal, rationale: readinessRationale }
+  ];
+
+  // ── 7. Veredicto Final ────────────────────────────────────────
+  let verdict: FinalVerdict;
+  if (demandScore >= 4 && monetizationScore >= 3 && riskScore >= 3) {
+    verdict = "Avanzar";
+  } else if (demandScore >= 3 && competitionScore <= 2) {
+    verdict = "Avanzar con nicho";
+  } else if (demandScore >= 3 && (monetizationScore <= 2 || readinessScore <= 2)) {
+    verdict = "Pivotear";
+  } else {
+    verdict = "No priorizar";
+  }
+
+  // ── 8. Dimensiones cualitativas legacy ───────────────────────
   const complexityLevel: ScoringResult["complexity_level"] =
     bizType.regulatoryBurden > 0.6 || logisticsPenalty > 0 ? "alta" :
     bizType.digitalDependency > 0.7 && country.digitalReadiness < 0.55 ? "media" : "baja";
@@ -224,7 +309,7 @@ export function scoreBusinessProfile(profile: BusinessProfile): ScoringResult {
     bizType.regulatoryBurden > 0.6 || profile.needs_special_payments ? "alto" :
     bizType.regulatoryBurden > 0.35 ? "medio" : "bajo";
 
-  // ── 7. Bloque recomendado ─────────────────────────────────────
+  // ── 9. Bloque recomendado ─────────────────────────────────────
   let recommendedBlock: string;
   let recommendedBlockNum: number;
   let rationale: string;
@@ -257,7 +342,7 @@ export function scoreBusinessProfile(profile: BusinessProfile): ScoringResult {
     rationale = `Empecemos por validar que la idea tiene demanda real en ${country.name} antes de invertir recursos.`;
   }
 
-  // ── 8. Riesgos y Quick Wins ───────────────────────────────────
+  // ── 10. Riesgos y Quick Wins ───────────────────────────────────
   const keyRisks: string[] = [];
   const quickWins: string[] = [];
 
@@ -283,7 +368,7 @@ export function scoreBusinessProfile(profile: BusinessProfile): ScoringResult {
   if (profile.dolores.includes("sin_ventas"))
     quickWins.push("Definir 1 canal de adquisición principal y medir CAC esta semana.");
 
-  // ── 9. Payload n8n/IA (Fase 3) ────────────────────────────────
+  // ── 11. Payload n8n/IA (Fase 3) ────────────────────────────────
   const logisticsDep = ({ ecommerce: "alta", logistica: "alta", servicio_local: "media" } as Record<string, "ninguna" | "baja" | "media" | "alta">)[profile.type] ?? (profile.needs_logistics ? "media" : "ninguna");
   const paymentsDep: "baja" | "media" | "alta" = profile.needs_special_payments ? "alta" : (profile.type === "fintech" ? "alta" : "baja");
   const regSensitivity: "baja" | "media" | "alta" = regulatoryRisk === "alto" ? "alta" : regulatoryRisk === "medio" ? "media" : "baja";
@@ -317,6 +402,8 @@ export function scoreBusinessProfile(profile: BusinessProfile): ScoringResult {
     complexity_level: complexityLevel,
     digital_readiness_required: digitalReadinessRequired,
     regulatory_risk: regulatoryRisk,
+    big6,
+    verdict,
     recommended_block: recommendedBlock,
     recommended_block_num: recommendedBlockNum,
     rationale,
