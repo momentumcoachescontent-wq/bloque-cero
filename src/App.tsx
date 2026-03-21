@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
@@ -110,6 +111,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
         <Analytics />
+        <SpeedInsights />
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
