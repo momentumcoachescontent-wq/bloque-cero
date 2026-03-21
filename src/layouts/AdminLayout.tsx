@@ -14,7 +14,25 @@ const AdminLayout = () => {
     );
   }
 
-  if (!session || !profile || !isAdmin) {
+  if (!session) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center space-y-4 text-center px-4">
+        <h2 className="text-xl font-bold text-destructive">Error cargando perfil Admin</h2>
+        <p className="text-muted-foreground text-sm max-w-md">
+          Tu sesión está iniciada pero no pudimos recuperar tu información de perfil.
+        </p>
+        <Button onClick={() => window.location.reload()}>
+          Reintentar conexión
+        </Button>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
     return <Navigate to="/dashboard" replace />;
   }
 

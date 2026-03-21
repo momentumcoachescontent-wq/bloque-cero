@@ -14,8 +14,26 @@ const DashboardLayout = () => {
     );
   }
 
-  if (!session || !profile) {
+  if (!session) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center space-y-4 text-center px-4">
+        <h2 className="text-xl font-bold text-destructive">Error cargando perfil</h2>
+        <p className="text-muted-foreground text-sm max-w-md">
+          Tu sesión está iniciada pero no pudimos recuperar tu información de perfil. 
+          Esto suele ser un error en la base de datos (Ej. Políticas de RLS recursivas).
+        </p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium"
+        >
+          Reintentar conexión
+        </button>
+      </div>
+    );
   }
 
   return (
