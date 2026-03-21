@@ -37,35 +37,57 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-
-    if (!error && data) setProfile(data);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+        
+      if (!error && data) {
+        setProfile(data);
+      } else {
+        console.error("Error al cargar perfil (probablemente RLS o sin perfil):", error);
+        setProfile(null);
+      }
+    } catch (err) {
+      console.error("Excepción al cargar perfil:", err);
+    }
   };
 
   useEffect(() => {
     // Obtener sesión inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const initAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
       setSession(session);
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      
+      if (session?.user) {
+        await fetchProfile(session.user.id);
+      }
+      
       setIsLoading(false);
-    });
+    };
+
+    initAuth();
 
     // Escuchar cambios de auth
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      // Si estamos cargando inicialmente, no interrumpir con el evento
+      setIsLoading(true);
+      
       setSession(session);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
-        fetchProfile(session.user.id);
+        await fetchProfile(session.user.id);
       } else {
         setProfile(null);
       }
+      
       setIsLoading(false);
     });
 
