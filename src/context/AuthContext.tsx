@@ -58,29 +58,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    // Supabase emitirá automáticamente INITIAL_SESSION cuando nos suscribimos
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-      
-      setIsLoading(true);
-      
+    // 1. Función clásica para inicializar la sesión de forma garantizada
+    const initializeAuth = async () => {
       try {
-        setSession(session);
-        setUser(session?.user ?? null);
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
+        if (error) {
+          console.error("Supabase getSession error:", error);
         }
-      } catch (e) {
-        console.error("Error en auth state change:", e);
+        
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          }
+        }
+      } catch (err) {
+        console.error("Error global en inicialización de Auth:", err);
       } finally {
         if (mounted) setIsLoading(false);
       }
-    });
+    };
+
+    initializeAuth();
+
+    // 2. Suscriptor de eventos para cuando el usuario entra/sale (ej. verifyOtp)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, currentSession) => {
+        if (!mounted) return;
+        
+        // Ignoramos INITIAL_SESSION para que no interfiera con initializeAuth
+        if (event === 'INITIAL_SESSION') return;
+
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+
+        if (currentSession?.user) {
+          // Fire and forget para no crear cuellos de botella ("Verificando" congelado)
+          fetchProfile(currentSession.user.id);
+        } else {
+          setProfile(null);
+        }
+      }
+    );
 
     return () => {
       mounted = false;
