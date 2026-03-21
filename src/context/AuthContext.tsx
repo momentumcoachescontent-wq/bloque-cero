@@ -15,6 +15,7 @@ interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   isAdmin: boolean;
+  isPremium: boolean;
   isLoading: boolean;
   signOut: () => Promise<void>;
 }
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
   isAdmin: false,
+  isPremium: false,
   isLoading: true,
   signOut: async () => {},
 });
@@ -82,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         profile,
         isAdmin: profile?.role === "admin",
+        isPremium: profile?.is_premium === true,
         isLoading,
         signOut,
       }}
