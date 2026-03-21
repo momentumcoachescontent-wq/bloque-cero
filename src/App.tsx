@@ -5,8 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
@@ -71,6 +69,32 @@ const App = () => (
                   ]}
                 />
               } />
+              <Route path="/dashboard/mvp" element={
+                <PremiumBlock 
+                  title="MVP de Validación" 
+                  description="Construcción ágil de tu Producto Mínimo Viable para salir al mercado rápido."
+                  priceTag="Sprint"
+                  features={[
+                    "Desarrollo No-Code/Low-Code",
+                    "Validación técnica y comercial",
+                    "Lanzamiento en semanas, no meses",
+                    "Reducción drástica de riesgo financiero"
+                  ]}
+                />
+              } />
+              <Route path="/dashboard/kit-operacional" element={
+                <PremiumBlock 
+                  title="Kit Operacional" 
+                  description="Herramientas y sistemas core para estabilizar tu flujo de trabajo."
+                  priceTag="OTC"
+                  features={[
+                    "Setup de CRM y bases de datos",
+                    "Estructuración de herramientas de equipo",
+                    "Definición de KPIs base",
+                    "Preparación para automatización avanzada"
+                  ]}
+                />
+              } />
               <Route path="/dashboard/automatizaciones" element={
                 <PremiumBlock 
                   title="Automatizaciones Base" 
@@ -110,8 +134,6 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-        <Analytics />
-        <SpeedInsights />
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
-import { Target, AlertTriangle, Zap, CheckCircle } from "lucide-react";
+import { Target, AlertTriangle, Zap, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 // --- Helpers para el score visual ---
 const SCORE_COLOR = (s: number) =>
@@ -15,33 +17,61 @@ const DashboardIndex = () => {
   const [lead, setLead] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadUserDiagnostic() {
-      if (!profile?.email) return;
+  const loadUserDiagnostic = async () => {
+    if (!profile?.email) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("leads")
+      .select("*")
+      .eq("email", profile.email)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
       
-      const { data, error } = await supabase
-        .from("leads")
-        .select("*")
-        .eq("email", profile.email)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
-        
-      if (!error && data) {
-        setLead(data);
-      }
-      setLoading(false);
+    if (!error && data) {
+      setLead(data);
+    } else {
+      setLead(null);
     }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     loadUserDiagnostic();
   }, [profile]);
 
+  const handleDelete = async () => {
+    if (!lead?.id) return;
+    if (!confirm("¿Estás seguro de que deseas eliminar este análisis? Esto no se puede deshacer.")) return;
+
+    try {
+      const { error } = await supabase
+        .from("leads")
+        .delete()
+        .eq("id", lead.id);
+
+      if (error) throw error;
+      toast.success("Análisis eliminado correctamente");
+      setLead(null);
+    } catch (error: any) {
+      toast.error("Error al eliminar el análisis: " + error.message);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Bienvenido, {profile?.full_name?.split(" ")[0] || "Emprendedor"}</h1>
-        <p className="text-muted-foreground mt-1">
-          Aquí podrás consultar y gestionar tus análisis y diagnóstico.
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Bienvenido, {profile?.full_name?.split(" ")[0] || "Emprendedor"}</h1>
+          <p className="text-muted-foreground mt-1">
+            Aquí podrás consultar y gestionar tus análisis y diagnóstico.
+          </p>
+        </div>
+        {lead && (
+          <Button variant="destructive" size="sm" onClick={handleDelete} className="flex items-center gap-2">
+            <Trash2 className="w-4 h-4" /> Eliminar Análisis
+          </Button>
+        )}
       </div>
 
       {/* Tarjeta del Freemium: Histórico de Diagnóstico */}

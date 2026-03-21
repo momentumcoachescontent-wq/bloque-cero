@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Target, Zap, Activity } from "lucide-react";
+import { Users, Target, Zap, Activity, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 const AdminIndex = () => {
   const [stats, setStats] = useState({
@@ -12,31 +13,45 @@ const AdminIndex = () => {
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadStats() {
-      // Para efectos del MVP, sacamos conteos brutos. En Fase >3 usaremos una RPC analítica.
-      const [leadsRes, profilesRes, leadsDataRes] = await Promise.all([
-        supabase.from("leads").select("score", { count: "exact" }),
-        supabase.from("profiles").select("id", { count: "exact" }),
-        supabase.from("leads").select("*").order("created_at", { ascending: false })
-      ]);
+  const loadStats = async () => {
+    // Para efectos del MVP, sacamos conteos brutos. En Fase >3 usaremos una RPC analítica.
+    const [leadsRes, profilesRes, leadsDataRes] = await Promise.all([
+      supabase.from("leads").select("score", { count: "exact" }),
+      supabase.from("profiles").select("id", { count: "exact" }),
+      supabase.from("leads").select("*").order("created_at", { ascending: false })
+    ]);
 
-      let avg = 0;
-      if (leadsRes.data && leadsRes.data.length > 0) {
-        const totalScore = leadsRes.data.reduce((acc, curr) => acc + (curr.score || 0), 0);
-        avg = Math.round(totalScore / leadsRes.data.length);
-      }
-
-      setStats({
-        totalLeads: leadsRes.count || 0,
-        totalProfiles: profilesRes.count || 0,
-        avgScore: avg,
-      });
-      setLeadsList(leadsDataRes.data || []);
-      setLoading(false);
+    let avg = 0;
+    if (leadsRes.data && leadsRes.data.length > 0) {
+      const totalScore = leadsRes.data.reduce((acc, curr) => acc + (curr.score || 0), 0);
+      avg = Math.round(totalScore / leadsRes.data.length);
     }
+
+    setStats({
+      totalLeads: leadsRes.count || 0,
+      totalProfiles: profilesRes.count || 0,
+      avgScore: avg,
+    });
+    setLeadsList(leadsDataRes.data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
     loadStats();
   }, []);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar este prospecto y su análisis? Esto no se puede deshacer.")) return;
+    try {
+      const { error } = await supabase.from("leads").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Prospecto eliminado correctamente.");
+      setExpandedLead(null);
+      loadStats();
+    } catch (error: any) {
+      toast.error("Error al eliminar: " + error.message);
+    }
+  };
 
   const metricCards = [
     { title: "Diagnósticos (Leads)", value: stats.totalLeads, icon: Target, color: "text-blue-500", bg: "bg-blue-500/10" },
@@ -128,79 +143,123 @@ const AdminIndex = () => {
                       </td>
                       <td className="px-6 py-4 text-right text-muted-foreground flex flex-col items-end gap-1">
                         <span>{new Date(lead.created_at).toLocaleDateString('es-MX', {
-                          year: 'numeric', month: 'short', day: 'numeric'
+                          year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                         })}</span>
                         <span className="text-xs text-primary font-medium flex items-center gap-1 opacity-70">
-                          {expandedLead === lead.id ? "Ocultar Detalles ▲" : "Ver Detalles ▼"}
+                          {expandedLead === lead.id ? "Ocultar Evaluación ▲" : "Ver Evaluación a 48H ▼"}
                         </span>
                       </td>
                     </tr>
                     
                     {/* Fila expandida con detalles completos */}
                     {expandedLead === lead.id && (
-                      <tr className="bg-muted/5 border-b border-border/50">
+                      <tr className="bg-muted/5 border-b border-border/50 shadow-inner">
                         <td colSpan={4} className="px-6 py-8">
                           
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                          <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                              <Target className="w-5 h-5 text-primary" />
+                              Panel de Análisis de Emprendedor 
+                            </h3>
+                            <button 
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                await handleDelete(lead.id);
+                              }}
+                              className="text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
+                            >
+                              <Trash2 className="w-4 h-4 cursor-pointer" />
+                              Eliminar Prospecto
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                             
                             {/* Inputs del Usuario */}
-                            <div>
-                              <h4 className="text-sm font-bold uppercase tracking-wide text-muted-foreground border-b border-border pb-2 mb-4">
-                                Datos Originales Ingresados (Inputs)
+                            <div className="bg-background rounded-2xl p-6 border border-border/50 shadow-sm">
+                              <h4 className="text-sm font-bold uppercase tracking-wide text-primary border-b border-border/50 pb-3 mb-4 flex items-center gap-2">
+                                <Users className="w-4 h-4" /> 1. Parámetros Ingresados (Inputs)
                               </h4>
                               {lead.diagnostic_answers?.n8n_payload?.business_profile ? (
-                                <ul className="space-y-3 text-sm">
-                                  <li><span className="text-muted-foreground">País:</span> <span className="font-medium text-foreground">{lead.diagnostic_answers.n8n_payload.country}</span></li>
-                                  <li><span className="text-muted-foreground">Tipo de Negocio:</span> <span className="font-medium text-foreground capitalize">{lead.diagnostic_answers.n8n_payload.business_profile.type}</span></li>
-                                  <li><span className="text-muted-foreground">Audiencia:</span> <span className="font-medium text-foreground uppercase">{lead.diagnostic_answers.n8n_payload.business_profile.audience}</span></li>
-                                  <li><span className="text-muted-foreground">Canal de Venta:</span> <span className="font-medium text-foreground capitalize">{lead.diagnostic_answers.n8n_payload.business_profile.channel}</span></li>
-                                  <li><span className="text-muted-foreground">Ticket Estimado:</span> <span className="font-medium text-foreground capitalize">{lead.diagnostic_answers.n8n_payload.business_profile.ticket}</span></li>
-                                  <li><span className="text-muted-foreground">Etapa Actual:</span> <span className="font-medium text-foreground capitalize">{lead.diagnostic_answers.n8n_payload.business_profile.etapa}</span></li>
+                                <ul className="space-y-4 text-sm">
+                                  <li className="grid grid-cols-3 gap-2 border-b border-border/20 pb-2">
+                                    <span className="text-muted-foreground col-span-1">País:</span> 
+                                    <span className="font-medium text-foreground col-span-2">{lead.diagnostic_answers.n8n_payload.country}</span>
+                                  </li>
+                                  <li className="grid grid-cols-3 gap-2 border-b border-border/20 pb-2">
+                                    <span className="text-muted-foreground col-span-1">Tipo de Negocio:</span> 
+                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.type}</span>
+                                  </li>
+                                  <li className="grid grid-cols-3 gap-2 border-b border-border/20 pb-2">
+                                    <span className="text-muted-foreground col-span-1">Audiencia:</span> 
+                                    <span className="font-medium text-foreground uppercase col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.audience}</span>
+                                  </li>
+                                  <li className="grid grid-cols-3 gap-2 border-b border-border/20 pb-2">
+                                    <span className="text-muted-foreground col-span-1">Canal de Venta:</span> 
+                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.channel}</span>
+                                  </li>
+                                  <li className="grid grid-cols-3 gap-2 border-b border-border/20 pb-2">
+                                    <span className="text-muted-foreground col-span-1">Ticket Estimado:</span> 
+                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.ticket}</span>
+                                  </li>
+                                  <li className="grid grid-cols-3 gap-2 pb-2">
+                                    <span className="text-muted-foreground col-span-1">Etapa Actual:</span> 
+                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.etapa}</span>
+                                  </li>
                                   
-                                  <li className="pt-2"><span className="text-muted-foreground block mb-1">Idea de Negocio (Abierta):</span>
-                                    <p className="p-3 bg-background rounded-xl border border-border/50 text-foreground/80 italic">
+                                  <li className="pt-4 mt-4 border-t border-border/50">
+                                    <span className="text-primary font-semibold block mb-2">💡 Idea a Evaluar:</span>
+                                    <p className="p-4 bg-muted/30 rounded-xl border border-border/50 text-foreground/90 italic leading-relaxed">
                                       "{lead.diagnostic_answers.n8n_payload.business_profile.business_idea}"
                                     </p>
                                   </li>
                                 </ul>
                               ) : (
-                                <p className="text-sm text-muted-foreground italic">No hay detalles de inputs resguardados.</p>
+                                <p className="text-sm text-muted-foreground italic">No hay detalles de inputs resguardados para este usuario (Lead antiguo).</p>
                               )}
                             </div>
 
                             {/* Outputs del Scoring */}
-                            <div>
-                              <h4 className="text-sm font-bold uppercase tracking-wide text-muted-foreground border-b border-border pb-2 mb-4">
-                                Análisis de Viabilidad (Output)
+                            <div className="bg-background rounded-2xl p-6 border border-border/50 shadow-sm relative overflow-hidden">
+                              <h4 className="text-sm font-bold uppercase tracking-wide text-primary border-b border-border/50 pb-3 mb-4 flex items-center gap-2">
+                                <Activity className="w-4 h-4" /> 2. Resultado de Evaluación: Métrica Big 6
                               </h4>
                               
-                              <div className="flex gap-4 mb-4">
-                                <span className="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-bold">
+                              <div className="flex gap-4 mb-6">
+                                <span className="px-4 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl text-sm font-bold shadow-sm">
                                   Recomienda: {lead.diagnostic_answers?.recommended_block || "N/A"}
                                 </span>
                                 {lead.diagnostic_answers?.verdict && (
-                                  <span className="px-3 py-1 bg-background border border-border rounded-lg text-xs font-bold text-foreground">
-                                    Veredicto: {lead.diagnostic_answers.verdict}
+                                  <span className="px-4 py-2 bg-background border border-border rounded-xl text-sm font-bold text-foreground shadow-sm">
+                                    Dictamen: {lead.diagnostic_answers.verdict}
                                   </span>
                                 )}
                               </div>
 
-                              {lead.diagnostic_answers?.big6 && (
-                                <div className="space-y-3 mt-4">
+                              {lead.diagnostic_answers?.big6 ? (
+                                <div className="space-y-4">
                                   {lead.diagnostic_answers.big6.map((m: any, idx: number) => (
-                                    <div key={idx} className="flex flex-col sm:flex-row gap-2 sm:items-start text-sm p-3 bg-background rounded-xl border border-border/50">
+                                    <div key={idx} className="flex flex-col sm:flex-row gap-3 sm:items-start text-sm p-4 bg-muted/10 rounded-xl border border-border/50">
                                       <div className="flex items-center gap-2 min-w-[200px]">
-                                        <div className={`w-2 h-2 rounded-full ${
+                                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                                             m.signal === 'Alto' ? 'bg-green-500' :
                                             m.signal === 'Medio' ? 'bg-yellow-500' :
                                             'bg-red-500'
                                           }`} />
-                                        <span className="font-bold text-foreground">{m.name}</span>
-                                        <span className="text-xs text-muted-foreground">({m.score}/5)</span>
+                                        <span className="font-bold text-foreground tracking-tight">{m.name}</span>
+                                        <span className="text-xs font-mono text-muted-foreground bg-background px-1.5 py-0.5 rounded-md border border-border/50">
+                                          {m.score}/5
+                                        </span>
                                       </div>
-                                      <span className="text-muted-foreground text-xs align-top leading-relaxed">{m.rationale}</span>
+                                      <span className="text-muted-foreground text-xs leading-relaxed flex-1 pt-1 sm:pt-0 sm:pl-4 sm:border-l sm:border-border/50">
+                                        {m.rationale}
+                                      </span>
                                     </div>
                                   ))}
+                                </div>
+                              ) : (
+                                <div className="p-4 border border-dashed border-red-500/50 bg-red-500/5 rounded-xl text-red-500/80 text-sm">
+                                  ⚠️ Faltan Respuestas de los Big 6. Este diagnóstico fue generado en una versión anterior al Motor McKinsey/BCG o no completó la sincronización.
                                 </div>
                               )}
                             </div>
