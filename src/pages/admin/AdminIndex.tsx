@@ -254,7 +254,7 @@ const AdminIndex = () => {
                                   <li className="grid grid-cols-1 gap-2 pb-2 mt-4">
                                     <span className="text-muted-foreground font-semibold block mb-1">Dolores Principales:</span> 
                                     <div className="flex flex-wrap gap-2">
-                                      {lead.diagnostic_answers.n8n_payload.business_profile.pain_points.map((pain: string, idx: number) => (
+                                      {(lead.diagnostic_answers.n8n_payload.business_profile.pain_points || []).map((pain: string, idx: number) => (
                                         <span key={idx} className="bg-muted px-2 py-1 rounded-md text-xs font-medium text-foreground/80">{pain}</span>
                                       ))}
                                     </div>
