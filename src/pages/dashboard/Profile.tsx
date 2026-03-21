@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
 
 export default function Profile() {
-  const { session, profile: authProfile } = useAuth();
+  const { session, profile: authProfile, refreshProfile } = useAuth();
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -45,6 +45,7 @@ export default function Profile() {
       toast.error("Hubo un error al actualizar el perfil");
       console.error(error);
     } else {
+      await refreshProfile();
       toast.success("Perfil actualizado correctamente");
     }
   };

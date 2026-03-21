@@ -18,6 +18,7 @@ interface AuthContextType {
   isPremium: boolean;
   isLoading: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -28,6 +29,7 @@ const AuthContext = createContext<AuthContextType>({
   isPremium: false,
   isLoading: true,
   signOut: async () => {},
+  refreshProfile: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -125,6 +127,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isPremium: profile?.is_premium === true,
         isLoading,
         signOut,
+        refreshProfile: async () => {
+          if (user) await fetchProfile(user.id);
+        },
       }}
     >
       {children}

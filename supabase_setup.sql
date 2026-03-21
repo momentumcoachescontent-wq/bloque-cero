@@ -45,3 +45,9 @@ DROP POLICY IF EXISTS "Users can view own projects" ON public.projects;
 CREATE POLICY "Users can view own projects" 
 ON public.projects FOR SELECT 
 USING ( auth.uid() = client_id );
+
+-- 9. Crear política para que usuarios puedan editar sus propios perfiles (Profile Persistence)
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+CREATE POLICY "Users can update own profile" 
+ON public.profiles FOR UPDATE 
+USING ( auth.uid() = id );

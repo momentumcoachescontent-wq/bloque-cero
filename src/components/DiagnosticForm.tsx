@@ -182,10 +182,10 @@ const DiagnosticForm = () => {
       email: form.email.trim().toLowerCase(),
       whatsapp: form.whatsapp.trim() || null,
       diagnostic_answers: {
-        // Perfil completo
-        business_profile: scoring.n8n_payload.business_profile,
-        scores: scoring.n8n_payload.scores,
-        // Detalle
+        n8n_payload: scoring.n8n_payload,
+        big6: scoring.big6,
+        verdict: scoring.verdict,
+        // Detalle adicional
         etapa: form.etapa,
         dolores: form.dolores,
         otro_detalle: form.dolores.includes("otro") ? form.otroDetalle.trim() : null,
