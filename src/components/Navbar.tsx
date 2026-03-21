@@ -14,11 +14,11 @@ const Navbar = () => {
         </a>
 
         <div className="hidden md:flex items-center gap-8">
-          <a href="#servicios" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Servicios
+          <a href="#bloques" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Bloques
           </a>
-          <a href="#metodologia" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Metodología
+          <a href="#casos" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Casos
           </a>
 
           {/* CTA dinámico: si hay sesión → ir al dashboard, si no → diagnóstico */}

@@ -15,6 +15,7 @@ interface FormData {
   whatsapp: string;
   etapa: "" | "idea" | "validando" | "operando" | "escalando";
   dolores: string[];
+  otroDetalle: string; // campo libre cuando se selecciona "otro"
   tiempo: "" | "dias" | "semanas" | "meses";
 }
 
@@ -50,6 +51,7 @@ const DiagnosticForm = () => {
     whatsapp: "",
     etapa: "",
     dolores: [],
+    otroDetalle: "",
     tiempo: "",
   });
 
@@ -63,13 +65,27 @@ const DiagnosticForm = () => {
       dolores: prev.dolores.includes(value)
         ? prev.dolores.filter((d) => d !== value)
         : [...prev.dolores, value],
+      // Si se deselecciona "otro", limpia el detalle
+      otroDetalle: value === "otro" && prev.dolores.includes(value) ? "" : prev.otroDetalle,
     }));
   };
 
   const canContinue = () => {
-    if (currentStep === 0) return form.name.trim() && form.email.includes("@");
+    if (currentStep === 0) {
+      // Nombre, email válido y WhatsApp obligatorio (mín. 8 chars)
+      return (
+        form.name.trim().length > 0 &&
+        form.email.includes("@") &&
+        form.whatsapp.trim().length >= 8
+      );
+    }
     if (currentStep === 1) return Boolean(form.etapa);
-    if (currentStep === 2) return form.dolores.length > 0;
+    if (currentStep === 2) {
+      if (form.dolores.length === 0) return false;
+      // Si seleccionó "otro", el detalle es obligatorio (mín. 5 chars)
+      if (form.dolores.includes("otro") && form.otroDetalle.trim().length < 5) return false;
+      return true;
+    }
     if (currentStep === 3) return Boolean(form.tiempo);
     return true;
   };
@@ -90,6 +106,7 @@ const DiagnosticForm = () => {
       diagnostic_answers: {
         etapa: form.etapa,
         dolores: form.dolores,
+        otro_detalle: form.dolores.includes("otro") ? form.otroDetalle.trim() : null,
         tiempo: form.tiempo,
       },
       status: "new",
@@ -103,6 +120,7 @@ const DiagnosticForm = () => {
     setIsSubmitting(false);
 
     if (error) {
+      console.error("Supabase insert error:", error);
       toast.error("Hubo un error al enviar tu diagnóstico. Intenta de nuevo.");
       return;
     }
@@ -133,6 +151,9 @@ const DiagnosticForm = () => {
         <p className="text-xs text-muted-foreground">
           Te contactaremos en las próximas 24h al correo{" "}
           <span className="font-medium text-foreground">{form.email}</span>
+          {form.whatsapp && (
+            <> y por WhatsApp al <span className="font-medium text-foreground">{form.whatsapp}</span></>
+          )}
         </p>
         <Button variant="outline" size="sm" onClick={() => window.location.href = "/"} className="rounded-full">
           Volver al inicio
@@ -195,15 +216,24 @@ const DiagnosticForm = () => {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="diag-whatsapp">
-                WhatsApp <span className="text-muted-foreground font-normal">(opcional)</span>
+                WhatsApp <span className="text-xs text-muted-foreground">(requerido para enviarte el diagnóstico)</span>
               </Label>
               <Input
                 id="diag-whatsapp"
                 placeholder="+52 55 0000 0000"
                 value={form.whatsapp}
                 onChange={(e) => updateField("whatsapp", e.target.value)}
-                className="h-11"
+                className={`h-11 ${
+                  form.whatsapp.trim().length > 0 && form.whatsapp.trim().length < 8
+                    ? "border-destructive focus-visible:ring-destructive/30"
+                    : ""
+                }`}
               />
+              {form.whatsapp.trim().length > 0 && form.whatsapp.trim().length < 8 && (
+                <p className="text-xs text-destructive">
+                  Ingresa un número de WhatsApp válido (mínimo 8 dígitos).
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -272,6 +302,26 @@ const DiagnosticForm = () => {
               );
             })}
           </div>
+
+          {/* Campo libre para "Otro" */}
+          {form.dolores.includes("otro") && (
+            <div className="space-y-1.5 pt-1">
+              <Label htmlFor="diag-otro-detalle">
+                ¿Cuál es tu dolor específico? *
+              </Label>
+              <textarea
+                id="diag-otro-detalle"
+                placeholder="Descríbelo brevemente..."
+                value={form.otroDetalle}
+                onChange={(e) => updateField("otroDetalle", e.target.value)}
+                rows={3}
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground"
+              />
+              {form.otroDetalle.trim().length > 0 && form.otroDetalle.trim().length < 5 && (
+                <p className="text-xs text-destructive">Por favor describe tu dolor con más detalle.</p>
+              )}
+            </div>
+          )}
         </div>
       )}
 
