@@ -19,6 +19,7 @@ interface FormData {
   email: string;
   whatsapp: string;
   // Paso 2: Negocio
+  businessIdea: string;
   type: BusinessType | "";
   audience: Audience | "";
   // Paso 3: Mercado
@@ -103,6 +104,7 @@ const DiagnosticForm = () => {
   const [result, setResult] = useState<ScoringResult | null>(null);
   const [form, setForm] = useState<FormData>({
     name: "", email: "", whatsapp: "",
+    businessIdea: "",
     type: "", audience: "",
     country: "", ticket: "", channel: "",
     needs_logistics: null, needs_special_payments: null,
@@ -132,7 +134,7 @@ const DiagnosticForm = () => {
           form.whatsapp.trim().length >= 8
         );
       case 1:
-        return Boolean(form.type) && Boolean(form.audience);
+        return Boolean(form.businessIdea.trim().length >= 10) && Boolean(form.type) && Boolean(form.audience);
       case 2:
         return Boolean(form.country) && Boolean(form.ticket) && Boolean(form.channel);
       case 3:
@@ -159,6 +161,7 @@ const DiagnosticForm = () => {
     // Build profile y score
     const profile = buildBusinessProfile({
       country: form.country,
+      business_idea: form.businessIdea.trim(),
       type: form.type as BusinessType,
       audience: form.audience as Audience,
       ticket: form.ticket as TicketLevel,
@@ -329,10 +332,25 @@ const DiagnosticForm = () => {
 
       {/* ── Paso 2: Tipo de negocio ─────────────────────────── */}
       {currentStep === 1 && (
-        <div className="space-y-5">
+        <div className="space-y-6">
+          {/* Pregunta Abierta */}
+          <div className="space-y-1.5 pt-1">
+            <div>
+              <h3 className="text-lg font-bold text-foreground">Tu Idea / Negocio</h3>
+              <p className="text-sm text-muted-foreground mt-1">Cuéntanos brevemente de qué trata (mínimo 10 caracteres).</p>
+            </div>
+            <textarea
+              id="diag-business-idea"
+              placeholder="Ej. Una app que conecta nutriólogos con clientes ocupados..."
+              value={form.businessIdea}
+              onChange={(e) => update("businessIdea", e.target.value)}
+              rows={3}
+              className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground"
+            />
+          </div>
+
           <div>
-            <h3 className="text-lg font-bold text-foreground">¿Qué tipo de negocio es?</h3>
-            <p className="text-sm text-muted-foreground mt-1">Selecciona el modelo más cercano.</p>
+            <h3 className="text-sm font-bold text-foreground mb-2">¿Qué tipo de negocio es?</h3>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {BUSINESS_TYPES.map((bt) => (

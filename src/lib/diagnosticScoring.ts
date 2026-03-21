@@ -33,6 +33,7 @@ export interface BusinessProfile {
   // Contacto
   country: string;          // ISO-2: MX, CO, AR, BR, CL, PE…
   // Negocio
+  business_idea: string;    // Descripción abierta de la idea
   type: BusinessType;
   audience: Audience;
   // Mercado
@@ -64,6 +65,7 @@ export interface ScoringResult {
 export interface N8nPayload {
   country: string;
   business_profile: {
+    business_idea: string;
     type: string;
     audience: string;
     channel: string;
@@ -149,6 +151,7 @@ function scaleScore(value: number, min = 0, max = 1): number {
 
 export function buildBusinessProfile(form: {
   country: string;
+  business_idea: string;
   type: BusinessType;
   audience: Audience;
   ticket: TicketLevel;
@@ -288,6 +291,7 @@ export function scoreBusinessProfile(profile: BusinessProfile): ScoringResult {
   const n8nPayload: N8nPayload = {
     country: profile.country,
     business_profile: {
+      business_idea: profile.business_idea,
       type: profile.type,
       audience: profile.audience,
       channel: profile.channel,
