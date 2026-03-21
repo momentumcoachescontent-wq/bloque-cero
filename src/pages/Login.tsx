@@ -14,7 +14,7 @@ const Login = () => {
   const { session, isLoading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/dashboard";
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/";
 
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
