@@ -241,21 +241,21 @@ const AdminIndex = () => {
                                   
                                   <li className="grid grid-cols-3 gap-2 border-b border-border/20 pb-2">
                                     <span className="text-muted-foreground col-span-1">Tiempo Disponible:</span> 
-                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.time_availability}</span>
+                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.tiempo}</span>
                                   </li>
                                   <li className="grid grid-cols-3 gap-2 border-b border-border/20 pb-2">
-                                    <span className="text-muted-foreground col-span-1">Logística:</span> 
-                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.needs_logistics ? 'Sí' : 'No'}</span>
+                                    <span className="text-muted-foreground col-span-1">Dependencia Logística:</span> 
+                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.logistics_dependency}</span>
                                   </li>
                                   <li className="grid grid-cols-3 gap-2 border-b border-border/20 pb-2">
-                                    <span className="text-muted-foreground col-span-1">Pagos Especiales:</span> 
-                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.needs_special_payments ? 'Sí' : 'No'}</span>
+                                    <span className="text-muted-foreground col-span-1">Dependencia Pagos:</span> 
+                                    <span className="font-medium text-foreground capitalize col-span-2">{lead.diagnostic_answers.n8n_payload.business_profile.payments_dependency}</span>
                                   </li>
                                   <li className="grid grid-cols-1 gap-2 pb-2 mt-4">
                                     <span className="text-muted-foreground font-semibold block mb-1">Dolores Principales:</span> 
                                     <div className="flex flex-wrap gap-2">
-                                      {(lead.diagnostic_answers.n8n_payload.business_profile.pain_points || []).map((pain: string, idx: number) => (
-                                        <span key={idx} className="bg-muted px-2 py-1 rounded-md text-xs font-medium text-foreground/80">{pain}</span>
+                                      {(lead.diagnostic_answers.n8n_payload.business_profile.dolores || []).map((pain: string, idx: number) => (
+                                        <span key={idx} className="bg-muted px-2 py-1 rounded-md text-xs font-medium text-foreground/80 capitalize">{pain.replace(/_/g, ' ')}</span>
                                       ))}
                                     </div>
                                   </li>
