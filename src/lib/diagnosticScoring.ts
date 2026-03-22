@@ -184,6 +184,48 @@ export function scoreBusinessProfile(profile: BusinessProfile): ScoringResult {
   const country = getCountryProfile(profile.country);
   const bizType = BUSINESS_TYPE_PROFILES[profile.type];
 
+  // ── 0. Filtro Anti-Ilícito (Red Flags) ─────────────────────────
+  const ILLICIT_KEYWORDS = [
+    "droga", "armas", "sexo", "prostitución", "sicario", "narco",
+    "trata", "extorsión", "lavado", "fraude", "estafa", "robo", "piratería",
+    "murder", "drugs", "weapons", "porn", "escort"
+  ];
+
+  const lowerIdea = profile.business_idea.toLowerCase();
+  const isIllicit = ILLICIT_KEYWORDS.some(kw => lowerIdea.includes(kw));
+
+  if (isIllicit) {
+    return {
+      viability_score: 5,
+      complexity_level: "alta",
+      digital_readiness_required: "alta",
+      regulatory_risk: "alto",
+      big6: [
+        { name: "Potencial de Demanda", score: 1, signal: "Bajo", rationale: "Propuesta de alto riesgo legal/ético. Perfil bloqueado." },
+        { name: "Capacidad de Monetización", score: 1, signal: "Bajo", rationale: "El modelo viola las políticas comerciales estándar." },
+        { name: "Saturación Competitiva", score: 1, signal: "Bajo", rationale: "Operación en mercados negros no es analizable." },
+        { name: "Rentabilidad Potencial", score: 1, signal: "Bajo", rationale: "Riesgos sistémicos destruyen cualquer economía unitaria." },
+        { name: "Riesgo de Entrada", score: 1, signal: "Alto", rationale: "Barreras de entrada legales insuperables por naturaleza del giro." },
+        { name: "Facilidad de Adopción", score: 1, signal: "Bajo", rationale: "Canales de distribución bloqueados por las plataformas principales." }
+      ],
+      verdict: "No priorizar",
+      recommended_block: "Ninguno",
+      recommended_block_num: 1,
+      rationale: "Tu idea de negocio activa nuestras alertas de cumplimiento (Compliance) por estar asociada a giros restringidos (armas, contenido adulto, piratería o actividades ilegales). Te recomendamos replantear tu giro comercial completamente.",
+      key_risks: ["Riesgo Legal Severo: Tu propuesta implica graves conflictos con regulaciones locales e internacionales."],
+      quick_wins: ["Consultar con un asesor legal de inmediato.", "Detener cualquier inversión o desarrollo en esta vertical."],
+      n8n_payload: {
+        country: profile.country,
+        business_profile: { ...profile, logistics_dependency: "ninguna", payments_dependency: "alta", regulatory_sensitivity: "alta" },
+        scores: { viability: 5, market_size_index: 0, digital_readiness_index: 0, regulatory_index: 0, execution_index: 0 }
+      }
+    };
+  }
+
+  // Helper: extraer el giro del prospecto para hacerlo hiper-personalizado
+  const cleanIdea = profile.business_idea.trim();
+  const shortIdeaContext = cleanIdea.length > 30 ? cleanIdea.substring(0, 30) + '...' : cleanIdea;
+
   // ── 1. Market Size Index (WDI proxy) ──────────────────────────
   // SaaS/digital: el tamaño de mercado importa pero el país puede tener acceso global
   // Servicio local: depende fuertemente del tamaño y PIB local
@@ -232,48 +274,48 @@ export function scoreBusinessProfile(profile: BusinessProfile): ScoringResult {
   const demandScore = Math.min(5, Math.max(1, Math.round((demandScoreValue / 100) * 4) + 1));
   const demandSignal = demandScore >= 4 ? "Alto" : demandScore === 3 ? "Medio" : "Bajo";
   const demandRationale = demandScore >= 4 
-    ? `El tamaño del mercado en ${country.name} y tu enfoque ${profile.audience} sugieren una oportunidad expansiva sólida.`
-    : `Oportunidad de volumen limitada en ${country.name}; el nicho de demanda debe ser extremadamente preciso.`;
+    ? `Dado tu audiencia ${profile.audience} en ${country.name}, la visión sobre "${shortIdeaContext}" atiende a un mercado de alto volumen.`
+    : `La propuesta "${shortIdeaContext}" atiende a un nicho bastante acotado en ${country.name}; el volumen masivo será difícil de alcanzar.`;
 
   // 2. Capacidad de Monetización
   const monetizationScoreValue = scaleScore((country.gdpPerCapita / 20000) + ticketMod[profile.ticket] + (profile.audience === "b2b" ? 0.2 : 0));
   const monetizationScore = Math.min(5, Math.max(1, Math.round((monetizationScoreValue / 100) * 4) + 1));
   const monetizationSignal = monetizationScore >= 4 ? "Alto" : monetizationScore === 3 ? "Medio" : "Bajo";
   const monetizationRationale = monetizationScore >= 4
-    ? `El poder adquisitivo local soporta tu ticket ${profile.ticket}, indicando alta disposición a pagar en el segmento.`
-    : `Fricción de precio detectada: el ticket ${profile.ticket} enfrentará resistencia frente al GDP per cápita de ${country.name}.`;
+    ? `Excelente alineación entre tu idea ("${shortIdeaContext}") y la disposición a pagar (ticket ${profile.ticket}) en el entorno local.`
+    : `Fricción de precio detectada: cobrar un ticket ${profile.ticket} por "${shortIdeaContext}" enfrentará resistencia de compra.`;
 
   // 3. Intensidad Competitiva / Saturación
   const competitionScoreValue = scaleScore(country.informalEconomy + (bizType.digitalDependency > 0.8 ? 0.2 : 0));
   const competitionScore = Math.min(5, Math.max(1, Math.round(((100 - competitionScoreValue) / 100) * 4) + 1)); // Invertido: menos inf/sat = mejor score
   const competitionSignal = competitionScore >= 4 ? "Alto" : competitionScore === 3 ? "Medio" : "Bajo";
   const competitionRationale = competitionScore >= 4
-    ? `Baja saturación detectada. El mercado para ${profile.type} tiene un océano azul razonable disponible.`
-    : `Entorno denso: alta penetración u oferta informal significa que la diferenciación será tú única barrera de defensa.`;
+    ? `Océano azul o mercado virgen: para "${shortIdeaContext}" proyectamos poca competencia directa de alta calidad.`
+    : `Entorno agresivo: la informalidad o saturación de competidores obligará a blindar la diferenciación de "${shortIdeaContext}".`;
 
   // 4. Rentabilidad Potencial (Economía Unitaria)
   const profitabilityScoreValue = scaleScore(bizType.scalabilityIndex - logisticsPenalty + ticketMod[profile.ticket]);
   const profitabilityScore = Math.min(5, Math.max(1, Math.round((profitabilityScoreValue / 100) * 4) + 1));
   const profitabilitySignal = profitabilityScore >= 4 ? "Alto" : profitabilityScore === 3 ? "Medio" : "Bajo";
   const profitabilityRationale = profitabilityScore >= 4
-    ? `Estructura de costos ligera. Escalar este modelo (${profile.type}) no destruirá tus márgenes operacionales.`
-    : `Presión sobre unit economics debido a dependencia física o escalabilidad limitada intrínseca.`;
+    ? `La infraestructura para entregar "${shortIdeaContext}" es ligera. Conforme escales clientes, el margen de rentabilidad crecerá exponencialmente.`
+    : `Escalar "${shortIdeaContext}" arrastrará un exceso de costos directos operacionales que aplastarán el margen unitario de ganancia.`;
 
   // 5. Riesgo de Entrada y Operación
   const riskScoreValue = scaleScore(1 - (regulatoryIndex - (profile.needs_special_payments ? 0.2 : 0) - logisticsPenalty));
   const riskScore = Math.min(5, Math.max(1, Math.round((riskScoreValue / 100) * 4) + 1)); 
   const riskSignal = riskScore >= 4 ? "Bajo" : riskScore === 3 ? "Medio" : "Alto"; // Ojo, señal invertida para riesgo
   const riskRationale = riskScore >= 4
-    ? `Barreras operativas limpias. Ejecución sin frenos regulatorios o dependencias de infraestructura pesada.`
-    : `Alerta: licencias especiales, logística rígida o regulaciones financieras aumentan significativamente el costo de entrada.`;
+    ? `Construir "${shortIdeaContext}" requiere muy pocos permisos o infraestructura dura. Ejecución totalmente limpia.`
+    : `La naturaleza de "${shortIdeaContext}" acarrea severa pesadez: logística física compleja, riesgo de fraude en pagos o ataduras legales.`;
 
   // 6. Readiness del Mercado / Facilidad de Adopción
   const readinessScoreValue = scaleScore(digitalReadinessIndex);
   const readinessScore = Math.min(5, Math.max(1, Math.round((readinessScoreValue / 100) * 4) + 1));
   const readinessSignal = readinessScore >= 4 ? "Alto" : readinessScore === 3 ? "Medio" : "Bajo";
   const readinessRationale = readinessScore >= 4
-    ? `La madurez digital de ${country.name} está alineada con la fricción tecnológica de tu modelo.`
-    : `La alfabetización o infraestructura digital del cliente promedio exigirá un onboarding largo y costoso.`;
+    ? `La alfabetización digital en tu mercado es ideal. Los usuarios sabrán cómo interactuar con "${shortIdeaContext}" de forma casi intuitiva.`
+    : `Tus clientes prospecto sufrirán una fuerte curva de aprendizaje (fricción) antes de adoptar y confiar en la interfaz de "${shortIdeaContext}".`;
 
   const big6: Big6Indicator[] = [
     { name: "Potencial de Demanda", score: demandScore, signal: demandSignal, rationale: demandRationale },
