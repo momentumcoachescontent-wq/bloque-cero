@@ -317,56 +317,83 @@ export function scoreBusinessProfile(profile: BusinessProfile): ScoringResult {
   if (profile.etapa === "idea" || viabilityScore < 50) {
     recommendedBlock = "Radar de Idea";
     recommendedBlockNum = 1;
-    rationale = `Tu idea de ${profile.type} para ${country.name} necesita validación de mercado antes de construir. Con un score de ${viabilityScore}/100, el primer paso es confirmar la demanda real.`;
+    if (viabilityScore >= 75) {
+      rationale = `¡Excelente viabilidad general (${viabilityScore}/100)! Sin embargo, al estar en fase de idea, el paso crítico es aterrizarla. El Radar de Idea estructurará tu visión en un modelo claro y te ayudará a ratificar demanda antes de gastar en construcción.`;
+    } else {
+      rationale = `Tu idea enfrenta algunos retos estructurales iniciales (${viabilityScore}/100). El Radar de Idea es esencial para pivotar, encontrar un nicho más seguro y confirmar la viabilidad real antes de que inviertas tus recursos.`;
+    }
   } else if (profile.etapa === "validando" || viabilityScore < 70) {
     recommendedBlock = "Blueprint de Negocio";
     recommendedBlockNum = 2;
-    rationale = `Tu negocio ${profile.type} en ${country.name} tiene señales de mercado. El siguiente paso es estructurar el modelo antes de escalar inversión.`;
+    if (viabilityScore >= 75) {
+      rationale = `Tienes una tracción de mercado muy prometedora (${viabilityScore}/100). Estás en el momento perfecto para el Blueprint de Negocio, que te dará los cimientos operativos robustos para escalar sin romperte.`;
+    } else {
+      rationale = `Hay señales de mercado en tu proyecto, pero con un score de ${viabilityScore}/100 advertimos fricción operativa. El Blueprint de Negocio te ayudará a ajustar y blindar tu modelo base antes de subir la inversión.`;
+    }
   } else if (profile.etapa === "operando" && profile.dolores.includes("sin_sistema")) {
     recommendedBlock = "Kit Operacional 1.0";
     recommendedBlockNum = 4;
-    rationale = `Ya tienes tracción pero sin sistema. Para un ${profile.type} ${profile.audience} el caos operativo es el freno principal — el Kit Operacional lo resuelve directamente.`;
+    rationale = `Ya tienes la tracción de ventas, pero careces de un sistema confiable. Para un proyecto de tu estilo, el caos operativo es el freno principal; el Kit Operacional te ordenará y profesionalizará de inmediato.`;
   } else if (profile.etapa === "operando" || profile.etapa === "escalando") {
     if (profile.dolores.includes("sin_automatizacion") || profile.dolores.includes("caos_operativo")) {
       recommendedBlock = "Automatización Inicial";
       recommendedBlockNum = 5;
-      rationale = `Con operación activa y dolor en automatización, el Bloque 5 te libera tiempo para escalar — especialmente relevante para ${profile.type} ${profile.audience}.`;
+      rationale = `Con operación activa y dolores en tareas manuales, este bloque te liberará tiempo valioso para delegar robóticamente procesos aburridos, permitiéndote escalar — especialmente relevante para tu ${profile.type}.`;
     } else {
       recommendedBlock = "MVP de Validación";
       recommendedBlockNum = 3;
-      rationale = `Tienes base sólida. El MVP de Validación te permite capturar mercado con iteraciones rápidas antes de invertir en infraestructura completa.`;
+      rationale = `Tienes una base lista para el mercado de prueba. El MVP de Validación te permitirá capturar clientes reales con iteraciones sumamente rápidas antes de invertir en una infraestructura de software completa.`;
     }
   } else {
     recommendedBlock = "Radar de Idea";
     recommendedBlockNum = 1;
-    rationale = `Empecemos por validar que la idea tiene demanda real en ${country.name} antes de invertir recursos.`;
+    rationale = `Empecemos por ordenar y validar que esta propuesta ${profile.type} resuena comercialmente en el mercado de ${country.name}.`;
   }
 
   // ── 10. Riesgos y Quick Wins ───────────────────────────────────
   const keyRisks: string[] = [];
   const quickWins: string[] = [];
 
+  // Riesgos
   if (country.informalEconomy > 0.6)
-    keyRisks.push(`Alta competencia informal en ${country.name} — define tu diferenciador antes de lanzar.`);
+    keyRisks.push(`Alta competencia informal en ${country.name} — requieres de un diferenciador muy marcado o sufrirán tus márgenes.`);
   if (bizType.regulatoryBurden > 0.5 || profile.needs_special_payments)
-    keyRisks.push("Regulación/pagos especiales: necesitas asesoría legal antes del MVP.");
+    keyRisks.push(`Complejidad Regulatoria/Pagos: Asegura los procesos legales o fiscales de tu plataforma antes de salir al mercado público.`);
   if (bizType.digitalDependency > 0.75 && country.digitalReadiness < 0.60)
-    keyRisks.push(`Readiness digital del mercado puede limitar adopción en ${country.name}.`);
+    keyRisks.push(`Fricción tecnológica: La infraestructura digital (Readiness) de ${country.name} podría limitar la velocidad de adopción de tu nicho.`);
   if (profile.needs_logistics && bizType.logisticsComplexity < 0.5)
-    keyRisks.push("Logística física añade complejidad no nativa a tu modelo — evalúa externalizar.");
+    keyRisks.push(`Fricción física: Al requerir logística en tu modelo, la complejidad y costos de última milla penalizarán la rentabilidad.`);
   if (profile.ticket === "bajo" && profile.audience === "b2b")
-    keyRisks.push("Ticket bajo en B2B dificulta el CAC recovery — considera freemium o paquetes.");
+    keyRisks.push(`CAC recovery complejo: Cobrar ticket 'bajo' a perfiles empresariales (B2B) rara vez es sostenible por lo lento del ciclo de venta.`);
+  
   if (keyRisks.length === 0)
-    keyRisks.push("Perfil de bajo riesgo — el mayor riesgo es la no ejecución.");
+    keyRisks.push(`Falta de urgencia: Al tener un excelente perfil de bajo riesgo sistémico, tu mayor amenaza actual es ser demasiado lento ejecutando.`);
 
-  if (profile.channel === "digital" || profile.channel === "hibrida")
-    quickWins.push("Landing + formulario de captura de leads en < 48 hrs (Radar de Idea lo incluye).");
-  if (profile.audience === "b2b")
-    quickWins.push("Lista de 20 prospectos target + 5 entrevistas de validación esta semana.");
-  if (profile.etapa === "operando" || profile.etapa === "escalando")
-    quickWins.push("Mapa de procesos manuales repetitivos → candidatos inmediatos a automatizar.");
-  if (profile.dolores.includes("sin_ventas"))
-    quickWins.push("Definir 1 canal de adquisición principal y medir CAC esta semana.");
+  // Quick Wins (Más variados)
+  if (profile.channel === "digital" || profile.channel === "hibrida") {
+    if (profile.etapa === "idea") quickWins.push(`Diseño de un 'Landing Page' MVP de prueba en menos de 48 hrs para medir clicks y captar la demanda real.`);
+    else quickWins.push(`Auditoría exprés sobre tu actual embudo de venta digital para detectar en qué paso exacto se están escapando los clientes.`);
+  }
+  if (profile.audience === "b2b") {
+    quickWins.push(`Extracción y mapeo en frío (vía LinkedIn) de 15 tomadores de decisión objetivo para agendar 3 entrevistas de descubrimiento cualitativo.`);
+  }
+  if (profile.etapa === "operando" || profile.etapa === "escalando") {
+    if (profile.dolores.includes("sin_automatizacion")) quickWins.push(`Inventario de horas-hombre: mapear la tarea digital más repetitiva de tu semana para inyectarla en Zapier o Make este mismo viernes.`);
+    else quickWins.push(`Ejercicio de simplificación del "Customer Journey" para erradicar un paso manual o fricción para el usuario en tu proceso de onboarding.`);
+  }
+  if (profile.dolores.includes("sin_ventas")) {
+    quickWins.push(`Asesinar la distracción multicanal: Limita el esfuerzo de ventas a 1 solo canal esta semana y calcula sin piedad tu Costo de Adquisición de Clientes (CAC).`);
+  }
+  if (profile.ticket === "alto") {
+    quickWins.push(`Reestructuración del 'Sales Pitch' para hablar exclusivamente en términos de Retorno de Inversión (ROI) para tu cliente premium.`);
+  }
+  if (profile.type === "ecommerce" || profile.needs_logistics) {
+    quickWins.push(`Comparativa de consolidación de proveedores paqueteros locales o modelos de prepago (guías corporativas) para aliviar tu estrés logístico esta semana.`);
+  }
+  
+  if (quickWins.length === 0) {
+    quickWins.push(`Definición del Riesgo Cero: Crear una lista de tus 3 supuestos de modelo más arriesgados y probar el número uno esta misma semana.`);
+  }
 
   // ── 11. Payload n8n/IA (Fase 3) ────────────────────────────────
   const logisticsDep = ({ ecommerce: "alta", logistica: "alta", servicio_local: "media" } as Record<string, "ninguna" | "baja" | "media" | "alta">)[profile.type] ?? (profile.needs_logistics ? "media" : "ninguna");
