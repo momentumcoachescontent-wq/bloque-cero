@@ -46,7 +46,7 @@ const TestimonialsSection = () => {
           <p className="text-sm uppercase tracking-[0.2em] text-primary font-medium">Evidencia real</p>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground">
             Del caos al sistema.{" "}
-            <span className="text-primary">Historias del frente.</span>
+            <span className="text-primary">Historias similares a las tuyas.</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             Patrones reales que vemos en emprendedores antes y después de trabajar con nosotros.

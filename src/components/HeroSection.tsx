@@ -15,17 +15,15 @@ const HeroSection = () => {
       <div className="relative max-w-4xl mx-auto text-center space-y-8">
         {/* Badge */}
         <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold tracking-wide">
-          🚀 Para emprendedores en LATAM que van en serio
+          🚀 Tu idea no necesita seguir esperando
         </span>
 
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight tracking-tight text-foreground">
-          Tu idea merece más que{" "}
-          <span className="text-primary">seguir siendo una idea.</span>
+          Convertimos tu idea en un sistema <span className="text-primary">mínimo operable</span>
         </h1>
 
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Convertimos tu caos mental en un sistema que funciona — bloque a bloque,
-          con entregables concretos y resultados medibles. Sin teoría, sin meses de espera.
+          para que pases de la intención a la ejecución con claridad, estructura y pasos reales.
         </p>
 
         {/* CTA buttons */}

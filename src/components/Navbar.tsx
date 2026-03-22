@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { LogIn, User, LogOut } from "lucide-react";
 
 const Navbar = () => {
-  const { session, profile, isLoading, signOut } = useAuth();
+  const { session, profile, isAdmin, isLoading, signOut } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/80">
@@ -28,7 +28,7 @@ const Navbar = () => {
                 <a href="/dashboard">
                   <Button size="sm" variant="outline" className="rounded-full px-5 font-medium gap-2 hover:bg-muted transition-colors">
                     <User className="w-3.5 h-3.5" />
-                    {profile?.full_name?.split(" ")[0] || "Mi Panel"}
+                    {isAdmin ? "Admin" : "Mi Espacio"}
                   </Button>
                 </a>
                 <Button 
