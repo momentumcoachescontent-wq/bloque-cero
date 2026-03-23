@@ -1,168 +1,23 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import React from "react";
 import { toast } from "sonner";
 import { Clock, CheckCircle2, AlertTriangle, FileText, UploadCloud, Send, Zap, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFulfillmentQueue } from "@/hooks/useFulfillmentQueue";
 
-interface FulfillmentItem {
-  id: string;
-  type: 'radar' | 'blueprint';
-  title: string;
-  clientName: string;
-  clientEmail: string;
-  createdAt: string;
-  deadlineDays: number; // SLA rules: 2 days for radar, 7 for blueprint
-  isCompleted: boolean;
-  progressDay?: number;
-  formats: string[]; // e.g., ['PDF Diagnóstico'], ['PDF', 'Pitch', 'Info']
-  sourceData: any;
-}
+const calculateSLA = (createdAt: string, deadlineDays: number) => {
+  const start = new Date(createdAt);
+  const deadline = new Date(start.getTime() + deadlineDays * 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const diffTime = deadline.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return { label: `Atrasado ${Math.abs(diffDays)}d`, color: 'text-red-500 bg-red-500/10', urgent: true };
+  if (diffDays <= (deadlineDays * 0.3)) return { label: `Vence en ${diffDays}d`, color: 'text-orange-500 bg-orange-500/10', urgent: true };
+  return { label: `A tiempo (${diffDays}d)`, color: 'text-emerald-500 bg-emerald-500/10', urgent: false };
+};
 
 const FulfillmentAdmin = () => {
-  const [items, setItems] = useState<FulfillmentItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchOmniQueue = async () => {
-    try {
-      setLoading(true);
-      
-      // 1. Fetch Blueprints (Sin joins relacionales para evitar errores si no hay FKs)
-      const { data: blueprintsData, error: bpError } = await supabase
-        .from('blueprint_requests')
-        .select(`*`);
-      
-      if (bpError) {
-        console.error("Error cargando blueprints:", bpError);
-        toast.error("Aviso: No se pudieron cargar los Blueprints (" + bpError.message + ")");
-      }
-
-      // 2. Fetch Radar Leads
-      const { data: leadsData, error: leadsError } = await supabase
-        .from('leads')
-        .select('*');
-      
-      if (leadsError) {
-        console.error("Error cargando leads:", leadsError);
-        toast.error("Aviso: No se pudieron cargar los Diagnósticos Radar (" + leadsError.message + ")");
-      }
-
-      // 3. Normalize & Merge
-      let unified: FulfillmentItem[] = [];
-
-      // Map Blueprints
-      if (blueprintsData) {
-        blueprintsData.forEach(req => {
-          // Client-side join: Encontrar el lead original asociado en radar (si existe)
-          const relatedLead = leadsData?.find(l => l.id === req.lead_id) || {};
-          
-          const formats = [];
-          if (req.format_pdf) formats.push('PDF Blueprint');
-          if (req.format_presentation) formats.push('Pitch Deck');
-          if (req.format_infographic) formats.push('Infografía');
-
-          unified.push({
-            id: req.id,
-            type: 'blueprint',
-            title: req.diagnostic_answers?.business_name || relatedLead.business_name || relatedLead.diagnostic_answers?.business_name || 'Blueprint Project',
-            clientName: req.diagnostic_answers?.name || relatedLead.name || 'Cliente de Blueprint',
-            clientEmail: req.diagnostic_answers?.email || relatedLead.email || 'N/A',
-            createdAt: req.created_at,
-            deadlineDays: 7,
-            isCompleted: req.progress_day >= 7 || req.status === 'completed',
-            progressDay: req.progress_day || 1,
-            formats,
-            sourceData: req
-          });
-        });
-      }
-
-      // Map Radar Leads
-      if (leadsData) {
-        leadsData.forEach(lead => {
-          unified.push({
-            id: lead.id,
-            type: 'radar',
-            title: lead.diagnostic_answers?.business_name || lead.business_name || lead.idea_description?.slice(0, 30) || 'Diagnóstico Inicial',
-            clientName: lead.name || 'Prospecto',
-            clientEmail: lead.email || 'N/A',
-            createdAt: lead.created_at,
-            deadlineDays: 2, // 48h SLA
-            isCompleted: lead.is_analysis_sent === true,
-            formats: ['Dictamen Radar (PDF)'],
-            sourceData: lead
-          });
-        });
-      }
-
-      // 4. Sort by Urgency (Closest to deadline or most overdue first)
-      unified.sort((a, b) => {
-        const getRemainingDays = (item: FulfillmentItem) => {
-          const start = new Date(item.createdAt);
-          const deadline = new Date(start.getTime() + item.deadlineDays * 24 * 60 * 60 * 1000);
-          return (deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24);
-        };
-        
-        // Push completed to the bottom
-        if (a.isCompleted && !b.isCompleted) return 1;
-        if (!a.isCompleted && b.isCompleted) return -1;
-        
-        return getRemainingDays(a) - getRemainingDays(b);
-      });
-
-      setItems(unified);
-    } catch (err: any) {
-      toast.error("Error cargando cola omnicanal: " + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOmniQueue();
-  }, []);
-
-  const updateBlueprintProgress = async (id: string, newDay: number) => {
-    try {
-      const { error } = await supabase
-        .from('blueprint_requests')
-        .update({ progress_day: newDay, status: newDay >= 7 ? 'completed' : 'analyzing' })
-        .eq('id', id);
-
-      if (error) throw error;
-      toast.success(`Blueprint actualizado al Día ${newDay}`);
-      setItems(prev => prev.map(r => r.id === id ? { ...r, progressDay: newDay, isCompleted: newDay >= 7 } : r));
-    } catch (err: any) {
-      toast.error("Error al actualizar Blueprint: " + err.message);
-    }
-  };
-
-  const toggleRadarCompletion = async (id: string, currentStatus: boolean) => {
-    try {
-      // Marcamos tanto generado como enviado para simplificar la vista Fulfillment
-      const { error } = await supabase
-        .from('leads')
-        .update({ is_analysis_generated: !currentStatus, is_analysis_sent: !currentStatus })
-        .eq('id', id);
-
-      if (error) throw error;
-      toast.success(`Diagnóstico Radar marcado como ${!currentStatus ? 'Completado' : 'Pendiente'}`);
-      setItems(prev => prev.map(r => r.id === id ? { ...r, isCompleted: !currentStatus } : r));
-    } catch (err: any) {
-      toast.error("Error al actualizar Radar: " + err.message);
-    }
-  };
-
-  const calculateSLA = (createdAt: string, deadlineDays: number) => {
-    const start = new Date(createdAt);
-    const deadline = new Date(start.getTime() + deadlineDays * 24 * 60 * 60 * 1000);
-    const now = new Date();
-    const diffTime = deadline.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return { label: `Atrasado ${Math.abs(diffDays)}d`, color: 'text-red-500 bg-red-500/10', urgent: true };
-    if (diffDays <= (deadlineDays * 0.3)) return { label: `Vence en ${diffDays}d`, color: 'text-orange-500 bg-orange-500/10', urgent: true };
-    return { label: `A tiempo (${diffDays}d)`, color: 'text-emerald-500 bg-emerald-500/10', urgent: false };
-  };
+  const { items, loadingQueue, refetchQueue, updateBlueprintProgress, toggleRadarCompletion } = useFulfillmentQueue();
 
   const handleUploadClick = (format: string, type: string) => {
     toast("Ingesta Activada", { description: `El flujo de subida para [${format}] del proyecto [${type}] requiere el bucket de Storage (Próxima fase).` });
@@ -193,7 +48,7 @@ const FulfillmentAdmin = () => {
             </h2>
             <p className="text-sm text-muted-foreground mt-1">Ordenados logarítmicamente por proximidad al límite del SLA.</p>
           </div>
-          <Button variant="outline" size="sm" onClick={fetchOmniQueue}>Sincronizar Panel</Button>
+          <Button variant="outline" size="sm" onClick={refetchQueue}>Sincronizar Panel</Button>
         </div>
 
         <div className="overflow-x-auto">
@@ -207,7 +62,7 @@ const FulfillmentAdmin = () => {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {loadingQueue ? (
                 <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">Analizando bases de datos...</td></tr>
               ) : items.length === 0 ? (
                 <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">La cola omnicanal está limpia. Todos los entregables han sido procesados.</td></tr>
