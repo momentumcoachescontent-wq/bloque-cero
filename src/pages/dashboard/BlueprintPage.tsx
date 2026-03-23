@@ -424,17 +424,17 @@ export default function BlueprintWizard() {
 
               {/* SKELETON MOCK VIEW SIEMPRE VISIBLE */}
               <div className="border border-border/50 rounded-2xl p-8 bg-card shadow-sm relative overflow-hidden h-[400px]">
-                 <div className="absolute inset-0 bg-background/50 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center">
+                 <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center transition-all ${existingRequest.progress_day >= 7 ? 'bg-background/80 backdrop-blur-sm' : 'pointer-events-none'}`}>
                     {existingRequest.progress_day < 7 ? (
-                      <>
-                        <Loader2 className="w-8 h-8 animate-spin text-primary/50 mb-3" />
-                        <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">En Elaboración (Cascarón)</p>
-                      </>
+                      <div className="absolute top-6 right-6 flex items-center gap-2 bg-card/90 border border-primary/20 px-4 py-2 rounded-full shadow-md animate-pulse">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-primary">Mapificando Estructura</span>
+                      </div>
                     ) : (
                       <div className="text-center animate-in fade-in zoom-in duration-500">
                         <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3 drop-shadow-sm" />
                         <p className="text-sm font-semibold text-foreground uppercase tracking-widest mb-6">Blueprint Finalizado</p>
-                        <div className="flex justify-center flex-wrap gap-3">
+                        <div className="flex justify-center flex-wrap gap-3 pointer-events-auto">
                           {existingRequest.format_pdf && (
                             <Button variant="outline" className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
                               <FileDown className="w-4 h-4" /> Bajar PDF
@@ -455,27 +455,35 @@ export default function BlueprintWizard() {
                     )}
                  </div>
                  
-                 <div className={`grid grid-cols-3 gap-4 pointer-events-none mb-6 transition-all duration-1000 ${existingRequest.progress_day >= 7 ? 'opacity-100' : 'opacity-20 grayscale'}`}>
-                   <div className="h-20 bg-muted rounded-xl bg-primary/20 border border-primary/50 flex flex-col items-center justify-center p-2 text-center text-primary/80 backdrop-blur-sm shadow-sm">
-                     {existingRequest.progress_day >= 7 && <span className="text-xs font-bold uppercase tracking-widest">Foso Defensivo</span>}
-                   </div>
-                   <div className="h-20 bg-muted rounded-xl bg-primary/20 border border-primary/50 flex flex-col items-center justify-center p-2 text-center text-primary/80 backdrop-blur-sm shadow-sm">
-                     {existingRequest.progress_day >= 7 && <span className="text-xs font-bold uppercase tracking-widest">Unit Econ.</span>}
-                   </div>
-                   <div className="h-20 bg-muted rounded-xl bg-primary/20 border border-primary/50 flex flex-col items-center justify-center p-2 text-center text-primary/80 backdrop-blur-sm shadow-sm">
-                     {existingRequest.progress_day >= 7 && <span className="text-xs font-bold uppercase tracking-widest">Anti-Segmento</span>}
-                   </div>
+                 {/* Mock UI layout, visible even while loading */}
+                 <div className="grid grid-cols-3 gap-4 pointer-events-none mb-6">
+                   {[
+                     "Foso Defensivo", "Unit Econ.", "Anti-Segmento"
+                   ].map((title) => (
+                     <div key={title} className={`h-20 rounded-xl flex flex-col items-center justify-center p-2 text-center transition-all duration-1000 ${existingRequest.progress_day < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-primary/10 border border-primary/50 text-primary/80 shadow-sm'}`}>
+                       <span className="text-xs font-bold uppercase tracking-widest">{title}</span>
+                     </div>
+                   ))}
                  </div>
                  
-                 <div className={`grid grid-cols-5 gap-4 pointer-events-none transition-all duration-1000 ${existingRequest.progress_day >= 7 ? 'opacity-100' : 'opacity-20 grayscale'}`}>
-                   <div className="h-64 bg-muted rounded-xl bg-card border border-primary/30 col-span-2 shadow-sm flex items-center justify-center p-4 text-center">
-                     {existingRequest.progress_day >= 7 && <span className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Estructura Operativa</span>}
+                 <div className="grid grid-cols-5 gap-4 pointer-events-none">
+                   <div className={`h-64 rounded-xl col-span-2 flex items-center justify-center p-4 text-center transition-all duration-1000 ${existingRequest.progress_day < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-card border border-primary/30 shadow-sm'}`}>
+                     <span className={`text-sm font-semibold uppercase tracking-widest ${existingRequest.progress_day < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Estructura Operativa</span>
                    </div>
-                   <div className="h-64 bg-muted rounded-xl bg-card border border-primary/30 col-span-3 shadow-sm flex items-center justify-center p-4 text-center">
-                     {existingRequest.progress_day >= 7 && <span className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Framework de Adquisición</span>}
+                   <div className={`h-64 rounded-xl col-span-3 flex items-center justify-center p-4 text-center transition-all duration-1000 ${existingRequest.progress_day < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-card border border-primary/30 shadow-sm'}`}>
+                     <span className={`text-sm font-semibold uppercase tracking-widest ${existingRequest.progress_day < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Framework de Adquisición</span>
                    </div>
                  </div>
               </div>
+
+              {existingRequest.progress_day < 7 && (
+                <div className="mt-6 flex items-start gap-3 bg-muted/40 p-5 rounded-xl border border-border/50 animate-in fade-in slide-in-from-bottom-4">
+                  <Clock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Serás notificado al correo registrado cuando el algoritmo concluya el análisis estructural. Al finalizar, encontrarás los documentos estratégicos disponibles para descarga en esta misma vista.
+                  </p>
+                </div>
+              )}
 
               {/* STEP 6: FEEDBACK & QA */}
               {existingRequest.progress_day >= 7 && (
