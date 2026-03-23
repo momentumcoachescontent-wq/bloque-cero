@@ -74,17 +74,51 @@ export default function BlueprintPage() {
 
   // Estado: El lead existe, pero el webhook de n8n aún no ha poblado `blueprint_data`
   if (!blueprintData) {
+    const injectMockData = () => {
+      setBlueprintData({
+        executive_summary: "Este es un proyecto hipotético generado para validar la Interfaz y experiencia (MVP). La IA de Más Allá del Miedo detectó que tienes un margen de mejora brutal si apalancas componentes asíncronos en tu servicio B2B.",
+        canvas: {
+          problem: "Altos costos operativos en agencias B2B tradicionales.",
+          solution: "Un servicio paquetizado guiado por inteligencia artificial.",
+          key_metrics: "Cost of Delivery, MRR Mensual.",
+          unique_value_proposition: "Resultados de agencia a costo de SaaS.",
+          unfair_advantage: "Metodología patentada de ejecución Cero.",
+          channels: "LinkedIn Inbound, Cold Emailing.",
+          customer_segments: "Fundadores B2B de +$10k MRR.",
+          early_adopters: "Agencias en transición a producto.",
+          cost_structure: "Software, IA, Ops ligeros ($500/mo).",
+          revenue_streams: "Suscripción $1,500/mo."
+        },
+        unit_economics: {
+          suggested_cac: 250,
+          projected_ltv: 4500,
+          gross_margin: "82%"
+        }
+      });
+    };
+
     return (
       <div className="bg-card border border-border/50 rounded-2xl p-10 text-center max-w-2xl mx-auto mt-10 shadow-sm relative overflow-hidden">
         {/* Decorative Grid */}
         <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5 mix-blend-overlay pointer-events-none"></div>
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
         
-        <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-6 opacity-80" />
+        {/* Loader Animado en vez de Candado para quitar la idea de bloqueo */}
+        <div className="mx-auto flex justify-center mb-6">
+          <div className="bg-primary/10 p-4 rounded-full">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+          </div>
+        </div>
+        
         <h2 className="text-2xl font-bold mb-3">Tu Blueprint está en producción</h2>
         <p className="text-muted-foreground mb-8">
-          Nuestra inteligencia está estructurando el Business Model Canvas, calculando tus Unit Economics y redactando el manifiesto de tu proyecto. Te notificaremos cuando el entregable esté listo.
+          Nuestra inteligencia está estructurando el Business Model Canvas, calculando tus Unit Economics y redactando el manifiesto de tu proyecto. Te notificaremos cuando el entregable esté listo (webhook n8n).
         </p>
+
+        <Button onClick={injectMockData} variant="outline" className="mb-8 border-primary/20 hover:bg-primary/5">
+          <LayoutTemplate className="w-4 h-4 mr-2" />
+          Inyectar Demo Visual (Mock)
+        </Button>
         
         {/* Mockup visualizador */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 opacity-40 grayscale pointer-events-none select-none">
