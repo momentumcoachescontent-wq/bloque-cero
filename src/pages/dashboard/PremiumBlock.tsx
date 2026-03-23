@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Lock, ArrowRight, Zap } from "lucide-react";
+import { Lock, ArrowRight, Zap, Unlock, Wrench } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PremiumBlockProps {
   title: string;
@@ -9,8 +10,38 @@ interface PremiumBlockProps {
 }
 
 const PremiumBlock = ({ title, description, priceTag = "Consulta disponibilidad", features }: PremiumBlockProps) => {
+  const { isPremium, isAdmin } = useAuth();
+  
+  // Si el usuario es administrador o premium, se salta el Paywall y ve el módulo activo.
+  if (isPremium || isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-2xl mx-auto space-y-6 animate-in fade-in zoom-in duration-500">
+        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center border-4 border-background shadow-lg mb-2 relative">
+          <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+          <Unlock className="w-8 h-8 text-primary relative z-10" />
+        </div>
+
+        <div className="space-y-4">
+          <h1 className="text-3xl font-black tracking-tight text-primary">{title}</h1>
+          <p className="text-xl text-muted-foreground leading-relaxed px-4">
+            Tienes acceso total a este módulo.
+          </p>
+        </div>
+
+        <div className="bg-muted/30 border border-border/50 rounded-2xl p-10 w-full mt-6 flex flex-col items-center">
+          <Wrench className="w-12 h-12 text-muted-foreground/50 mb-4" />
+          <h2 className="text-lg font-bold text-foreground mb-2">Workspace Preparado</h2>
+          <p className="text-sm text-muted-foreground w-3/4 mx-auto">
+            La funcionalidad del <strong>{title}</strong> está siendo conectada al motor de Inteligencia Artificial. Los entregables y herramientas aparecerán aquí automáticamente.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Vista de Candado (Paywall) para usuarios Freemium
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center max-w-2xl mx-auto space-y-8">
+    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center max-w-2xl mx-auto space-y-8 animate-in fade-in duration-500">
       
       <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center border-4 border-background shadow-xl mb-4 relative">
         <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
