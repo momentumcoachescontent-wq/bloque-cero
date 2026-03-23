@@ -25,8 +25,8 @@ const products = [
     tiempo: "1 semana",
     badge: "OTC",
     badgeGreen: false,
-    ctaHref: "/contacto",
-    cta: "Consultar",
+    ctaHref: "/dashboard/blueprint",
+    cta: "Desarrollar",
   },
   {
     num: "03",
@@ -38,8 +38,8 @@ const products = [
     tiempo: "15 días",
     badge: "OTC",
     badgeGreen: false,
-    ctaHref: "/contacto",
-    cta: "Consultar",
+    ctaHref: "/dashboard/mvp",
+    cta: "Conocer más",
   },
   {
     num: "04",
@@ -51,8 +51,8 @@ const products = [
     tiempo: "1 semana",
     badge: "OTC",
     badgeGreen: false,
-    ctaHref: "/contacto",
-    cta: "Consultar",
+    ctaHref: "/dashboard/kit-operacional",
+    cta: "Conocer más",
   },
   {
     num: "05",
@@ -64,8 +64,8 @@ const products = [
     tiempo: "1 semana",
     badge: "OTC",
     badgeGreen: false,
-    ctaHref: "/contacto",
-    cta: "Consultar",
+    ctaHref: "/dashboard/automatizaciones",
+    cta: "Conocer más",
   },
   {
     num: "06",
@@ -77,8 +77,8 @@ const products = [
     tiempo: "2 semanas",
     badge: "OTC",
     badgeGreen: false,
-    ctaHref: "/contacto",
-    cta: "Consultar",
+    ctaHref: "/dashboard/agentes-ia",
+    cta: "Conocer más",
   },
 ];
 
