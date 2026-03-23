@@ -440,18 +440,25 @@ export default function BlueprintWizard() {
                     )}
                  </div>
                  
-                 <div className={`grid grid-cols-3 gap-4 opacity-20 grayscale pointer-events-none mb-6 transition-all duration-1000 ${existingRequest.progress_day >= 7 ? 'opacity-10' : ''}`}>
-                   <div className="h-20 bg-muted rounded-xl bg-primary/20 border border-primary/50"></div>
-                   <div className="h-20 bg-muted rounded-xl bg-primary/20 border border-primary/50"></div>
-                   <div className="h-20 bg-muted rounded-xl bg-primary/20 border border-primary/50"></div>
+                 <div className={`grid grid-cols-3 gap-4 pointer-events-none mb-6 transition-all duration-1000 ${existingRequest.progress_day >= 7 ? 'opacity-100' : 'opacity-20 grayscale'}`}>
+                   <div className="h-20 bg-muted rounded-xl bg-primary/20 border border-primary/50 flex flex-col items-center justify-center p-2 text-center text-primary/80 backdrop-blur-sm shadow-sm">
+                     {existingRequest.progress_day >= 7 && <span className="text-xs font-bold uppercase tracking-widest">Foso Defensivo</span>}
+                   </div>
+                   <div className="h-20 bg-muted rounded-xl bg-primary/20 border border-primary/50 flex flex-col items-center justify-center p-2 text-center text-primary/80 backdrop-blur-sm shadow-sm">
+                     {existingRequest.progress_day >= 7 && <span className="text-xs font-bold uppercase tracking-widest">Unit Econ.</span>}
+                   </div>
+                   <div className="h-20 bg-muted rounded-xl bg-primary/20 border border-primary/50 flex flex-col items-center justify-center p-2 text-center text-primary/80 backdrop-blur-sm shadow-sm">
+                     {existingRequest.progress_day >= 7 && <span className="text-xs font-bold uppercase tracking-widest">Anti-Segmento</span>}
+                   </div>
                  </div>
                  
-                 <div className={`grid grid-cols-5 gap-4 opacity-20 grayscale pointer-events-none transition-all duration-1000 ${existingRequest.progress_day >= 7 ? 'opacity-10' : ''}`}>
-                   <div className="h-64 bg-muted rounded-xl bg-card border border-primary/30 col-span-1 shadow-sm"></div>
-                   <div className="h-64 bg-muted rounded-xl bg-card border border-primary/30 col-span-1 shadow-sm"></div>
-                   <div className="h-64 bg-muted rounded-xl bg-card border border-primary/30 col-span-1 shadow-sm"></div>
-                   <div className="h-64 bg-muted rounded-xl bg-card border border-primary/30 col-span-1 shadow-sm"></div>
-                   <div className="h-64 bg-muted rounded-xl bg-card border border-primary/30 col-span-1 shadow-sm"></div>
+                 <div className={`grid grid-cols-5 gap-4 pointer-events-none transition-all duration-1000 ${existingRequest.progress_day >= 7 ? 'opacity-100' : 'opacity-20 grayscale'}`}>
+                   <div className="h-64 bg-muted rounded-xl bg-card border border-primary/30 col-span-2 shadow-sm flex items-center justify-center p-4 text-center">
+                     {existingRequest.progress_day >= 7 && <span className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Estructura Operativa</span>}
+                   </div>
+                   <div className="h-64 bg-muted rounded-xl bg-card border border-primary/30 col-span-3 shadow-sm flex items-center justify-center p-4 text-center">
+                     {existingRequest.progress_day >= 7 && <span className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Framework de Adquisición</span>}
+                   </div>
                  </div>
               </div>
 
@@ -490,9 +497,17 @@ export default function BlueprintWizard() {
                        <p className="text-sm text-muted-foreground mb-6">
                          Tu confirmación cierra este proceso formalmente. Nos encantaría solicitar tu visto bueno para publicar tu historia en nuestro portal (eliminando datos confidenciales).
                        </p>
-                       <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
-                         Aprobar Testimonio Anónimo
-                       </Button>
+                       <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
+                         <Button variant="default" className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+                           Aprobar Testimonio
+                         </Button>
+                         <Button variant="outline" className="border-border/50 text-muted-foreground hover:bg-muted w-full sm:w-auto">
+                           Prefiero Mantenerlo Privado
+                         </Button>
+                         <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 w-full sm:w-auto" onClick={() => window.open('/diamantes', '_blank')}>
+                           Solicitar Nuevo Análisis Único
+                         </Button>
+                       </div>
                      </div>
                    )}
                 </div>
