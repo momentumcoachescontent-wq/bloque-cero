@@ -26,17 +26,25 @@ const FulfillmentAdmin = () => {
     try {
       setLoading(true);
       
-      // 1. Fetch Blueprints
+      // 1. Fetch Blueprints (Sin joins relacionales para evitar errores si no hay FKs)
       const { data: blueprintsData, error: bpError } = await supabase
         .from('blueprint_requests')
-        .select(`*, profiles:user_id (email), leads:lead_id (name, email, whatsapp, business_name, idea_description)`);
-      if (bpError) throw bpError;
+        .select(`*`);
+      
+      if (bpError) {
+        console.error("Error cargando blueprints:", bpError);
+        toast.error("Aviso: No se pudieron cargar los Blueprints (" + bpError.message + ")");
+      }
 
       // 2. Fetch Radar Leads
       const { data: leadsData, error: leadsError } = await supabase
         .from('leads')
         .select('*');
-      if (leadsError) throw leadsError;
+      
+      if (leadsError) {
+        console.error("Error cargando leads:", leadsError);
+        toast.error("Aviso: No se pudieron cargar los Diagnósticos Radar (" + leadsError.message + ")");
+      }
 
       // 3. Normalize & Merge
       let unified: FulfillmentItem[] = [];
@@ -44,7 +52,6 @@ const FulfillmentAdmin = () => {
       // Map Blueprints
       if (blueprintsData) {
         blueprintsData.forEach(req => {
-          const lead = req.leads || {};
           const formats = [];
           if (req.format_pdf) formats.push('PDF Blueprint');
           if (req.format_presentation) formats.push('Pitch Deck');
@@ -53,9 +60,9 @@ const FulfillmentAdmin = () => {
           unified.push({
             id: req.id,
             type: 'blueprint',
-            title: req.diagnostic_answers?.business_name || lead.business_name || 'Sin Nombre',
-            clientName: lead.name || 'Cliente',
-            clientEmail: lead.email || req.profiles?.email || 'N/A',
+            title: req.diagnostic_answers?.business_name || 'Blueprint Project',
+            clientName: req.diagnostic_answers?.name || 'Cliente de Blueprint',
+            clientEmail: req.diagnostic_answers?.email || 'N/A',
             createdAt: req.created_at,
             deadlineDays: 7,
             isCompleted: req.progress_day >= 7 || req.status === 'completed',
