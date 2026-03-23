@@ -25,6 +25,7 @@ import AdminIndex from "./pages/admin/AdminIndex";
 import BlueprintPage from "./pages/dashboard/BlueprintPage";
 import UsersAdmin from "./pages/admin/UsersAdmin";
 import SystemAdmin from "./pages/admin/SystemAdmin";
+import FulfillmentAdmin from "./pages/admin/FulfillmentAdmin";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -115,6 +116,7 @@ const App = () => (
             {/* Rutas del Centro de Administración */}
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminIndex />} />
+              <Route path="/admin/fulfillment" element={<FulfillmentAdmin />} />
               <Route path="/admin/usuarios" element={<UsersAdmin />} />
               <Route path="/admin/sistema" element={<SystemAdmin />} />
             </Route>
