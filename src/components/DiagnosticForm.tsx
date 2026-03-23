@@ -19,6 +19,7 @@ interface FormData {
   email: string;
   whatsapp: string;
   // Paso 2: Negocio
+  businessName: string;
   businessIdea: string;
   type: BusinessType | "";
   audience: Audience | "";
@@ -105,6 +106,7 @@ const DiagnosticForm = () => {
   const [submitError, setSubmitError] = useState<any>(null);
   const [form, setForm] = useState<FormData>({
     name: "", email: "", whatsapp: "",
+    businessName: "",
     businessIdea: "",
     type: "", audience: "",
     country: "", ticket: "", channel: "",
@@ -135,7 +137,7 @@ const DiagnosticForm = () => {
           form.whatsapp.trim().length >= 8
         );
       case 1:
-        return Boolean(form.businessIdea.trim().length >= 10) && Boolean(form.type) && Boolean(form.audience);
+        return Boolean(form.businessName.trim().length >= 3) && Boolean(form.businessIdea.trim().length >= 10) && Boolean(form.type) && Boolean(form.audience);
       case 2:
         return Boolean(form.country) && Boolean(form.ticket) && Boolean(form.channel);
       case 3:
@@ -182,6 +184,8 @@ const DiagnosticForm = () => {
       email: form.email.trim().toLowerCase(),
       whatsapp: form.whatsapp.trim() || null,
       diagnostic_answers: {
+        business_name: form.businessName.trim(),
+        idea_description: form.businessIdea.trim(),
         n8n_payload: scoring.n8n_payload,
         big6: scoring.big6,
         verdict: scoring.verdict,
@@ -413,10 +417,23 @@ const DiagnosticForm = () => {
       {/* ── Paso 2: Tipo de negocio ─────────────────────────── */}
       {currentStep === 1 && (
         <div className="space-y-6">
-          {/* Pregunta Abierta */}
+          {/* Nombre Corto */}
           <div className="space-y-1.5 pt-1">
+            <Label htmlFor="diag-business-name" className="text-lg font-bold">Nombre Clave del Proyecto</Label>
+            <p className="text-sm text-muted-foreground mt-1">Cómo llamaremos a este esfuerzo táctico (ej. "Operación Fénix" o el nombre de tu marca).</p>
+            <Input 
+              id="diag-business-name" 
+              placeholder="Ej. Proyecto Titán..." 
+              value={form.businessName}
+              onChange={(e) => update("businessName", e.target.value)} 
+              className="mt-2 h-11" 
+            />
+          </div>
+
+          {/* Pregunta Abierta */}
+          <div className="space-y-1.5 pt-4">
             <div>
-              <h3 className="text-lg font-bold text-foreground">Tu Idea / Negocio</h3>
+              <h3 className="text-sm font-bold text-foreground">Tu Idea / Negocio a Detalle</h3>
               <p className="text-sm text-muted-foreground mt-1">Cuéntanos brevemente de qué trata (mínimo 10 caracteres).</p>
             </div>
             <textarea

@@ -223,7 +223,10 @@ export default function BlueprintWizard() {
                   </div>
                 ) : (
                   <div className="grid gap-4">
-                    {leads.map(lead => (
+                    {leads.map(lead => {
+                      const projectName = lead.diagnostic_answers?.business_name || lead.business_name || "Proyecto Sin Nombre";
+                      const projectDesc = lead.diagnostic_answers?.idea_description || lead.idea_description;
+                      return (
                       <div 
                         key={lead.id}
                         onClick={() => setSelectedLeadId(lead.id)}
@@ -236,10 +239,10 @@ export default function BlueprintWizard() {
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="font-semibold text-lg">
-                              {lead.business_name || (lead.idea_description ? lead.idea_description.slice(0, 50) + "..." : "Proyecto Sin Nombre")}
+                              {projectName}
                             </h3>
                             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                              {lead.idea_description || "Descrito en tu diagnóstico inicial."}
+                              {projectDesc || "Descrito en tu diagnóstico inicial."}
                             </p>
                           </div>
                           {lead.score !== undefined && lead.score !== null && (
@@ -251,7 +254,8 @@ export default function BlueprintWizard() {
                           )}
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
 
