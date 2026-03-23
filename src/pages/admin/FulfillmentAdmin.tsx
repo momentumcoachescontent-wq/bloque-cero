@@ -52,6 +52,9 @@ const FulfillmentAdmin = () => {
       // Map Blueprints
       if (blueprintsData) {
         blueprintsData.forEach(req => {
+          // Client-side join: Encontrar el lead original asociado en radar (si existe)
+          const relatedLead = leadsData?.find(l => l.id === req.lead_id) || {};
+          
           const formats = [];
           if (req.format_pdf) formats.push('PDF Blueprint');
           if (req.format_presentation) formats.push('Pitch Deck');
@@ -60,9 +63,9 @@ const FulfillmentAdmin = () => {
           unified.push({
             id: req.id,
             type: 'blueprint',
-            title: req.diagnostic_answers?.business_name || 'Blueprint Project',
-            clientName: req.diagnostic_answers?.name || 'Cliente de Blueprint',
-            clientEmail: req.diagnostic_answers?.email || 'N/A',
+            title: req.diagnostic_answers?.business_name || relatedLead.business_name || relatedLead.diagnostic_answers?.business_name || 'Blueprint Project',
+            clientName: req.diagnostic_answers?.name || relatedLead.name || 'Cliente de Blueprint',
+            clientEmail: req.diagnostic_answers?.email || relatedLead.email || 'N/A',
             createdAt: req.created_at,
             deadlineDays: 7,
             isCompleted: req.progress_day >= 7 || req.status === 'completed',
@@ -291,8 +294,8 @@ const FulfillmentAdmin = () => {
                             </Button>
                           )}
 
-                          {/* Botones Universales de Cumplimiento (Solo visibles si está a punto de completarse o completado) */}
-                          <div className={`grid grid-cols-2 gap-2 transition-all duration-300 ${(item.type === 'blueprint' && item.progressDay === 7) || item.isCompleted ? 'opacity-100 scale-100 pointer-events-auto mt-1' : 'opacity-50 scale-95 pointer-events-none h-0 overflow-hidden'}`}>
+                          {/* Botones Universales de Cumplimiento (Siempre visibles para Blueprint, condicionales para Radar) */}
+                          <div className={`grid grid-cols-2 gap-2 transition-all duration-300 ${item.type === 'blueprint' || item.isCompleted ? 'opacity-100 scale-100 pointer-events-auto mt-1' : 'opacity-50 scale-95 pointer-events-none h-0 overflow-hidden'}`}>
                              <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-primary/20 hover:bg-primary/5 hover:text-primary" onClick={() => handleUploadClick('Docs', item.type)}>
                                <UploadCloud className="w-3 h-3" /> Subir
                              </Button>

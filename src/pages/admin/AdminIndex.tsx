@@ -8,6 +8,7 @@ const AdminIndex = () => {
     totalLeads: 0,
     totalProfiles: 0,
     avgScore: 0,
+    totalBlueprints: 0,
   });
   const [leadsList, setLeadsList] = useState<any[]>([]);
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
@@ -15,10 +16,11 @@ const AdminIndex = () => {
 
   const loadStats = async () => {
     // Para efectos del MVP, sacamos conteos brutos. En Fase >3 usaremos una RPC analítica.
-    const [leadsRes, profilesRes, leadsDataRes] = await Promise.all([
+    const [leadsRes, profilesRes, leadsDataRes, blueprintsRes] = await Promise.all([
       supabase.from("leads").select("score", { count: "exact" }),
       supabase.from("profiles").select("id", { count: "exact" }),
-      supabase.from("leads").select("*").order("created_at", { ascending: false })
+      supabase.from("leads").select("*").order("created_at", { ascending: false }),
+      supabase.from("blueprint_requests").select("id", { count: "exact" })
     ]);
 
     let avg = 0;
@@ -31,6 +33,7 @@ const AdminIndex = () => {
       totalLeads: leadsRes.count || 0,
       totalProfiles: profilesRes.count || 0,
       avgScore: avg,
+      totalBlueprints: blueprintsRes.count || 0,
     });
     setLeadsList(leadsDataRes.data || []);
     setLoading(false);
@@ -78,7 +81,7 @@ const AdminIndex = () => {
     { title: "Diagnósticos (Leads)", value: stats.totalLeads, icon: Target, color: "text-blue-500", bg: "bg-blue-500/10" },
     { title: "Usuarios Registrados", value: stats.totalProfiles, icon: Users, color: "text-emerald-500", bg: "bg-emerald-500/10" },
     { title: "Viabilidad Promedio", value: stats.avgScore, icon: Activity, color: "text-orange-500", bg: "bg-orange-500/10", suffix: "/100" },
-    { title: "Proyectos Activos", value: "0", icon: Zap, color: "text-purple-500", bg: "bg-purple-500/10" }, // Mock para iteración futura
+    { title: "Proyectos Activos", value: stats.totalBlueprints, icon: Zap, color: "text-purple-500", bg: "bg-purple-500/10" },
   ];
 
   return (
