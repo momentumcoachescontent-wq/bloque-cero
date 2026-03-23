@@ -176,8 +176,10 @@ const AdminIndex = () => {
                         ) : (
                            <>
                              <div className="flex items-center gap-1.5 mb-1 text-primary font-bold text-[10px] uppercase tracking-wider"><Target className="w-3 h-3" /> Radar de Idea</div>
-                             <p className="font-bold text-foreground truncate max-w-[200px] xl:max-w-[300px]">{lead.name}</p>
-                             <p className="text-muted-foreground text-xs">{lead.email}</p>
+                             <p className="font-bold text-foreground truncate max-w-[200px] xl:max-w-[300px]" title={lead.diagnostic_answers?.n8n_payload?.business_profile?.business_idea || lead.business_name || lead.diagnostic_answers?.business_name || "Proyecto Escáner"}>
+                               {lead.diagnostic_answers?.n8n_payload?.business_profile?.business_idea || lead.business_name || lead.diagnostic_answers?.business_name || "Proyecto Escáner"}
+                             </p>
+                             <p className="text-muted-foreground text-xs truncate max-w-[200px] xl:max-w-[300px]">{lead.name} - {lead.email}</p>
                            </>
                         )}
                       </td>
