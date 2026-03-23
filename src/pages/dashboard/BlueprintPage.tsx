@@ -80,6 +80,12 @@ const BIG_6_QUESTIONS = [
     question: "El Riesgo Mortal (Kill Factor)",
     description: "¿Qué es lo peor que podría pasar en el mercado o en tu operación que te obligaría a bajar la cortina mañana?",
     ai_suggestion: "Si Google o Facebook cambian sus políticas de privacidad y ya no podemos conectarnos a sus APIs, el negocio muere."
+  },
+  {
+    id: "revenue_pricing",
+    question: "Motor de Rentabilidad (Pricing)",
+    description: "¿Cómo cobras exactamente y por qué tu cliente siente que está ganando dinero o tiempo al pagarte ese precio?",
+    ai_suggestion: "Cobramos un fee mensual de $500 USD, pero les ahorramos $2000 USD en multas y horas de sus contadores."
   }
 ];
 
@@ -140,6 +146,11 @@ export default function BlueprintWizard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleMakePrivate = () => {
+    toast.success("Tu privacidad es prioritaria. Tu caso ha sido blindado y quedará fuera de los casos de éxito.", { icon: "🔒" });
+    setTimeout(() => window.location.href = "/", 3000);
   };
 
   const handleCreateRequest = async () => {
@@ -501,7 +512,7 @@ export default function BlueprintWizard() {
                          <Button variant="default" className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                            Aprobar Testimonio
                          </Button>
-                         <Button variant="outline" className="border-border/50 text-muted-foreground hover:bg-muted w-full sm:w-auto">
+                         <Button variant="outline" onClick={handleMakePrivate} className="border-border/50 text-muted-foreground hover:bg-muted w-full sm:w-auto">
                            Prefiero Mantenerlo Privado
                          </Button>
                          <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 w-full sm:w-auto" onClick={() => window.open('/diamantes', '_blank')}>
