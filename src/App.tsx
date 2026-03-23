@@ -57,7 +57,7 @@ const App = () => (
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<DashboardIndex />} />
               <Route path="/dashboard/perfil" element={<Profile />} />
-              <Route path="/dashboard/blueprint" element={<BlueprintPage />} />
+              <Route path="/dashboard/blueprint" element={<BlueprintPage />} /> {/* Dashboard Forzado */}
               <Route path="/dashboard/mvp" element={
                 <PremiumBlock 
                   title="MVP de Validación" 

@@ -25,7 +25,7 @@ const Sidebar = () => {
       label: "1. Radar de Idea",
       icon: Target,
       path: "/dashboard",
-      isLocked: false,
+      isLocked: false, // Forzar recálculo en Lovable
     },
     {
       id: "blueprint",
