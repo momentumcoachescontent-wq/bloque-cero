@@ -52,7 +52,8 @@ CREATE POLICY "Users can update own profile"
 ON public.profiles FOR UPDATE 
 USING ( auth.uid() = id );
 
--- 10. Agregar columnas de control administrativo a leads para el panel (Checkboxes)
+-- 10. Agregar columnas de control administrativo a leads para el panel (Checkboxes y Entregables)
 ALTER TABLE public.leads 
 ADD COLUMN IF NOT EXISTS is_analysis_generated BOOLEAN DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS is_analysis_sent BOOLEAN DEFAULT FALSE;
+ADD COLUMN IF NOT EXISTS is_analysis_sent BOOLEAN DEFAULT FALSE,
+ADD COLUMN IF NOT EXISTS blueprint_data JSONB;

@@ -22,6 +22,7 @@ import PremiumBlock from "./pages/dashboard/PremiumBlock";
 // Admin Interface
 import AdminLayout from "./layouts/AdminLayout";
 import AdminIndex from "./pages/admin/AdminIndex";
+import BlueprintPage from "./pages/dashboard/BlueprintPage";
 import UsersAdmin from "./pages/admin/UsersAdmin";
 import SystemAdmin from "./pages/admin/SystemAdmin";
 
@@ -56,19 +57,7 @@ const App = () => (
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<DashboardIndex />} />
               <Route path="/dashboard/perfil" element={<Profile />} />
-              <Route path="/dashboard/blueprint" element={
-                <PremiumBlock 
-                  title="Blueprint Operativo" 
-                  description="Transforma tu negocio manual en un sistema predecible y documentado."
-                  priceTag="OTC"
-                  features={[
-                    "Mapeo de procesos core",
-                    "Estandarización de servicios",
-                    "Eliminación de cuellos de botella",
-                    "Preparación para escalabilidad y delegación"
-                  ]}
-                />
-              } />
+              <Route path="/dashboard/blueprint" element={<BlueprintPage />} />
               <Route path="/dashboard/mvp" element={
                 <PremiumBlock 
                   title="MVP de Validación" 
