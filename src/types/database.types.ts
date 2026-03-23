@@ -63,6 +63,7 @@ export interface Database {
           } | null
           is_analysis_generated: boolean
           is_analysis_sent: boolean
+          analysis_file_url: string | null
           created_at: string
           updated_at: string
         }
@@ -77,6 +78,9 @@ export interface Database {
           format_pdf: boolean
           format_presentation: boolean
           format_infographic: boolean
+          pdf_url: string | null
+          presentation_url: string | null
+          infographic_url: string | null
           progress_day: number
           status: 'pending' | 'in_progress' | 'completed' | string
           created_at: string

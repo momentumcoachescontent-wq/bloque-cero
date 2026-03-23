@@ -2,6 +2,7 @@ import React from "react";
 import { toast } from "sonner";
 import { Clock, CheckCircle2, AlertTriangle, FileText, UploadCloud, Send, Zap, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DeliverableUploader } from "@/components/admin/DeliverableUploader";
 import { useFulfillmentQueue } from "@/hooks/useFulfillmentQueue";
 
 const calculateSLA = (createdAt: string, deadlineDays: number) => {
@@ -19,12 +20,38 @@ const calculateSLA = (createdAt: string, deadlineDays: number) => {
 const FulfillmentAdmin = () => {
   const { items, loadingQueue, refetchQueue, updateBlueprintProgress, toggleRadarCompletion } = useFulfillmentQueue();
 
-  const handleUploadClick = (format: string, type: string) => {
-    toast("Ingesta Activada", { description: `El flujo de subida para [${format}] del proyecto [${type}] requiere el bucket de Storage (Próxima fase).` });
-  };
+  const handleNotifyClient = async (item: typeof items[0]) => {
+    try {
+      // Endpoint del Webhook en n8n. En producción usar variable de entorno: import.meta.env.VITE_N8N_WEBHOOK_URL
+      const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://tu-n8n.com/webhook/bloque-cero-dispatch';
+      
+      const payload = {
+        clientName: item.clientName,
+        clientEmail: item.clientEmail,
+        projectId: item.id,
+        projectType: item.type,
+        // Extracción dinámica de URLs según el tipo
+        radarUrl: item.type === 'radar' ? (item.sourceData as any).analysis_file_url : null,
+        blueprintPdf: item.type === 'blueprint' ? (item.sourceData as any).pdf_url : null,
+        blueprintPitch: item.type === 'blueprint' ? (item.sourceData as any).presentation_url : null,
+        blueprintInfographic: item.type === 'blueprint' ? (item.sourceData as any).infographic_url : null,
+      };
 
-  const handleNotifyClient = (email: string) => {
-    toast.success("Notificación Disparada", { description: `Webhook enviado a n8n para despachar correo con adjuntos a ${email}` });
+      // toast.info("Despachando...", { description: "Conectando con n8n..." });
+
+      const res = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error("Fallo en la respuesta del Webhook n8n");
+
+      toast.success("Notificación Disparada", { description: `Los entregables de ${item.clientName} fueron enviados al orquestador.` });
+    } catch (err: unknown) {
+      // Por ahora es un toast de error si tu n8n no está vivo, no bloquea la DB.
+      toast.error("Aviso de Despacho", { description: "Simulación de envío; configura VITE_N8N_WEBHOOK_URL en .env para el envío real." });
+    }
   };
 
   return (
@@ -151,10 +178,12 @@ const FulfillmentAdmin = () => {
 
                           {/* Botones Universales de Cumplimiento (Siempre visibles para Blueprint, condicionales para Radar) */}
                           <div className={`grid grid-cols-2 gap-2 transition-all duration-300 ${item.type === 'blueprint' || item.isCompleted ? 'opacity-100 scale-100 pointer-events-auto mt-1' : 'opacity-50 scale-95 pointer-events-none h-0 overflow-hidden'}`}>
-                             <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-primary/20 hover:bg-primary/5 hover:text-primary" onClick={() => handleUploadClick('Docs', item.type)}>
-                               <UploadCloud className="w-3 h-3" /> Subir
-                             </Button>
-                             <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-green-500/20 hover:bg-green-500/10 hover:text-green-600" onClick={() => handleNotifyClient(item.clientEmail)}>
+                             <DeliverableUploader item={item} onUploadSuccess={refetchQueue}>
+                               <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-primary/20 hover:bg-primary/5 hover:text-primary">
+                                 <UploadCloud className="w-3 h-3" /> Subir
+                               </Button>
+                             </DeliverableUploader>
+                             <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-green-500/20 hover:bg-green-500/10 hover:text-green-600" onClick={() => handleNotifyClient(item)}>
                                <Send className="w-3 h-3" /> Enviar
                              </Button>
                           </div>
