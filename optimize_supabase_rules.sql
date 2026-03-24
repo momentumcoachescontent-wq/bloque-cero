@@ -49,6 +49,7 @@ DROP POLICY IF EXISTS "Admins can update all leads" ON public.leads;
 DROP POLICY IF EXISTS "Admins can view all leads" ON public.leads;
 DROP POLICY IF EXISTS "leads: admin full access" ON public.leads;
 DROP POLICY IF EXISTS "leads: anyone can insert with valid email" ON public.leads;
+DROP POLICY IF EXISTS "leads: owner can view own leads" ON public.leads;
 
 CREATE POLICY "Admins can view all leads" 
 ON public.leads FOR SELECT TO authenticated 
@@ -57,6 +58,10 @@ USING ( (select public.get_user_role()) = 'admin' );
 CREATE POLICY "Admins can update all leads" 
 ON public.leads FOR UPDATE TO authenticated 
 USING ( (select public.get_user_role()) = 'admin' );
+
+CREATE POLICY "leads: owner can view own leads" 
+ON public.leads FOR SELECT TO authenticated 
+USING ( email = (select auth.jwt()->>'email') );
 
 CREATE POLICY "leads: anyone can insert with valid email" 
 ON public.leads FOR INSERT TO public 
