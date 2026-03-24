@@ -1,6 +1,25 @@
 # Session Learnings — Bloque Cero
 
 ---
+## Sesión 002 — 2026-03-23 (Transmutando el Error en Resiliencia Estructural)
+
+### Contexto
+Auditoría profunda de seguridad sobre el esquema de Supabase. El sistema presentaba "Puntos Ciegos" (autosabotaje): funciones inexistentes (`get_user_role()`), perfiles frágiles en el AuthContext, reglas que permitían spam en `leads` y reglas destructivas de administradores en `projects`.
+
+### Lo que fallaba (Las Sombras)
+- Políticas de seguridad dependiendo de `get_user_role()` cuando esta función no existía en la DB.
+- Frontend AuthContext paralizado sin fallbacks en caso de que el disparador de base de datos fallara.
+- `leads` permitiendo entradas sin filtro (`WITH CHECK (true)`).
+- `projects` permitiendo borrado ciego por admins (`FOR ALL`).
+
+### Decisiones Tomadas (La Cura)
+- Inyectar identidades reales: Crear función garantizada `get_user_role()` usando `SECURITY DEFINER`.
+- Abrazar el conflicto: Añadir mecanismo de reintento y fallback en Memoria Virtual (`AuthContext.tsx`) para proteger al usuario local.
+- Imponer límites: Reemplazar `WITH CHECK (true)` en las políticas abiertas por reglas de validación mínima (como Regex para emails en el DB layer).
+- Freno de destrucción: Trocear políticas `FOR ALL` de administradores hacia solo `SELECT/UPDATE`.
+- Documentar estas *Leyes de Resiliencia Inquebrantable* en `SKILL.md` para blindar todos los desarrollos futuros bajo estos preceptos.
+
+---
 ## Sesión 001 — 2026-03-19 (Sesión de Arranque)
 
 ### Contexto
