@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
@@ -94,59 +95,53 @@ export default function BlueprintWizard() {
   
   // State Machine
   const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   
-  // Data
-  const [leads, setLeads] = useState<any[]>([]);
-  const [existingRequest, setExistingRequest] = useState<any>(null);
+  // Data State ya no se manejan con useState, se manejan abajo con useQuery
   
   // Form State
   const [selectedLeadId, setSelectedLeadId] = useState<string>("");
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [selectedFormat, setSelectedFormat] = useState<string>("");
 
-  useEffect(() => {
-    fetchInitialState();
-  }, [profile]);
-
-  const fetchInitialState = async () => {
-    if (!profile?.id) return;
-    
-    try {
-      setLoading(true);
-      
-      const { data: requestData } = await supabase
+  // Queries con Cache
+  const { data: requestData, isLoading: loadingRequest } = useQuery({
+    queryKey: ['blueprint_requests', profile?.id],
+    queryFn: async () => {
+      const { data } = await supabase
         .from('blueprint_requests')
         .select('*')
-        .eq('user_id', profile.id)
+        .eq('user_id', profile?.id)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
+      return data || null;
+    },
+    enabled: !!profile?.id,
+  });
 
-      if (requestData) {
-        setExistingRequest(requestData);
-        setStep(4);
-        return;
-      }
-
-      const { data: leadsData } = await supabase
+  const { data: leadsData = [], isLoading: loadingLeads } = useQuery({
+    queryKey: ['leads', profile?.email],
+    queryFn: async () => {
+      const { data } = await supabase
         .from('leads')
         .select('*')
-        .eq('email', profile.email)
+        .eq('email', profile?.email)
         .order('created_at', { ascending: false });
+      return data || [];
+    },
+    enabled: !!profile?.email && !requestData, // No cargamos leads si ya hay request
+  });
 
-      if (leadsData && leadsData.length > 0) {
-        setLeads(leadsData);
-      }
-      
-    } catch (err) {
-      console.error(err);
-      toast.error("Error al cargar datos.");
-    } finally {
-      setLoading(false);
+  const loading = loadingRequest || (loadingLeads && !requestData);
+  const existingRequest = requestData;
+  const leads = leadsData;
+
+  useEffect(() => {
+    if (existingRequest) {
+      setStep(4);
     }
-  };
+  }, [existingRequest]);
 
   const handleMakePrivate = () => {
     toast.success("Tu privacidad es prioritaria. Tu caso ha sido blindado y quedará fuera de los casos de éxito.", { icon: "🔒" });
@@ -179,8 +174,10 @@ export default function BlueprintWizard() {
       if (error) throw error;
       
       toast.success("¡Blueprint en marcha!");
-      setExistingRequest(data);
       setStep(4);
+      // Forzamos un recargo de la ventana para reiniciar las queries limpiamente 
+      // y visualizar la nueva request si no queremos inyectar el queryClient aquí.
+      window.location.reload();
       
     } catch (err) {
       console.error(err);

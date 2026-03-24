@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { Target, AlertTriangle, Zap, Trash2, ChevronDown, ChevronUp } from "lucide-react";
@@ -14,33 +15,34 @@ const SCORE_BG = (s: number) =>
 
 const DashboardIndex = () => {
   const { profile } = useAuth();
-  const [leads, setLeads] = useState<any[]>([]);
+  const queryClient = useQueryClient();
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  const loadUserDiagnostic = async () => {
-    if (!profile?.email) return;
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("leads")
-      .select("*")
-      .eq("email", profile.email)
-      .order("created_at", { ascending: false });
+  const { data: leads = [], isLoading: loading } = useQuery({
+    queryKey: ['leads', profile?.email],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("*")
+        .eq("email", profile?.email)
+        .order("created_at", { ascending: false });
       
-    if (!error && data) {
-      setLeads(data);
-      if (data.length > 0) {
-        setExpandedLead(data[0].id); // Auto-expandir el más reciente
+      if (error) {
+        toast.error("Error al cargar historial: " + error.message);
+        return [];
       }
-    } else {
-      setLeads([]);
-    }
-    setLoading(false);
-  };
+      return data || [];
+    },
+    enabled: !!profile?.email,
+    staleTime: 1000 * 60 * 5, // 5 min
+  });
 
+  // Auto-expandir el más reciente en la carga inicial
   useEffect(() => {
-    loadUserDiagnostic();
-  }, [profile]);
+    if (leads.length > 0 && !expandedLead) {
+      setExpandedLead(leads[0].id);
+    }
+  }, [leads]);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -54,7 +56,10 @@ const DashboardIndex = () => {
 
       if (error) throw error;
       toast.success("Análisis eliminado correctamente");
-      setLeads(prev => prev.filter(l => l.id !== id));
+      // Actualizar la caché en lugar de hacer refetch
+      queryClient.setQueryData(['leads', profile?.email], (oldData: any[]) => 
+        oldData ? oldData.filter(l => l.id !== id) : []
+      );
       if (expandedLead === id) setExpandedLead(null);
     } catch (error: any) {
       toast.error("Error al eliminar el análisis: " + error.message);
