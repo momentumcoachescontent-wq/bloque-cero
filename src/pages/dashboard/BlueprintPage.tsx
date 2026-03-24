@@ -432,18 +432,18 @@ export default function BlueprintWizard() {
                         <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3 drop-shadow-sm" />
                         <p className="text-sm font-semibold text-foreground uppercase tracking-widest mb-6">Blueprint Finalizado</p>
                         <div className="flex justify-center flex-wrap gap-3 pointer-events-auto">
-                          {existingRequest.format_pdf && (
-                            <Button variant="outline" className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
+                          {existingRequest.format_pdf && existingRequest.pdf_url && (
+                            <Button variant="outline" onClick={() => window.open(existingRequest.pdf_url, '_blank')} className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
                               <FileDown className="w-4 h-4" /> Bajar PDF
                             </Button>
                           )}
-                          {existingRequest.format_presentation && (
-                            <Button variant="outline" className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
+                          {existingRequest.format_presentation && existingRequest.presentation_url && (
+                            <Button variant="outline" onClick={() => window.open(existingRequest.presentation_url, '_blank')} className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
                               <Presentation className="w-4 h-4" /> Bajar Pitch
                             </Button>
                           )}
-                          {existingRequest.format_infographic && (
-                            <Button variant="outline" className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
+                          {existingRequest.format_infographic && existingRequest.infographic_url && (
+                            <Button variant="outline" onClick={() => window.open(existingRequest.infographic_url, '_blank')} className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
                               <Aperture className="w-4 h-4" /> Bajar Infografía
                             </Button>
                           )}

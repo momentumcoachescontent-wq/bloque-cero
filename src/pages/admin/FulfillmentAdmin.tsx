@@ -184,7 +184,7 @@ const FulfillmentAdmin = () => {
                                </Button>
                              </DeliverableUploader>
                              <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-green-500/20 hover:bg-green-500/10 hover:text-green-600" onClick={() => handleNotifyClient(item)}>
-                               <Send className="w-3 h-3" /> Enviar
+                               <Send className="w-3 h-3" /> Reenviar Correo
                              </Button>
                           </div>
 
