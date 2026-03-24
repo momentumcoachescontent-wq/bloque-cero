@@ -133,7 +133,7 @@ const DiagnosticForm = () => {
       case 0:
         return (
           form.name.trim().length > 0 &&
-          form.email.includes("@") &&
+          /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(form.email.trim()) &&
           form.whatsapp.trim().length >= 8
         );
       case 1:

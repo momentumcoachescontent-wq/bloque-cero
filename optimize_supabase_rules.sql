@@ -71,6 +71,7 @@ DROP POLICY IF EXISTS "projects: client can select own" ON public.projects;
 DROP POLICY IF EXISTS "projects: admin full access" ON public.projects;
 DROP POLICY IF EXISTS "Users can view own projects" ON public.projects;
 DROP POLICY IF EXISTS "Admins can view all projects" ON public.projects;
+DROP POLICY IF EXISTS "Admins can update all projects" ON public.projects;
 
 CREATE POLICY "Admins can view all projects" 
 ON public.projects FOR SELECT TO authenticated 
