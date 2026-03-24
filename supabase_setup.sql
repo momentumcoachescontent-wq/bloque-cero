@@ -10,6 +10,17 @@ SET
   is_premium = TRUE
 WHERE email = 'momentumcoaches.content@gmail.com';
 
+-- 2.5 CREAR LA IDENTIDAD REAL (La cura para el Punto Ciego)
+CREATE OR REPLACE FUNCTION public.get_user_role()
+RETURNS text AS $$
+DECLARE
+  extracted_role text;
+BEGIN
+  SELECT role INTO extracted_role FROM public.profiles WHERE id = auth.uid();
+  RETURN extracted_role;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- 3. Crear política para que admins puedan leer todos los profiles
 DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
 CREATE POLICY "Admins can view all profiles" 
