@@ -136,7 +136,7 @@ export default function BlueprintWizard() {
         .order('created_at', { ascending: false });
       return data || [];
     },
-    enabled: !!profile?.email && !requestData, // No cargamos leads si ya hay request
+    enabled: !!profile?.email, // Siempre cargamos leads para tener contexto del Radar
   });
 
   const loading = loadingRequest || (loadingLeads && !requestData);
@@ -395,6 +395,35 @@ export default function BlueprintWizard() {
 
           {step === 4 && existingRequest && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+
+              {/* BASELINE DEL RADAR: Conectividad con el inicio */}
+              {(() => {
+                const lead = leadsData.find((l: any) => l.id === existingRequest.lead_id);
+                if (!lead) return null;
+                const projectName = lead.diagnostic_answers?.business_name || lead.business_name || "Proyecto en análisis";
+                
+                return (
+                  <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-500">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Target className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Baseline del Radar</p>
+                        <p className="text-sm font-bold text-foreground">{projectName}</p>
+                      </div>
+                    </div>
+                    {lead.score !== undefined && lead.score !== null && (
+                      <div className="text-right">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Viabilidad Inicial</p>
+                        <p className={`text-sm font-bold ${lead.score >= 75 ? "text-green-500" : lead.score >= 50 ? "text-yellow-500" : "text-red-500"}`}>
+                          {lead.score}/100
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {existingRequest.status === 'error' && (
                 <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 flex items-start gap-3">
