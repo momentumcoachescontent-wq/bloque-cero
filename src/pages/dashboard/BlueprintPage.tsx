@@ -187,7 +187,12 @@ export default function BlueprintWizard() {
             user_id: profile!.id,
             lead_id: selectedLeadId,
             diagnostic_answers: answers,
-            created_at: data.created_at
+            created_at: data.created_at,
+            format_configuration: {
+              pdf: selectedFormat.includes('pdf'),
+              presentation: selectedFormat.includes('presentation'),
+              infographic: selectedFormat.includes('infographic')
+            }
           })
         });
       } catch (webhookErr) {
