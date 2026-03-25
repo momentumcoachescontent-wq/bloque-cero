@@ -12,6 +12,7 @@ import Diagnostic from "./pages/Diagnostic.tsx";
 import Privacidad from "./pages/Privacidad.tsx";
 import Terminos from "./pages/Terminos.tsx";
 import Contacto from "./pages/Contacto.tsx";
+import BlueprintLanding from "./pages/BlueprintLanding.tsx";
 
 // Dashboard Cliente
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/privacidad" element={<Privacidad />} />
             <Route path="/terminos" element={<Terminos />} />
             <Route path="/contacto" element={<Contacto />} />
+            <Route path="/blueprint-info" element={<BlueprintLanding />} />
 
             {/* Rutas del Dashboard de Cliente */}
             <Route element={<DashboardLayout />}>

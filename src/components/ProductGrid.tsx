@@ -25,8 +25,8 @@ const products = [
     tiempo: "1 semana",
     badge: "OTC",
     badgeGreen: false,
-    ctaHref: "/dashboard/blueprint",
-    cta: "Desarrollar",
+    ctaHref: "/blueprint-info",
+    cta: "Saber más",
   },
   {
     num: "03",

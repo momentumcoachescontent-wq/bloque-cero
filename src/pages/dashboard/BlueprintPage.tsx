@@ -16,7 +16,9 @@ import {
   FileDown,
   Presentation,
   LayoutTemplate,
-  XCircle
+  XCircle,
+  Zap,
+  ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,69 +27,69 @@ import { Textarea } from "@/components/ui/textarea";
 const BIG_6_QUESTIONS = [
   {
     id: "real_problem",
-    question: "El Dolor Real",
-    description: "Más allá de lo obvio, ¿cuál es ese dolor de cabeza o frustración que realmente le quitas a tu cliente?",
-    ai_suggestion: "Les quito la frustración de perder dinero y tiempo lidiando con agencias que no entregan métricas claras."
+    question: "Análisis de Fricción Crítica (Pain Point)",
+    description: "Identificación de la patología operativa o frustración sistémica que tu solución resuelve de raíz.",
+    ai_suggestion: "Eliminamos el lucro cesante por ineficiencia en la gestión de métricas publicitarias."
   },
   {
     id: "value_prop",
-    question: "Propuesta de Valor (Sin paja)",
-    description: "Si tuvieras que explicarle a un niño de 10 años por qué eres mejor que tu competencia, ¿qué le dirías?",
-    ai_suggestion: "Nosotros hacemos en 5 minutos lo que a otros les toma una semana entera, y sin cobrarte por adelantado."
+    question: "Arquitectura de Diferenciación (Value Prop)",
+    description: "Definición del núcleo de valor que invalida a la competencia ante los ojos de tu cliente ideal.",
+    ai_suggestion: "Reducción del 90% en tiempos de procesamiento mediante automatización cognitiva propia."
   },
   {
     id: "unfair_advantage",
-    question: "Foso Defensivo (Unfair Advantage)",
-    description: "¿Qué componente de tu operación es casi imposible de copiar, incluso si alguien llega con muchísimo más presupuesto (lana)?",
-    ai_suggestion: "Nuestra red de contactos exclusiva en la industria que construimos durante 15 años."
+    question: "Blindaje Competitivo (Unfair Advantage)",
+    description: "Componentes operativos, de datos o de red que son invulnerables a la réplica por competidores con mayor capital.",
+    ai_suggestion: "Propiedad intelectual sobre el algoritmo de clasificación y red de aliados Clase A."
   },
   {
     id: "unit_economics",
-    question: "Límites de Viabilidad",
-    description: "Ignorando lo que te costó arrancar, ¿cuánto te cuesta de tu bolsa entregarle tu servicio/producto a *un cliente nuevo*?",
-    ai_suggestion: "$0 pesos extra porque es puro software, pero le dedico unas 2 horas a la semana a soporte por cliente."
+    question: "Matriz de Sostenibilidad (Unit Economics)",
+    description: "Determinación del costo marginal de entrega y viabilidad financiera por unidad de servicio/producto.",
+    ai_suggestion: "Margen operativo del 85% tras absorber costos de infraestructura digital por usuario."
   },
   {
     id: "ideal_segment",
-    question: "Segmento Láser",
-    description: "Describe a tu cliente ideal, ese que te compra rápido porque entiende el valor y no te da lata.",
-    ai_suggestion: "Directores de operaciones en empresas manufactureras de entre 50 y 200 empleados que odian usar Excel."
+    question: "Segmentación de Alta Probabilidad",
+    description: "Perfil demográfico y psicográfico del cliente con menor resistencia a la adopción y mayor LTV.",
+    ai_suggestion: "Directores de Operaciones en Middle-Market (facturación > $5M USD) con stack tecnológico obsoleto."
   },
   {
     id: "anti_segment",
-    question: "Anti-Segmento (Focus Láser)",
-    description: "¿A quién NO le venderías jamás tu producto o servicio, aunque trajera el dinero en la bolsa?",
-    ai_suggestion: "A 'solopreneurs' o freelancers que no tienen un equipo, porque mi herramienta es para colaboración."
+    question: "Exclusión Estratégica (Anti-Segmento)",
+    description: "Definición rigurosa de prospectos que erosionan el margen o degradan la calidad del sistema operativo.",
+    ai_suggestion: "Microempresas sin equipo de implementación o baja disposición tecnológica."
   },
   {
     id: "bottleneck",
-    question: "El Tronadero (Cuello de Botella)",
-    description: "Si multiplicaras tus ventas x10 mañana por pura suerte, ¿qué área exacta de tu operación tronaría primero?",
-    ai_suggestion: "El proceso de onboarding manual tronaría enseguida. No tenemos personal para dar de alta a 100 clientes de golpe."
+    question: "Puntos de Ruptura (Scalability Bottleneck)",
+    description: "Identificación del primer componente del sistema que colapsaría ante un incremento de demanda 10x.",
+    ai_suggestion: "La fase de onboarding manual requiere transición inmediata a autoservicio guiado por IA."
   },
   {
     id: "acquisition",
-    question: "Estrategia de Adquisición",
-    description: "¿Cuál es tu canal principal para jalar clientes hoy y cuánto te cuesta traer uno nuevo en promedio?",
-    ai_suggestion: "Casi todo llega orgánico por LinkedIn y referencias. Me sale 'gratis' en lana, pero me cuesta 5 horas a la semana de networking."
+    question: "Ecosistema de Adquisición",
+    description: "Canales de tracción probados y métricas estimadas de CAC para escalamiento previsible.",
+    ai_suggestion: "Estrategia de Content-Led Growth en LinkedIn + Alianzas con cámaras industriales."
   },
   {
     id: "endgame",
-    question: "La Visión a 3 Años (Endgame)",
-    description: "Si todo sale a la perfección, ¿cómo se ve tu negocio operando en piloto automático en 3 años?",
-    ai_suggestion: "Cobrando suscripciones mensuales recurrentes con un equipo de 3 personas gestionando la plataforma desde cualquier lado."
+    question: "Visión de Estado Final (3 Años)",
+    description: "Configuración del negocio operando en régimen de autonomía y eficiencia máxima.",
+    ai_suggestion: "Liderazgo en el nicho regional con una tasa de retención (Retention) superior al 95%."
   },
   {
     id: "kill_factor",
-    question: "El Riesgo Mortal (Kill Factor)",
-    description: "¿Qué es lo peor que podría pasar en el mercado o en tu operación que te obligaría a bajar la cortina mañana?",
-    ai_suggestion: "Si Google o Facebook cambian sus políticas de privacidad y ya no podemos conectarnos a sus APIs, el negocio muere."
+    question: "Análisis de Riesgo Sistémico (Kill Factor)",
+    description: "Variables externas o internas con potencial para invalidar el modelo de negocio de forma estructural.",
+    ai_suggestion: "Dependencia crítica de APIs de terceros con riesgo de cambio de términos unilateral."
   },
   {
     id: "revenue_pricing",
-    question: "Motor de Rentabilidad (Pricing)",
-    description: "¿Cómo cobras exactamente y por qué tu cliente siente que está ganando dinero o tiempo al pagarte ese precio?",
-    ai_suggestion: "Cobramos un fee mensual de $500 USD, pero les ahorramos $2000 USD en multas y horas de sus contadores."
+    question: "Ingeniería de Rentabilidad (Pricing)",
+    description: "Estructura de cobro vinculada a la entrega de valor, asegurando la captura de excedente del consumidor.",
+    ai_suggestion: "Suscripción basada en volumen de ahorro generado, alineando incentivos con el cliente."
   }
 ];
 
@@ -176,6 +178,9 @@ export default function BlueprintWizard() {
 
       if (error) throw error;
       
+      // Buscamos el lead original para enviar sus respuestas del Radar a n8n
+      const selectedLead = leadsData.find((l: any) => l.id === selectedLeadId);
+
       // Disparo directo a n8n desde el cliente para bypassear pg_net que colapsaba la DB
       try {
         await fetch('https://n8n-n8n.z3tydl.easypanel.host/webhook-test/bloque-cero-blueprint', {
@@ -186,6 +191,7 @@ export default function BlueprintWizard() {
             request_id: data.id,
             user_id: profile!.id,
             lead_id: selectedLeadId,
+            radar_answers: selectedLead?.diagnostic_answers || {},
             diagnostic_answers: answers,
             created_at: data.created_at,
             format_configuration: {
@@ -454,6 +460,22 @@ export default function BlueprintWizard() {
                       })}
                     </div>
                   </div>
+
+                  {/* Análisis Preliminar Inyectado */}
+                  {(existingRequest.generated_blueprint as any)?.preliminary && (
+                    <div className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-xl animate-in fade-in slide-in-from-top-4 duration-1000">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Zap className="w-4 h-4 text-primary" />
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-primary">Inyección de Análisis Inicial</h3>
+                      </div>
+                      <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap italic">
+                        {(existingRequest.generated_blueprint as any).preliminary}
+                      </div>
+                      <p className="text-[10px] text-primary/60 mt-4 uppercase tracking-tighter">
+                        * Este análisis es una primera aproximación algorítmica. Tu Blueprint final de 7 días incluirá la arquitectura completa.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -541,7 +563,7 @@ export default function BlueprintWizard() {
                        <p className="text-sm text-muted-foreground mb-6">
                          Como firma boutique, nuestro equipo de soporte prioriza resultados por encima del protocolo. ¿El Blueprint superó tus expectativas operativas?
                        </p>
-                       <div className="flex justify-center gap-4">
+                       <div className="flex justify-center flex-wrap gap-4">
                          <Button 
                            variant="secondary" 
                            onClick={() => setAnswers({...answers, qa_completed: "true"})}
@@ -551,7 +573,7 @@ export default function BlueprintWizard() {
                          </Button>
                          <Button 
                            variant="outline" 
-                           onClick={() => window.open('/contacto', '_blank')}
+                           onClick={() => window.location.href = '/contacto?subject=blueprint_qa'}
                            className="text-primary border-primary/50 hover:bg-primary/10 bg-transparent"
                          >
                            Requiero Aclaración Operacional
@@ -564,18 +586,23 @@ export default function BlueprintWizard() {
                          <CheckCircle2 className="w-8 h-8 text-green-500" />
                        </div>
                        <h4 className="font-bold text-xl mb-2 text-foreground">¡Satisfechos de trabajar contigo!</h4>
-                       <p className="text-sm text-muted-foreground mb-6">
-                         Tu confirmación cierra este proceso formalmente. Nos encantaría solicitar tu visto bueno para publicar tu historia en nuestro portal (eliminando datos confidenciales).
-                       </p>
+                       
+                       <div className="p-4 bg-muted/50 rounded-xl mb-6 border border-border/50">
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            <ShieldCheck className="w-3 h-3 inline mr-1 text-primary" /> 
+                            Al aprobar el testimonio, autorizas el uso de la lógica de tu caso para fines educativos, eliminando nombres, métricas exactas e identificadores privados.
+                          </p>
+                       </div>
+
                        <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
-                         <Button variant="default" className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+                         <Button variant="default" className="bg-primary hover:bg-primary/90 w-full sm:w-auto font-bold px-8 shadow-lg shadow-primary/20">
                            Aprobar Testimonio
                          </Button>
-                         <Button variant="outline" onClick={handleMakePrivate} className="border-border/50 text-muted-foreground hover:bg-muted w-full sm:w-auto">
-                           Prefiero Mantenerlo Privado
+                         <Button variant="outline" onClick={handleMakePrivate} className="border-border text-muted-foreground hover:bg-muted w-full sm:w-auto">
+                           Mantener Privado
                          </Button>
-                         <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 w-full sm:w-auto" onClick={() => window.open('/diamantes', '_blank')}>
-                           Solicitar Nuevo Análisis Único
+                         <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 w-full sm:w-auto font-semibold" onClick={() => window.location.href = '/contacto?subject=blueprint_qa'}>
+                           Solicitar Aclaración de 7 Días
                          </Button>
                        </div>
                      </div>
