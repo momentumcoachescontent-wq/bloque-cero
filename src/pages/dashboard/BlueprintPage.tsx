@@ -176,6 +176,24 @@ export default function BlueprintWizard() {
 
       if (error) throw error;
       
+      // Disparo directo a n8n desde el cliente para bypassear pg_net que colapsaba la DB
+      try {
+        await fetch('https://n8n-n8n.z3tydl.easypanel.host/webhook/bloque-cero-blueprint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'nuevo_blueprint_request',
+            request_id: data.id,
+            user_id: profile!.id,
+            lead_id: selectedLeadId,
+            diagnostic_answers: answers,
+            created_at: data.created_at
+          })
+        });
+      } catch (webhookErr) {
+        console.error("Error disparando webhook n8n:", webhookErr);
+      }
+      
       toast.success("¡Blueprint en marcha!");
       await queryClient.invalidateQueries({ queryKey: ['blueprint_requests', profile?.id] });
       setStep(4);
