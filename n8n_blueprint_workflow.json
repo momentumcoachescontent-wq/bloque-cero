@@ -1,0 +1,213 @@
+{
+  "name": "Bloque Cero - Motor IA (Blueprint Generator)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bloque-cero-blueprint",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "e98e4d29-1a06-4448-b4c4-7dbafbf9a87d",
+      "name": "Supabase Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "bloque-cero-blueprint-engine"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "messageValues": [
+            {
+              "content": "Eres un Consultor Operativo Senior (nivel Big 6) especializado en negocios LATAM.\n\nRecibirás las respuestas de un diagnóstico profundo de un emprendedor. Tu objetivo es generar un 'Blueprint Operativo' contundente, directo y accionable.\n\nEstructura tu respuesta con las siguientes secciones en Markdown:\n\n# Blueprint Operativo\n\n## 1. Diagnóstico del Dolor\nAnálisis del dolor real identificado y su validación.\n\n## 2. Propuesta de Valor Blindada\nLa propuesta refinada con ventaja competitiva clara.\n\n## 3. Modelo de Negocio\nUnit economics, pricing y proyección de rentabilidad.\n\n## 4. Segmento Láser\nPerfil exacto del cliente ideal y anti-cliente.\n\n## 5. Estrategia de Adquisición\nCanales, CAC estimado y primeros 90 días.\n\n## 6. Cuello de Botella y Plan de Escalado\nEl tronadero identificado y cómo prevenirlo.\n\n## 7. Foso Defensivo\nVentaja injusta y cómo mantenerla.\n\n## 8. Plan de Acción — Próximas 4 Semanas\nLista priorizada de 8-10 acciones concretas con responsable y métrica.\n\n## 9. Riesgos Mortales y Mitigaciones\nTop 3 riesgos con plan de contingencia.\n\n## 10. Visión a 3 Años\nHoja de ruta hacia la operación en piloto automático.\n\nSé directo, usa lenguaje de negocios LATAM, evita paja. Cada sección debe tener al menos 3 puntos accionables."
+            },
+            {
+              "role": "user",
+              "content": "={{ 'Aquí están las respuestas del diagnóstico:\\n\\n' + JSON.stringify($json.body.diagnostic_answers, null, 2) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1f1dbce-b8b8-4c8d-b0dd-4f5b5b1a6a58",
+      "name": "Cerebro OpenAI (Blueprint)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ 'https://' + $env.SUPABASE_PROJECT_ID + '.supabase.co/rest/v1/blueprint_requests?id=eq.' + $('Supabase Webhook').item.json.body.request_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ status: 'completed', progress_day: 7, generated_blueprint: { markdown: $json.text, generated_at: new Date().toISOString() } }) }}",
+        "options": {}
+      },
+      "id": "e2f07ab2-d698-422f-ae23-f36fb7f21689",
+      "name": "Guardar Blueprint en BD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1000, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ 'https://' + $env.SUPABASE_PROJECT_ID + '.supabase.co/rest/v1/blueprint_requests?id=eq.' + $('Supabase Webhook').item.json.body.request_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ status: 'error', progress_day: 1 }) }}",
+        "options": {}
+      },
+      "id": "a9f3c4b2-e871-4d52-9a1c-8f2b3d7e6c90",
+      "name": "Marcar Error en BD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [800, 520]
+    },
+    {
+      "parameters": {
+        "content": "## 1. Webhook de Ingesta\nRecibe el payload disparado por el trigger SQL de Supabase al hacer INSERT en `blueprint_requests`.\n\nPayload esperado:\n- `request_id` — UUID del registro\n- `diagnostic_answers` — Respuestas Big 6 del usuario\n- `user_id`, `lead_id`, `created_at`\n\nVer: `n8n_webhook_setup.sql`",
+        "height": 220,
+        "width": 320
+      },
+      "id": "18f9cf08-11f8-45a9-bc88-9ba249f39007",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [140, 100]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Cerebro IA\nGPT-4o actúa como Consultor Big 6 LATAM.\n- System prompt estructurado con 10 secciones\n- Inyecta diagnostic_answers como contexto\n- Responde en Markdown limpio\n\n**Output:** `$json.text` contiene el blueprint completo",
+        "height": 220,
+        "width": 340
+      },
+      "id": "2b3bd7be-f2e7-4e00-84a5-bdf9c93439e7",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [540, 100]
+    },
+    {
+      "parameters": {
+        "content": "## 3. Guardar en BD\nPATCH a `blueprint_requests`:\n- `status: 'completed'`\n- `progress_day: 7`\n- `generated_blueprint: { markdown, generated_at }`\n\nEl admin sube los PDFs via FulfillmentAdmin.\nEl usuario ve el contenido en pantalla.\n\n⚠️ Requiere env vars en n8n:\n- `SUPABASE_PROJECT_ID`\n- `SUPABASE_SERVICE_ROLE_KEY`",
+        "height": 260,
+        "width": 360
+      },
+      "id": "84db303c-8367-4d92-bf3d-a59020fde6f3",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [940, 100]
+    },
+    {
+      "parameters": {
+        "content": "## ⚠️ Error Handler\nSi OpenAI falla (rate limit, timeout) o el PATCH falla, este nodo marca el request como `status: 'error'` para que el usuario vea el estado en su dashboard en vez de quedarse colgado en 'analyzing'.",
+        "height": 180,
+        "width": 340
+      },
+      "id": "5d2e8f1a-c392-4b67-8d3e-9f0a1b2c3d4e",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [640, 440]
+    }
+  ],
+  "connections": {
+    "Supabase Webhook": {
+      "main": [
+        [
+          {
+            "node": "Cerebro OpenAI (Blueprint)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cerebro OpenAI (Blueprint)": {
+      "main": [
+        [
+          {
+            "node": "Guardar Blueprint en BD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "error": [
+        [
+          {
+            "node": "Marcar Error en BD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Blueprint en BD": {
+      "error": [
+        [
+          {
+            "node": "Marcar Error en BD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": ""
+  }
+}

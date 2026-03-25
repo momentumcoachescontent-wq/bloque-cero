@@ -1,21 +1,22 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import { 
-  Loader2, 
-  Target, 
-  Brain, 
-  FileText, 
-  Aperture, 
-  ArrowRight, 
-  CheckCircle2, 
-  Clock, 
+import {
+  Loader2,
+  Target,
+  Brain,
+  FileText,
+  Aperture,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
   Wand2,
   FileDown,
   Presentation,
-  LayoutTemplate
+  LayoutTemplate,
+  XCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,7 +93,8 @@ const BIG_6_QUESTIONS = [
 
 export default function BlueprintWizard() {
   const { profile } = useAuth();
-  
+  const queryClient = useQueryClient();
+
   // State Machine
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -118,6 +120,7 @@ export default function BlueprintWizard() {
       return data || null;
     },
     enabled: !!profile?.id,
+    refetchInterval: (query) => query.state.data && query.state.data.progress_day < 7 ? 30000 : false,
   });
 
   const { data: leadsData = [], isLoading: loadingLeads } = useQuery({
@@ -174,10 +177,8 @@ export default function BlueprintWizard() {
       if (error) throw error;
       
       toast.success("¡Blueprint en marcha!");
+      await queryClient.invalidateQueries({ queryKey: ['blueprint_requests', profile?.id] });
       setStep(4);
-      // Forzamos un recargo de la ventana para reiniciar las queries limpiamente 
-      // y visualizar la nueva request si no queremos inyectar el queryClient aquí.
-      window.location.reload();
       
     } catch (err) {
       console.error(err);
@@ -364,7 +365,21 @@ export default function BlueprintWizard() {
 
           {step === 4 && existingRequest && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-              
+
+              {existingRequest.status === 'error' && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 flex items-start gap-3">
+                  <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-red-500 text-sm">Error en el procesamiento</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Hubo un problema generando tu Blueprint. Por favor{" "}
+                      <a href="/contacto" className="text-primary hover:underline">contacta soporte</a>{" "}
+                      para resolverlo.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="bg-card/30 border border-primary/20 backdrop-blur-sm rounded-2xl p-8 md:p-12 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
                 
@@ -472,6 +487,18 @@ export default function BlueprintWizard() {
                    </div>
                  </div>
               </div>
+
+              {existingRequest.progress_day >= 7 && (existingRequest.generated_blueprint as { markdown?: string })?.markdown && (
+                <div className="border border-border/50 rounded-xl p-8 bg-card shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <h3 className="font-semibold mb-6 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" />
+                    Contenido del Blueprint
+                  </h3>
+                  <div className="whitespace-pre-wrap text-sm text-muted-foreground leading-relaxed max-h-[600px] overflow-y-auto pr-2">
+                    {(existingRequest.generated_blueprint as { markdown?: string }).markdown}
+                  </div>
+                </div>
+              )}
 
               {existingRequest.progress_day < 7 && (
                 <div className="mt-6 flex items-start gap-3 bg-muted/40 p-5 rounded-xl border border-border/50 animate-in fade-in slide-in-from-bottom-4">

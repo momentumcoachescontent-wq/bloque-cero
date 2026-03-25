@@ -5,7 +5,7 @@ CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
 CREATE OR REPLACE FUNCTION public.trigger_n8n_blueprint_request()
 RETURNS TRIGGER AS $$
 DECLARE
-  n8n_webhook_url text := 'https://n8n.tu-dominio.com/webhook/bloque-cero-blueprint'; -- [!CAMBIAR ESTO AL TUYO]
+  n8n_webhook_url text := 'https://n8n-n8n.z3tydl.easypanel.host/webhook/bloque-cero-blueprint';
 BEGIN
   -- Usamos pg_net para hacer el dispatch asíncrono sin bloquear la base de datos
   PERFORM net.http_post(
