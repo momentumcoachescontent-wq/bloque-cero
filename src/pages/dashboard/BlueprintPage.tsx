@@ -178,7 +178,7 @@ export default function BlueprintWizard() {
       
       // Disparo directo a n8n desde el cliente para bypassear pg_net que colapsaba la DB
       try {
-        await fetch('https://n8n-n8n.z3tydl.easypanel.host/webhook/bloque-cero-blueprint', {
+        await fetch('https://n8n-n8n.z3tydl.easypanel.host/webhook-test/bloque-cero-blueprint', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
