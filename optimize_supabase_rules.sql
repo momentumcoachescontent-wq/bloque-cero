@@ -28,11 +28,11 @@ DROP POLICY IF EXISTS "Admins can read all profiles" ON public.profiles;
 
 CREATE POLICY "Admins can view all profiles" 
 ON public.profiles FOR SELECT TO authenticated 
-USING ( (select public.get_user_role()) = 'admin' );
+USING ( (select auth.jwt()->>'email') = 'momentumcoaches.content@gmail.com' );
 
 CREATE POLICY "Admins can update all profiles" 
 ON public.profiles FOR UPDATE TO authenticated 
-USING ( (select public.get_user_role()) = 'admin' );
+USING ( (select auth.jwt()->>'email') = 'momentumcoaches.content@gmail.com' );
 
 CREATE POLICY "Users can read their own profile" 
 ON public.profiles FOR SELECT TO authenticated 
