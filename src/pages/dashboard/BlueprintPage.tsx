@@ -18,7 +18,8 @@ import {
   LayoutTemplate,
   XCircle,
   Zap,
-  ShieldCheck
+  ShieldCheck,
+  Rocket
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -428,30 +429,30 @@ export default function BlueprintWizard() {
                     
                     <div className="relative flex justify-between">
                       {[
-                        { day: 1, label: "Diagnóstico", d: "Dato Inyectados" },
+                        { day: 1, label: "Diagnóstico", d: "Datos Inyectados" },
                         { day: 3, label: "Finanzas", d: "Unit Econ. Analizados" },
                         { day: 5, label: "Maquetación", d: "Arquitectura Estructural" },
                         { day: 7, label: "Entrega", d: "Revisión Final" }
-                      ].map((milestone) => {
+                      ].map((milestone, idx) => {
                         const isCompleted = existingRequest.progress_day >= milestone.day;
                         const isCurrent = existingRequest.progress_day === milestone.day;
                         
                         return (
-                          <div key={milestone.day} className="flex flex-col items-center group">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center border-4 shadow-sm z-10 transition-colors ${
+                          <div key={milestone.day} className="flex flex-col items-center group relative">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 shadow-sm z-10 transition-all duration-500 ${
                               isCompleted 
-                                ? "bg-primary border-primary/20 text-white" 
+                                ? "bg-primary border-primary/20 text-white scale-110" 
                                 : isCurrent
-                                  ? "bg-background border-primary text-primary"
+                                  ? "bg-background border-primary text-primary ring-4 ring-primary/10"
                                   : "bg-muted border-background text-muted-foreground"
                             }`}>
-                              {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-3 h-3" />}
+                              {isCompleted ? <CheckCircle2 className="w-5 h-5" /> : <span>{idx + 1}</span>}
                             </div>
-                            <div className="text-center mt-3 absolute top-10 w-32 -translate-x-1/2 left-1/2">
-                              <p className={`text-xs font-bold uppercase tracking-wider ${isCompleted || isCurrent ? "text-primary" : "text-muted-foreground"}`}>
-                                Día {milestone.day}
+                            <div className="text-center mt-4 absolute top-10 w-32 -translate-x-1/2 left-1/2">
+                              <p className={`text-[10px] font-black uppercase tracking-widest ${isCompleted || isCurrent ? "text-primary" : "text-muted-foreground/40"}`}>
+                                {milestone.day === 7 ? "LIBERADO" : `DÍA ${milestone.day}`}
                               </p>
-                              <p className="text-[10px] text-muted-foreground leading-tight mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <p className={`text-[10px] leading-tight mt-1 transition-opacity ${isCompleted || isCurrent ? "opacity-100 text-muted-foreground" : "opacity-0"}`}>
                                 {milestone.label}
                               </p>
                             </div>
@@ -554,59 +555,96 @@ export default function BlueprintWizard() {
                 </div>
               )}
 
-              {/* STEP 6: FEEDBACK & QA */}
+              {/* STEP 6: CONVERSION & FEEDBACK */}
               {existingRequest.progress_day >= 7 && (
-                <div className="bg-muted/30 border border-border/50 rounded-xl p-8 text-center max-w-2xl mx-auto mt-12 mb-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                   {!answers.qa_completed ? (
-                     <>
-                       <h4 className="font-bold text-lg mb-2">Aseguramiento de Calidad (QA)</h4>
-                       <p className="text-sm text-muted-foreground mb-6">
-                         Como firma boutique, nuestro equipo de soporte prioriza resultados por encima del protocolo. ¿El Blueprint superó tus expectativas operativas?
-                       </p>
-                       <div className="flex justify-center flex-wrap gap-4">
-                         <Button 
-                           variant="secondary" 
-                           onClick={() => setAnswers({...answers, qa_completed: "true"})}
-                           className="bg-background shadow-sm hover:bg-muted font-semibold"
-                         >
-                           ¡Mente Volada! (Satisfecho)
-                         </Button>
-                         <Button 
-                           variant="outline" 
-                           onClick={() => window.location.href = '/contacto?subject=blueprint_qa'}
-                           className="text-primary border-primary/50 hover:bg-primary/10 bg-transparent"
-                         >
-                           Requiero Aclaración Operacional
-                         </Button>
-                       </div>
-                     </>
-                   ) : (
-                     <div className="animate-in fade-in zoom-in duration-500">
-                       <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4 border border-green-500/20">
-                         <CheckCircle2 className="w-8 h-8 text-green-500" />
-                       </div>
-                       <h4 className="font-bold text-xl mb-2 text-foreground">¡Satisfechos de trabajar contigo!</h4>
-                       
-                       <div className="p-4 bg-muted/50 rounded-xl mb-6 border border-border/50">
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            <ShieldCheck className="w-3 h-3 inline mr-1 text-primary" /> 
-                            Al aprobar el testimonio, autorizas el uso de la lógica de tu caso para fines educativos, eliminando nombres, métricas exactas e identificadores privados.
-                          </p>
-                       </div>
+                <div className="space-y-12 mt-12 mb-20 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                  
+                  {/* Next Step Strategic Card */}
+                  <div className="bg-primary/5 border border-primary/20 rounded-2xl p-8 md:p-12 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                      <Rocket className="w-32 h-32 text-primary" />
+                    </div>
+                    
+                    <div className="relative z-10 max-w-2xl text-left">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-4 uppercase tracking-wider">
+                        <Zap className="w-3 h-3" /> Siguiente Paso Estratégico
+                      </div>
+                      <h3 className="text-2xl md:text-3xl font-bold mb-4">Has blindado tu idea. Ahora es momento de darle vida.</h3>
+                      <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
+                        El plano está listo. La ejecución es lo que separa a los soñadores de los fundadores. Como cliente de Blueprint, tienes un **20% de descuento directo** en tu primer bloque de implementación.
+                      </p>
+                      
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <Button 
+                          onClick={() => window.location.href = '/dashboard/mvp'}
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 h-12 shadow-md"
+                        >
+                          Ir al MVP de Validación (Bloque 03)
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={() => window.location.href = '/dashboard/automatizaciones'}
+                          className="border-primary/30 text-primary hover:bg-primary/5 font-semibold px-8 h-12"
+                        >
+                          Explorar Automatizaciones (Bloque 05)
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
 
-                       <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
-                         <Button variant="default" className="bg-primary hover:bg-primary/90 w-full sm:w-auto font-bold px-8 shadow-lg shadow-primary/20">
-                           Aprobar Testimonio
-                         </Button>
-                         <Button variant="outline" onClick={handleMakePrivate} className="border-border text-muted-foreground hover:bg-muted w-full sm:w-auto">
-                           Mantener Privado
-                         </Button>
-                         <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 w-full sm:w-auto font-semibold" onClick={() => window.location.href = '/contacto?subject=blueprint_qa'}>
-                           Solicitar Aclaración de 7 Días
-                         </Button>
-                       </div>
-                     </div>
-                   )}
+                  {/* Feedback & QA */}
+                  <div className="bg-muted/30 border border-border/50 rounded-xl p-8 text-center max-w-2xl mx-auto">
+                    {!answers.qa_completed ? (
+                      <>
+                        <h4 className="font-bold text-lg mb-2">Aseguramiento de Calidad (QA)</h4>
+                        <p className="text-sm text-muted-foreground mb-6">
+                          Como firma boutique, nuestro equipo de soporte prioriza resultados por encima del protocolo. ¿El Blueprint superó tus expectativas operativas?
+                        </p>
+                        <div className="flex justify-center flex-wrap gap-4">
+                          <Button 
+                            variant="secondary" 
+                            onClick={() => setAnswers({...answers, qa_completed: "true"})}
+                            className="bg-background shadow-sm hover:bg-muted font-semibold"
+                          >
+                            ¡Mente Volada! (Satisfecho)
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => window.location.href = '/contacto?subject=blueprint_qa'}
+                            className="text-primary border-primary/50 hover:bg-primary/10 bg-transparent"
+                          >
+                            Requiero Aclaración Operacional
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="animate-in fade-in zoom-in duration-500">
+                        <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4 border border-green-500/20">
+                          <CheckCircle2 className="w-8 h-8 text-green-500" />
+                        </div>
+                        <h4 className="font-bold text-xl mb-2 text-foreground">¡Satisfechos de trabajar contigo!</h4>
+                        
+                        <div className="p-4 bg-muted/50 rounded-xl mb-6 border border-border/50">
+                           <p className="text-xs text-muted-foreground leading-relaxed">
+                             <ShieldCheck className="w-3 h-3 inline mr-1 text-primary" /> 
+                             Al aprobar el testimonio, autorizas el uso de la lógica de tu caso para fines educativos, eliminando nombres, métricas exactas e identificadores privados.
+                           </p>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
+                          <Button variant="default" className="bg-primary hover:bg-primary/90 w-full sm:w-auto font-bold px-8 shadow-lg shadow-primary/20">
+                            Aprobar Testimonio
+                          </Button>
+                          <Button variant="outline" onClick={handleMakePrivate} className="border-border text-muted-foreground hover:bg-muted w-full sm:w-auto">
+                            Mantener Privado
+                          </Button>
+                          <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 w-full sm:w-auto font-semibold" onClick={() => window.location.href = '/contacto?subject=blueprint_qa'}>
+                            Solicitar Aclaración de 7 Días
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
