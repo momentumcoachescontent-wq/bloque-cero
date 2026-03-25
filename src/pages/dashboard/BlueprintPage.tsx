@@ -24,6 +24,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { 
+  FolderSearch, 
+  ChevronRight,
+  Database,
+  LineChart,
+  HardDrive
+} from "lucide-react";
 
 const BIG_6_QUESTIONS = [
   {
@@ -491,6 +498,53 @@ export default function BlueprintWizard() {
                     </div>
                   </div>
 
+                  {/* SISTEMA DE HITOS DINÁMICOS: CERTIDUMBRE PROACTIVA */}
+                  {existingRequest.progress_day < 7 && (
+                    <div className="mb-10 p-5 bg-background border border-border/50 rounded-xl shadow-sm animate-in fade-in slide-in-from-left-4 duration-1000">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                           </div>
+                           <h4 className="text-sm font-bold uppercase tracking-widest">Estado del Algoritmo</h4>
+                        </div>
+                        <span className="text-[10px] font-black bg-primary/20 text-primary px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                          Procesando {existingRequest.progress_day < 3 ? "Día 1-2" : existingRequest.progress_day < 5 ? "Día 3-4" : "Día 5-6"}
+                        </span>
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                         <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/40">
+                             {existingRequest.progress_day < 3 ? <FolderSearch className="w-4 h-4 text-primary" /> : <Database className="w-4 h-4 text-primary" />}
+                             <div>
+                                <p className="text-[11px] font-bold text-foreground">Hito Actual</p>
+                                <p className="text-[11px] text-muted-foreground leading-snug">
+                                   {existingRequest.progress_day < 3 
+                                     ? "Cruzando tesis del Radar con Deep Diagnostic para identificar anomalías." 
+                                     : existingRequest.progress_day < 5 
+                                       ? "Extrayendo Unit Economics y proyecciones de rentabilidad operativa."
+                                       : "Ensamblando arquitectura de GTM y Blindaje Competitivo (Moat)."}
+                                </p>
+                             </div>
+                         </div>
+                         <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border border-border/40 relative opacity-60">
+                             <LineChart className="w-4 h-4 text-muted-foreground" />
+                             <div>
+                                <p className="text-[11px] font-bold text-foreground">Próximo Hito: {existingRequest.progress_day < 3 ? "Día 3" : existingRequest.progress_day < 5 ? "Día 5" : "Día 7"}</p>
+                                <p className="text-[11px] text-muted-foreground leading-snug">
+                                   {existingRequest.progress_day < 3 
+                                     ? "Auditoría Financiera y Matriz de Sostenibilidad." 
+                                     : existingRequest.progress_day < 5 
+                                       ? "Maquetación Estructural y Puntos de Ruptura."
+                                       : "Entrega Final y Acceso a Drive Estratégico."}
+                                </p>
+                             </div>
+                             <ChevronRight className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
+                         </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Análisis Preliminar Inyectado */}
                   {(existingRequest.generated_blueprint as any)?.preliminary && (
                     <div className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-xl animate-in fade-in slide-in-from-top-4 duration-1000">
@@ -510,7 +564,7 @@ export default function BlueprintWizard() {
               </div>
 
               {/* SKELETON MOCK VIEW SIEMPRE VISIBLE */}
-              <div className="border border-border/50 rounded-2xl p-8 bg-card shadow-sm relative overflow-hidden h-[400px]">
+              <div className="border border-border/50 rounded-2xl p-8 bg-card shadow-sm relative overflow-hidden h-[450px]">
                  <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center transition-all ${existingRequest.progress_day >= 7 ? 'bg-background/80 backdrop-blur-sm' : 'pointer-events-none'}`}>
                     {existingRequest.progress_day < 7 ? (
                       <div className="absolute top-6 right-6 flex items-center gap-2 bg-card/90 border border-primary/20 px-4 py-2 rounded-full shadow-md animate-pulse">
@@ -537,28 +591,33 @@ export default function BlueprintWizard() {
                               <Aperture className="w-4 h-4" /> Bajar Infografía
                             </Button>
                           )}
+                           {/* NUEVO: ACCESO A DRIVE AUTOMATIZADO (ESTRUCTURAL) */}
+                           <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20" onClick={() => window.open(`https://drive.google.com/drive/search?q=${existingRequest.id}`, '_blank')}>
+                              <HardDrive className="w-4 h-4" /> Ver Carpeta Estratégica
+                           </Button>
                         </div>
                       </div>
                     )}
-                 </div>
+                  </div>
                  
                  {/* Mock UI layout, visible even while loading */}
                  <div className="grid grid-cols-3 gap-4 pointer-events-none mb-6">
                    {[
                      "Foso Defensivo", "Unit Econ.", "Anti-Segmento"
                    ].map((title) => (
-                     <div key={title} className={`h-20 rounded-xl flex flex-col items-center justify-center p-2 text-center transition-all duration-1000 ${existingRequest.progress_day < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-primary/10 border border-primary/50 text-primary/80 shadow-sm'}`}>
-                       <span className="text-xs font-bold uppercase tracking-widest">{title}</span>
+                     <div key={title} className={`h-24 rounded-xl flex flex-col items-center justify-center p-2 text-center transition-all duration-1000 ${existingRequest.progress_day < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-primary/10 border border-primary/50 text-primary/80 shadow-sm'}`}>
+                       <span className="text-[10px] font-black uppercase tracking-widest">{title}</span>
+                       {existingRequest.progress_day >= 7 && <CheckCircle2 className="w-3 h-3 mt-2 text-primary/40" />}
                      </div>
                    ))}
                  </div>
                  
                  <div className="grid grid-cols-5 gap-4 pointer-events-none">
                    <div className={`h-64 rounded-xl col-span-2 flex items-center justify-center p-4 text-center transition-all duration-1000 ${existingRequest.progress_day < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-card border border-primary/30 shadow-sm'}`}>
-                     <span className={`text-sm font-semibold uppercase tracking-widest ${existingRequest.progress_day < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Estructura Operativa</span>
+                     <span className={`text-[10px] font-black uppercase tracking-widest ${existingRequest.progress_day < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Estructura Operativa</span>
                    </div>
                    <div className={`h-64 rounded-xl col-span-3 flex items-center justify-center p-4 text-center transition-all duration-1000 ${existingRequest.progress_day < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-card border border-primary/30 shadow-sm'}`}>
-                     <span className={`text-sm font-semibold uppercase tracking-widest ${existingRequest.progress_day < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Framework de Adquisición</span>
+                     <span className={`text-[10px] font-black uppercase tracking-widest ${existingRequest.progress_day < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Framework de Adquisición</span>
                    </div>
                  </div>
               </div>
