@@ -1,0 +1,1 @@
+{"name":"Bloque Cero - Onboarding Nuevo Usuario","description":"Webhook: /bloque-cero-onboarding. Disparado por trigger on_new_user_profile via notify-v2. Envia email al admin con datos del nuevo usuario."}
