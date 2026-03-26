@@ -1,17 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error(
-    "Critical Warning: Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Las variables de entorno son requeridas en Lovable y Render."
-  );
-}
+import { config } from "@/lib/config";
 
 export const supabase = createClient(
-  supabaseUrl || "https://placeholder.supabase.co", 
-  supabaseAnonKey || "placeholder-key", 
+  config.supabase.url,
+  config.supabase.anonKey,
   {
     auth: {
       persistSession: true,
@@ -84,6 +76,31 @@ export type Database = {
           created_at: string;
           updated_at: string;
         };
+      };
+      blueprint_requests: {
+        Row: {
+          id: string;
+          user_id: string;
+          lead_id: string | null;
+          diagnostic_answers: Record<string, unknown> | null;
+          format_pdf: boolean;
+          format_presentation: boolean;
+          format_infographic: boolean;
+          status: string;
+          progress_day: number;
+          generated_blueprint: Record<string, unknown> | null;
+          satisfaction_score: number | null;
+          clarification_notes: string | null;
+          pdf_url: string | null;
+          presentation_url: string | null;
+          infographic_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<
+          Database["public"]["Tables"]["blueprint_requests"]["Row"],
+          "id" | "created_at" | "updated_at"
+        >;
       };
     };
   };
