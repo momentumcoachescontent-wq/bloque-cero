@@ -1,5 +1,7 @@
 // ============================================================
 // Bloque Cero — Configuración centralizada v3
+// Última actualización: 2026-03-26 — Fases 0-3 completadas
+// NUNCA uses import.meta.env — todo va aquí.
 // ============================================================
 
 const SUPABASE_URL = 'https://ghbdarbyompzhwnqrxjz.supabase.co';
@@ -15,7 +17,6 @@ export const config = {
     environment: 'production' as const,
   },
   edgeFunctions: {
-    // El frontend NUNCA llama a n8n directamente.
     notifyBlueprint:  `${SUPABASE_URL}/functions/v1/notify-blueprint`,
     notifyOnboarding: `${SUPABASE_URL}/functions/v1/notify-onboarding`,
     adminDashboard:   `${SUPABASE_URL}/functions/v1/admin-dashboard`,
