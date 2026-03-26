@@ -1,0 +1,1 @@
+{"name":"Bloque Cero - Motor IA con Error Handler","description":"Motor IA Blueprint Generator con manejo de errores — marca status=failed y notifica al admin si GPT-4o falla. Importar en n8n y reemplazar el workflow szKXuIKzCSSPxpjE."}
