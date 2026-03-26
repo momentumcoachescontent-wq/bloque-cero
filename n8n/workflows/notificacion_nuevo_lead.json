@@ -1,0 +1,1 @@
+{"name":"Bloque Cero - Notificacion Nuevo Lead","description":"Webhook: /bloque-cero-nuevo-lead. Disparado por trigger on_new_lead via notify-v2. Envia email al admin cuando llega un lead nuevo."}
