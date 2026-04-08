@@ -4,6 +4,7 @@ import { Clock, CheckCircle2, AlertTriangle, FileText, UploadCloud, Send, Zap, T
 import { Button } from "@/components/ui/button";
 import { DeliverableUploader } from "@/components/admin/DeliverableUploader";
 import { useFulfillmentQueue } from "@/hooks/useFulfillmentQueue";
+import { toN8nCompatibilityPayload } from "@/lib/businessBlueprintPayloads";
 
 const calculateSLA = (createdAt: string, deadlineDays: number) => {
   const start = new Date(createdAt);
@@ -25,17 +26,7 @@ const FulfillmentAdmin = () => {
       // Endpoint del Webhook en n8n. En producción usar variable de entorno: import.meta.env.VITE_N8N_WEBHOOK_URL
       const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://tu-n8n.com/webhook/bloque-cero-dispatch';
       
-      const payload = {
-        clientName: item.clientName,
-        clientEmail: item.clientEmail,
-        projectId: item.id,
-        projectType: item.type,
-        // Extracción dinámica de URLs según el tipo
-        intakeAnalysisUrl: item.type === 'radar' ? (item.sourceData as any).analysis_file_url : null,
-        blueprintPdf: item.type === 'blueprint' ? (item.sourceData as any).pdf_url : null,
-        blueprintPitch: item.type === 'blueprint' ? (item.sourceData as any).presentation_url : null,
-        blueprintInfographic: item.type === 'blueprint' ? (item.sourceData as any).infographic_url : null,
-      };
+      const payload = toN8nCompatibilityPayload(item.businessBlueprint, item.type);
 
       // toast.info("Despachando...", { description: "Conectando con n8n..." });
 

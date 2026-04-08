@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Lead, BlueprintRequest } from "@/types/database.types";
+import { BusinessBlueprint, mapCollectionsToBusinessBlueprints } from "@/types/businessBlueprints";
 
 export interface FulfillmentItem {
   id: string;
@@ -16,6 +17,7 @@ export interface FulfillmentItem {
   progressDay?: number;
   formats: string[];
   sourceData: Lead | BlueprintRequest;
+  businessBlueprint: BusinessBlueprint;
 }
 
 export const useFulfillmentQueue = () => {
@@ -42,51 +44,29 @@ export const useFulfillmentQueue = () => {
         toast.error("Aviso: No se pudieron cargar los ingresos de Blueprint (" + leadsError.message + ")");
       }
 
-      let unified: FulfillmentItem[] = [];
+      const canonical = mapCollectionsToBusinessBlueprints(leadsData || [], blueprintsData || []);
+      let unified: FulfillmentItem[] = canonical.map(bp => {
+        const isDelivery = !!bp.sourceBlueprintRequestId;
+        const formats = isDelivery
+          ? bp.requestedFormats.map(f => f === 'pdf' ? 'PDF Blueprint' : f === 'presentation' ? 'Pitch Deck' : f === 'infographic' ? 'Infografía' : f)
+          : ['Análisis base de Blueprint'];
 
-      if (blueprintsData) {
-        blueprintsData.forEach(req => {
-          const relatedLead = leadsData?.find(l => l.id === req.lead_id) || {};
-
-          const formats = [];
-          if (req.format_pdf) formats.push('PDF Blueprint');
-          if (req.format_presentation) formats.push('Pitch Deck');
-          if (req.format_infographic) formats.push('Infografía');
-
-          unified.push({
-            id: req.id,
-            type: 'blueprint',
-            stageLabel: 'Blueprint Delivery',
-            title: req.diagnostic_answers?.business_name || relatedLead.business_name || relatedLead.diagnostic_answers?.business_name || 'Proyecto Blueprint',
-            clientName: req.diagnostic_answers?.name || relatedLead.name || 'Cliente Blueprint',
-            clientEmail: req.diagnostic_answers?.email || relatedLead.email || 'N/A',
-            createdAt: req.created_at,
-            deadlineDays: 7,
-            isCompleted: req.progress_day >= 7 || req.status === 'completed',
-            progressDay: req.progress_day || 1,
-            formats,
-            sourceData: req
-          });
-        });
-      }
-
-      if (leadsData) {
-        leadsData.forEach(lead => {
-          unified.push({
-            id: lead.id,
-            type: 'radar',
-            stageLabel: 'Blueprint Intake',
-            title: lead.diagnostic_answers?.business_name || lead.business_name || lead.idea_description?.slice(0, 30) || 'Ingreso de Blueprint',
-            clientName: lead.name || 'Prospecto',
-            clientEmail: lead.email || 'N/A',
-            createdAt: lead.created_at,
-            deadlineDays: 2,
-            isCompleted: lead.is_analysis_sent === true,
-            formats: ['Análisis base de Blueprint'],
-            sourceData: lead
-          });
-        });
-      }
+        return {
+          id: bp.id,
+          type: isDelivery ? 'blueprint' : 'radar',
+          stageLabel: isDelivery ? 'Blueprint Delivery' : 'Blueprint Intake',
+          title: bp.businessName,
+          clientName: bp.clientName,
+          clientEmail: bp.clientEmail,
+          createdAt: bp.createdAt,
+          deadlineDays: isDelivery ? 7 : 2,
+          isCompleted: isDelivery ? bp.lifecycleStage === 'delivered' : bp.lead?.is_analysis_sent === true,
+          progressDay: isDelivery ? (bp.deliveryProgressDay || 1) : undefined,
+          formats,
+          sourceData: isDelivery ? (bp.blueprintRequest as BlueprintRequest) : (bp.lead as Lead),
+          businessBlueprint: bp,
+        };
+      });
 
       unified.sort((a, b) => {
         const getRemainingDays = (item: FulfillmentItem) => {
