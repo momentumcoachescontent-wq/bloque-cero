@@ -1,57 +1,50 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import { Lead, BlueprintRequest } from "@/types/database.types";
+import { Lead } from "@/types/database.types";
+import { BusinessBlueprint } from "@/types/businessBlueprints";
+import { useBusinessBlueprints } from "@/hooks/useBusinessBlueprints";
 
-export type UnifiedQueueItem = Partial<Lead> & Partial<BlueprintRequest> & {
-  id: string;
+export type UnifiedQueueItem = BusinessBlueprint & {
   event_type: 'radar' | 'blueprint';
   event_date: string;
   client_name?: string;
   client_email?: string;
   project_name?: string;
+  score?: number | null;
+  status?: string | null;
+  progress_day?: number | null;
+  whatsapp?: string | null;
+  name?: string | null;
+  email?: string | null;
+  business_name?: string | null;
+  diagnostic_answers?: Lead['diagnostic_answers'] | null;
 };
 
 export const useOmniFeed = () => {
+  const { items: blueprintItems, loading, refetch } = useBusinessBlueprints();
   const [feed, setFeed] = useState<UnifiedQueueItem[]>([]);
-  const [loadingFeed, setLoadingFeed] = useState(true);
 
-  const fetchFeed = async () => {
-    try {
-      setLoadingFeed(true);
+  useEffect(() => {
+    const normalized: UnifiedQueueItem[] = blueprintItems.map(item => ({
+      ...item,
+      event_type: item.sourceBlueprintRequestId ? 'blueprint' : 'radar',
+      event_date: item.createdAt,
+      client_name: item.clientName,
+      client_email: item.clientEmail,
+      project_name: item.businessName,
+      score: item.intakeScore,
+      status: item.deliveryStatus || item.lead?.status || item.lifecycleStage,
+      progress_day: item.deliveryProgressDay,
+      whatsapp: item.clientPhone,
+      name: item.lead?.name || item.clientName,
+      email: item.lead?.email || item.clientEmail,
+      business_name: item.lead?.business_name || item.businessName,
+      diagnostic_answers: item.lead?.diagnostic_answers || item.blueprintRequest?.diagnostic_answers || null,
+    }));
 
-      const [leadsDataRes, blueprintsDataRes] = await Promise.all([
-        supabase.from("leads").select("*").order("created_at", { ascending: false }),
-        supabase.from("blueprint_requests").select("*").order("created_at", { ascending: false })
-      ]);
-
-      const radarItems: UnifiedQueueItem[] = (leadsDataRes.data || []).map(r => ({ 
-        ...r, 
-        event_type: 'radar', 
-        event_date: r.created_at 
-      }));
-
-      const blueprintItems: UnifiedQueueItem[] = (blueprintsDataRes.data || []).map(b => {
-        const originalLead = leadsDataRes.data?.find(l => l.id === b.lead_id) || {};
-        return { 
-          ...b, 
-          event_type: 'blueprint', 
-          event_date: b.created_at,
-          client_name: b.diagnostic_answers?.name || originalLead.name || 'Cliente de Blueprint',
-          client_email: b.diagnostic_answers?.email || originalLead.email || 'N/A',
-          project_name: b.diagnostic_answers?.business_name || originalLead.business_name || originalLead.diagnostic_answers?.business_name || 'Proyecto Blueprint'
-        };
-      });
-      
-      const unifiedList = [...radarItems, ...blueprintItems].sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
-      
-      setFeed(unifiedList);
-    } catch (error: unknown) {
-      toast.error("Error al cargar feed de operaciones: " + (error as Error).message);
-    } finally {
-      setLoadingFeed(false);
-    }
-  };
+    setFeed(normalized);
+  }, [blueprintItems]);
 
   const deleteItem = async (id: string, type: 'radar' | 'blueprint') => {
     if (!confirm(`¿Estás seguro de que deseas eliminar este ${type === 'blueprint'? 'proyecto':'prospecto'}? Esto no se puede deshacer.`)) return false;
@@ -84,9 +77,5 @@ export const useOmniFeed = () => {
     }
   };
 
-  useEffect(() => {
-    fetchFeed();
-  }, []);
-
-  return { feed, loadingFeed, refetchFeed: fetchFeed, deleteItem, toggleRadarFlag };
+  return { feed, loadingFeed: loading, refetchFeed: refetch, deleteItem, toggleRadarFlag };
 };
