@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
+import { mapCollectionsToBusinessBlueprints } from "@/types/businessBlueprints";
 import { Target, AlertTriangle, Zap, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,31 +19,38 @@ const DashboardIndex = () => {
   const queryClient = useQueryClient();
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
 
-  const { data: leads = [], isLoading: loading } = useQuery({
-    queryKey: ['leads', profile?.email],
+  const { data: cases = [], isLoading: loading } = useQuery({
+    queryKey: ['business-blueprints-dashboard', profile?.email, profile?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("leads")
-        .select("*")
-        .eq("email", profile?.email)
-        .order("created_at", { ascending: false });
-      
-      if (error) {
-        toast.error("Error al cargar historial: " + error.message);
+      const [leadsRes, blueprintRes] = await Promise.all([
+        supabase.from("leads").select("*").eq("email", profile?.email).order("created_at", { ascending: false }),
+        supabase.from("blueprint_requests").select("*").order("created_at", { ascending: false }),
+      ]);
+
+      if (leadsRes.error) {
+        toast.error("Error al cargar historial: " + leadsRes.error.message);
         return [];
       }
-      return data || [];
+      if (blueprintRes.error) {
+        toast.error("Error al cargar blueprints: " + blueprintRes.error.message);
+        return [];
+      }
+
+      const leads = leadsRes.data || [];
+      const leadIds = new Set(leads.map(l => l.id));
+      const requests = (blueprintRes.data || []).filter(req => req.lead_id && leadIds.has(req.lead_id));
+      return mapCollectionsToBusinessBlueprints(leads, requests);
     },
     enabled: !!profile?.email,
-    staleTime: 1000 * 60 * 5, // 5 min
+    staleTime: 1000 * 60 * 5,
   });
 
   // Auto-expandir el más reciente en la carga inicial
   useEffect(() => {
-    if (leads.length > 0 && !expandedLead) {
-      setExpandedLead(leads[0].id);
+    if (cases.length > 0 && !expandedLead) {
+      setExpandedLead(cases[0].id);
     }
-  }, [leads]);
+  }, [cases]);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -57,7 +65,7 @@ const DashboardIndex = () => {
       if (error) throw error;
       toast.success("Análisis eliminado correctamente");
       // Actualizar la caché en lugar de hacer refetch
-      queryClient.setQueryData(['leads', profile?.email], (oldData: any[]) => 
+      queryClient.setQueryData(['business-blueprints-dashboard', profile?.email, profile?.id], (oldData: any[]) => 
         oldData ? oldData.filter(l => l.id !== id) : []
       );
       if (expandedLead === id) setExpandedLead(null);
@@ -93,7 +101,7 @@ const DashboardIndex = () => {
           <div className="bg-muted/30 rounded-xl p-8 text-center border border-dashed border-border/50">
             <p className="text-sm text-muted-foreground animate-pulse">Sincronizando tu historial de Blueprints...</p>
           </div>
-        ) : leads.length === 0 ? (
+        ) : cases.length === 0 ? (
           <div className="bg-muted/30 rounded-xl p-8 text-center border border-dashed border-border/50">
             <p className="text-sm text-muted-foreground mb-4">
               Aún no has iniciado tu Blueprint de Negocio.
@@ -104,7 +112,7 @@ const DashboardIndex = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {leads.map((lead) => {
+            {cases.map((lead) => {
               const isExpanded = expandedLead === lead.id;
               const createdAt = new Date(lead.created_at).toLocaleDateString("es-MX", {
                 year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -127,10 +135,10 @@ const DashboardIndex = () => {
                         ) : null}
                       </div>
                       <h3 className="text-base font-bold text-foreground line-clamp-1">
-                        Idea: {lead.diagnostic_answers?.n8n_payload?.business_profile?.business_idea || "Diagnóstico sin idea registrada"}
+                        Caso: {lead.businessName || lead.intakePayload?.n8n_payload?.business_profile?.business_idea || "Blueprint sin idea registrada"}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        Recomendado: {lead.diagnostic_answers?.recommended_block}
+                        Recomendado: {lead.nextBlockRecommendation || lead.intakeRecommendation || "Pendiente"}
                       </p>
                     </div>
 
@@ -138,7 +146,7 @@ const DashboardIndex = () => {
                       <div className="text-right">
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Score</p>
                         <p className={`text-2xl font-black leading-none ${SCORE_COLOR(lead.score || 0)}`}>
-                          {lead.score || 0}<span className="text-sm opacity-50">/100</span>
+                          {lead.intakeScore || 0}<span className="text-sm opacity-50">/100</span>
                         </p>
                       </div>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
@@ -162,14 +170,14 @@ const DashboardIndex = () => {
                         <div className={`rounded-xl border p-6 flex flex-col items-center justify-center text-center shadow-sm ${SCORE_BG(lead.score || 0)}`}>
                           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Score de Viabilidad</p>
                           <p className={`text-6xl font-black mb-1 ${SCORE_COLOR(lead.score || 0)}`}>
-                            {lead.score || 0}<span className="text-3xl opacity-50">/100</span>
+                            {lead.intakeScore || 0}<span className="text-3xl opacity-50">/100</span>
                           </p>
                           <div className="mt-4 px-4 py-2 bg-background/50 rounded-full text-xs font-semibold text-foreground border border-border/50 shadow-sm">
                             ⭐ Recomendado: {lead.diagnostic_answers?.recommended_block}
                           </div>
-                          {lead.diagnostic_answers?.verdict && (
+                          {lead.intakeRecommendation && (
                             <div className="mt-4 px-4 py-2 bg-primary/10 text-primary rounded-xl text-sm font-bold border border-primary/20 shadow-sm">
-                              Veredicto: {lead.diagnostic_answers.verdict}
+                              Veredicto: {lead.intakeRecommendation}
                             </div>
                           )}
                         </div>
@@ -207,13 +215,13 @@ const DashboardIndex = () => {
                       </div>
 
                       {/* BIG 6 METRICS */}
-                      {lead.diagnostic_answers?.big6 && (
+                      {lead.intakePayload?.big6 && (
                         <div className="mt-8 pt-6 border-t border-border/50">
                           <h3 className="text-sm font-bold uppercase tracking-wide text-primary mb-4 flex items-center gap-2">
                             <Target className="w-4 h-4" /> Evaluación de Ejes Estratégicos (Big 6)
                           </h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {lead.diagnostic_answers.big6.map((metric: any, idx: number) => (
+                            {lead.intakePayload?.big6?.map((metric: any, idx: number) => (
                               <div key={idx} className="bg-background border border-border/50 rounded-xl p-4 flex flex-col justify-between hover:border-primary/30 transition-colors shadow-sm">
                                 <div>
                                   <div className="flex justify-between items-start mb-2">
