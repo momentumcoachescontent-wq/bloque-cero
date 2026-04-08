@@ -18,7 +18,7 @@ const calculateSLA = (createdAt: string, deadlineDays: number) => {
 };
 
 const FulfillmentAdmin = () => {
-  const { items, loadingQueue, refetchQueue, updateBlueprintProgress, toggleRadarCompletion } = useFulfillmentQueue();
+  const { items, loadingQueue, refetchQueue, updateBlueprintProgress, toggleIntakeCompletion } = useFulfillmentQueue();
 
   const handleNotifyClient = async (item: typeof items[0]) => {
     try {
@@ -31,7 +31,7 @@ const FulfillmentAdmin = () => {
         projectId: item.id,
         projectType: item.type,
         // Extracción dinámica de URLs según el tipo
-        radarUrl: item.type === 'radar' ? (item.sourceData as any).analysis_file_url : null,
+        intakeAnalysisUrl: item.type === 'radar' ? (item.sourceData as any).analysis_file_url : null,
         blueprintPdf: item.type === 'blueprint' ? (item.sourceData as any).pdf_url : null,
         blueprintPitch: item.type === 'blueprint' ? (item.sourceData as any).presentation_url : null,
         blueprintInfographic: item.type === 'blueprint' ? (item.sourceData as any).infographic_url : null,
@@ -62,7 +62,7 @@ const FulfillmentAdmin = () => {
           Cola Omnicanal de Cumplimiento
         </h1>
         <p className="text-muted-foreground mt-1 text-lg">
-          Triaje unificado para Diagnósticos Radar, Blueprints y futuros bloques operativos.
+          Triaje unificado para Blueprint Intake, Blueprint Delivery y futuros bloques operativos.
         </p>
       </div>
 
@@ -71,9 +71,9 @@ const FulfillmentAdmin = () => {
           <div>
             <h2 className="text-xl font-bold flex items-center gap-2">
               <Zap className="w-5 h-5 text-primary" />
-              Requerimientos Activos
+              Casos Activos
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">Ordenados logarítmicamente por proximidad al límite del SLA.</p>
+            <p className="text-sm text-muted-foreground mt-1">Ordenados por proximidad al límite del SLA operativo.</p>
           </div>
           <Button variant="outline" size="sm" onClick={refetchQueue}>Sincronizar Panel</Button>
         </div>
@@ -90,9 +90,9 @@ const FulfillmentAdmin = () => {
             </thead>
             <tbody>
               {loadingQueue ? (
-                <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">Analizando bases de datos...</td></tr>
+                <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">Analizando intake y entregas de Blueprint...</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">La cola omnicanal está limpia. Todos los entregables han sido procesados.</td></tr>
+                <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">La cola omnicanal está limpia. No hay intake ni entregas pendientes.</td></tr>
               ) : (
                 items.map(item => {
                   const sla = calculateSLA(item.createdAt, item.deadlineDays);
@@ -103,13 +103,13 @@ const FulfillmentAdmin = () => {
                       {/* TIPO Y ENTREGABLES */}
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-2 mb-2">
-                          {item.type === 'radar' ? (
+                          {item.stageLabel === 'Blueprint Intake' ? (
                             <span className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded-md text-xs font-bold uppercase tracking-wider">
-                              <Target className="w-3 h-3" /> Radar
+                              <Target className="w-3 h-3" /> Blueprint Intake
                             </span>
                           ) : (
                             <span className="flex items-center gap-1.5 px-2.5 py-1 bg-purple-500/10 text-purple-500 border border-purple-500/20 rounded-md text-xs font-bold uppercase tracking-wider">
-                              <FileText className="w-3 h-3" /> Blueprint
+                              <FileText className="w-3 h-3" /> Blueprint Delivery
                             </span>
                           )}
                         </div>
@@ -140,7 +140,7 @@ const FulfillmentAdmin = () => {
                           </div>
                         )}
                         <p className="text-[10px] text-muted-foreground mt-2 opacity-80 uppercase tracking-wider">
-                          Promesa: {item.deadlineDays} Días
+                          SLA: {item.deadlineDays} días
                           <br/>
                           Inicio: {new Date(item.createdAt).toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })}
                         </p>
@@ -170,13 +170,13 @@ const FulfillmentAdmin = () => {
                               size="sm" 
                               variant={item.isCompleted ? "outline" : "default"} 
                               className={`w-full text-xs font-bold h-8 ${!item.isCompleted && 'bg-blue-600 hover:bg-blue-700 text-white'}`}
-                              onClick={() => toggleRadarCompletion(item.id, item.isCompleted)}
+                              onClick={() => toggleIntakeCompletion(item.id, item.isCompleted)}
                             >
-                              {item.isCompleted ? 'Reabrir Dictamen' : 'Marcar Dictamen Listo'}
+                              {item.isCompleted ? 'Reabrir Intake' : 'Marcar Intake Listo'}
                             </Button>
                           )}
 
-                          {/* Botones Universales de Cumplimiento (Siempre visibles para Blueprint, condicionales para Radar) */}
+                          {/* Botones universales de cumplimiento (siempre visibles para Blueprint Delivery, condicionales para Blueprint Intake) */}
                           <div className={`grid grid-cols-2 gap-2 transition-all duration-300 ${item.type === 'blueprint' || item.isCompleted ? 'opacity-100 scale-100 pointer-events-auto mt-1' : 'opacity-50 scale-95 pointer-events-none h-0 overflow-hidden'}`}>
                              <DeliverableUploader item={item} onUploadSuccess={refetchQueue}>
                                <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-primary/20 hover:bg-primary/5 hover:text-primary">

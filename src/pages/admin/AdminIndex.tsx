@@ -35,7 +35,7 @@ const AdminIndex = () => {
   };
 
   const metricCards = [
-    { title: "Diagnósticos (Leads)", value: stats.totalLeads, icon: Target, color: "text-blue-500", bg: "bg-blue-500/10" },
+    { title: "Blueprint Intake", value: stats.totalLeads, icon: Target, color: "text-blue-500", bg: "bg-blue-500/10" },
     { title: "Usuarios Registrados", value: stats.totalProfiles, icon: Users, color: "text-emerald-500", bg: "bg-emerald-500/10" },
     { title: "Viabilidad Promedio", value: stats.avgScore, icon: Activity, color: "text-orange-500", bg: "bg-orange-500/10", suffix: "/100" },
     { title: "Proyectos Activos", value: stats.totalBlueprints, icon: Zap, color: "text-purple-500", bg: "bg-purple-500/10" },
@@ -71,7 +71,7 @@ const AdminIndex = () => {
             <Activity className="w-5 h-5 text-primary" />
             Feed de Operaciones Recientes
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">Listado omnicanal de evaluaciones de viabilidad y proyectos Blueprint activos.</p>
+          <p className="text-sm text-muted-foreground mt-1">Listado omnicanal de ingresos y entregas activas de Blueprint.</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
@@ -106,15 +106,15 @@ const AdminIndex = () => {
                       <td className="px-6 py-4">
                         {lead.event_type === 'blueprint' ? (
                            <>
-                             <div className="flex items-center gap-1.5 mb-1 text-purple-500 font-bold text-[10px] uppercase tracking-wider"><Zap className="w-3 h-3" /> Fase Blueprint</div>
+                             <div className="flex items-center gap-1.5 mb-1 text-purple-500 font-bold text-[10px] uppercase tracking-wider"><Zap className="w-3 h-3" /> Blueprint Delivery</div>
                              <p className="font-bold text-foreground truncate max-w-[200px] xl:max-w-[300px]">{lead.project_name}</p>
                              <p className="text-muted-foreground text-xs truncate max-w-[200px] xl:max-w-[300px]">{lead.client_name} - {lead.client_email}</p>
                            </>
                         ) : (
                            <>
-                             <div className="flex items-center gap-1.5 mb-1 text-primary font-bold text-[10px] uppercase tracking-wider"><Target className="w-3 h-3" /> Radar de Idea</div>
-                             <p className="font-bold text-foreground truncate max-w-[200px] xl:max-w-[300px]" title={lead.diagnostic_answers?.n8n_payload?.business_profile?.business_idea || lead.business_name || lead.diagnostic_answers?.business_name || "Proyecto Escáner"}>
-                               {lead.diagnostic_answers?.n8n_payload?.business_profile?.business_idea || lead.business_name || lead.diagnostic_answers?.business_name || "Proyecto Escáner"}
+                             <div className="flex items-center gap-1.5 mb-1 text-primary font-bold text-[10px] uppercase tracking-wider"><Target className="w-3 h-3" /> Blueprint Intake</div>
+                             <p className="font-bold text-foreground truncate max-w-[200px] xl:max-w-[300px]" title={lead.diagnostic_answers?.n8n_payload?.business_profile?.business_idea || lead.business_name || lead.diagnostic_answers?.business_name || "Ingreso de Blueprint"}>
+                               {lead.diagnostic_answers?.n8n_payload?.business_profile?.business_idea || lead.business_name || lead.diagnostic_answers?.business_name || "Ingreso de Blueprint"}
                              </p>
                              <p className="text-muted-foreground text-xs truncate max-w-[200px] xl:max-w-[300px]">{lead.name} - {lead.email}</p>
                            </>
@@ -123,7 +123,7 @@ const AdminIndex = () => {
                       <td className="px-6 py-4 text-muted-foreground">
                         {lead.event_type === 'blueprint' ? (
                            <>
-                             <p className="font-medium text-foreground text-xs">Ingeniería Documental</p>
+                             <p className="font-medium text-foreground text-xs">Entrega en proceso</p>
                              <p className={`capitalize text-xs mt-1 px-2 py-0.5 rounded-full inline-block font-medium ${lead.status === 'completed' || lead.progress_day >= 7 ? 'bg-green-500/20 text-green-500' : 'bg-purple-500/20 text-purple-500'}`}>
                                Estado: {lead.status === 'completed' || lead.progress_day >= 7 ? 'Archivos Generados' : `Día ${lead.progress_day} de 7`}
                              </p>
@@ -157,7 +157,7 @@ const AdminIndex = () => {
                           year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                         })}</span>
                         <span className={`text-[10px] font-bold flex items-center gap-1 opacity-90 transition-colors ${lead.event_type === 'blueprint' ? 'text-purple-500 hover:text-purple-400' : 'text-primary hover:text-primary/70'}`}>
-                          {expandedLead === lead.id ? "Ocultar " + (lead.event_type === 'blueprint' ? 'Blueprint ▲' : 'Datos ▼') : "Inspeccionar Data ▼"}
+                          {expandedLead === lead.id ? "Ocultar " + (lead.event_type === 'blueprint' ? 'Delivery ▲' : 'Intake ▲') : "Inspeccionar caso ▼"}
                         </span>
                       </td>
                     </tr>

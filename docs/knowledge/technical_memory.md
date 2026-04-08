@@ -218,3 +218,19 @@ Como benchmark de arquitectura de producto, no como base técnica directa, dado 
 
 ## Conclusión operativa
 Para seguir avanzando, no hace falta incorporar un nuevo framework técnico al repo de inmediato. Sí conviene incorporar **skills de marketing/growth** y **disciplina metodológica de desarrollo** como referencia operativa en próximas fases.
+
+
+## Actualización de memoria — Fase 3A
+### Consolidación lógica del dominio
+Se inició una fase de alineación interna para que el sistema deje de pensar públicamente en Radar vs Blueprint y empiece a operar con dos etapas de un mismo flujo:
+- **Blueprint Intake**
+- **Blueprint Delivery**
+
+### Alcance ejecutado
+- hooks de fulfillment reinterpretados bajo un lifecycle unificado
+- paneles administrativos renombrados hacia intake/delivery
+- dashboard Blueprint con lenguaje menos dependiente del concepto Radar
+- documentación de lifecycle canónico agregada en `docs/knowledge/blueprint_lifecycle.md`
+
+### Decisión técnica clave
+No se migró aún la base de datos. La consolidación en esta fase es **lógica y semántica**, no física. Esto reduce riesgo operativo mientras prepara la futura migración de esquema.

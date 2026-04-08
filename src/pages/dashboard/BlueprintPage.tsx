@@ -143,7 +143,7 @@ export default function BlueprintWizard() {
         .order('created_at', { ascending: false });
       return data || [];
     },
-    enabled: !!profile?.email, // Siempre cargamos leads para tener contexto del Radar
+    enabled: !!profile?.email, // Siempre cargamos leads para tener contexto del Blueprint Intake
   });
 
   const loading = loadingRequest || (loadingLeads && !requestData);
@@ -186,7 +186,7 @@ export default function BlueprintWizard() {
 
       if (error) throw error;
       
-      // Buscamos el lead original para enviar sus respuestas del Radar a n8n
+      // Buscamos el lead original para enviar el análisis base del Blueprint a n8n
       const selectedLead = leadsData.find((l: any) => l.id === selectedLeadId);
 
       // Disparo directo a n8n desde el cliente para bypassear pg_net que colapsaba la DB
@@ -199,7 +199,7 @@ export default function BlueprintWizard() {
             request_id: data.id,
             user_id: profile!.id,
             lead_id: selectedLeadId,
-            radar_answers: selectedLead?.diagnostic_answers || {},
+            intake_answers: selectedLead?.diagnostic_answers || {},
             diagnostic_answers: answers,
             created_at: data.created_at,
             format_configuration: {
@@ -249,12 +249,12 @@ export default function BlueprintWizard() {
                   <Target className="w-5 h-5 text-primary" />
                   Paso 1: Confirma tu Tesis
                 </h2>
-                <p className="text-muted-foreground mb-6">Hemos detectado las siguientes ideas que analizaste en tu Radar. Selecciona sobre cuál de ellas construiremos tu Blueprint arquitectónico.</p>
+                <p className="text-muted-foreground mb-6">Hemos detectado los ingresos previos de Blueprint asociados a tu cuenta. Selecciona sobre cuál construiremos tu Blueprint extendido.</p>
                 
                 {leads.length === 0 ? (
                   <div className="bg-muted/30 p-6 rounded-lg text-center border border-dashed border-border/50">
-                    <p>No tienes análisis previos en tu radar.</p>
-                    <Button variant="outline" className="mt-4" onClick={() => window.location.href = "/diagnostico"}>Ir al Radar de Idea</Button>
+                    <p>No tienes ingresos previos de Blueprint registrados.</p>
+                    <Button variant="outline" className="mt-4" onClick={() => window.location.href = "/diagnostico"}>Iniciar Blueprint de Negocio</Button>
                   </div>
                 ) : (
                   <div className="grid gap-4">
@@ -416,7 +416,7 @@ export default function BlueprintWizard() {
                         <Target className="w-4 h-4 text-primary" />
                       </div>
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Baseline del Radar</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Análisis base del Blueprint</p>
                         <p className="text-sm font-bold text-foreground">{projectName}</p>
                       </div>
                     </div>
@@ -520,7 +520,7 @@ export default function BlueprintWizard() {
                                 <p className="text-[11px] font-bold text-foreground">Hito Actual</p>
                                 <p className="text-[11px] text-muted-foreground leading-snug">
                                    {existingRequest.progress_day < 3 
-                                     ? "Cruzando tesis del Radar con Deep Diagnostic para identificar anomalías." 
+                                     ? "Cruzando intake base con Deep Diagnostic para identificar anomalías." 
                                      : existingRequest.progress_day < 5 
                                        ? "Extrayendo Unit Economics y proyecciones de rentabilidad operativa."
                                        : "Ensamblando arquitectura de GTM y Blindaje Competitivo (Moat)."}
