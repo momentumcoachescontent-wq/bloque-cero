@@ -1,6 +1,3 @@
-// ─── DownloadsSection.tsx ────────────────────────────────────────────────
-// Arsenal público de descargables gratuitos (lead magnets).
-
 const DOWNLOADS = [
   {
     id: "blueprint-template",
@@ -27,7 +24,7 @@ const DOWNLOADS = [
 
 const DownloadsSection = () => {
   const handleDownload = (title: string) => {
-    alert(`El archivo "${title}" estará disponible muy pronto. Deja tu correo en el diagnóstico y te avisamos.`);
+    alert(`El archivo "${title}" estará disponible muy pronto. Inicia tu Blueprint de Negocio y te avisamos.`);
   };
 
   return (
@@ -75,8 +72,8 @@ const DownloadsSection = () => {
 
         <p className="text-center text-xs text-muted-foreground mt-8">
           Se actualizan periódicamente.{" "}
-          <a href="/diagnostico" className="text-primary hover:underline font-medium">
-            Toma el diagnóstico
+          <a href="/blueprint-info" className="text-primary hover:underline font-medium">
+            Inicia tu Blueprint de Negocio
           </a>{" "}
           y te avisamos cuando haya nuevos recursos.
         </p>

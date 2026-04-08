@@ -7,13 +7,11 @@ const HeroSection = () => {
       id="hero"
       className="min-h-screen flex items-center justify-center px-6 pt-16 relative overflow-hidden"
     >
-      {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-primary/6 rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-4xl mx-auto text-center space-y-8">
-        {/* Badge */}
         <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold tracking-wide">
           🚀 Tu idea no necesita seguir esperando
         </span>
@@ -26,11 +24,10 @@ const HeroSection = () => {
           para que pases de la intención a la ejecución con claridad, estructura y pasos reales.
         </p>
 
-        {/* CTA buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          <a href="/diagnostico" id="hero-cta-diagnostico">
+          <a href="/blueprint-info" id="hero-cta-blueprint">
             <Button size="lg" className="rounded-full px-8 text-base font-medium gap-2 group shadow-lg shadow-primary/20 hover:shadow-primary/35 hover:scale-105 transition-all">
-              Tomar el Radar de Idea — Gratis
+              Iniciar Blueprint de Negocio
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </a>
@@ -45,7 +42,6 @@ const HeroSection = () => {
           </a>
         </div>
 
-        {/* Social proof */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-muted-foreground pt-4">
           <span className="flex items-center gap-2">
             <span className="text-green-400 font-bold">✓</span> Sin consultoría teórica

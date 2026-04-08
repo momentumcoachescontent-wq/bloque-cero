@@ -26,7 +26,7 @@ const Terminos = () => (
         <section>
           <h2 className="text-lg font-bold text-foreground mb-2">3. Pagos y reembolsos</h2>
           <ul className="list-disc pl-6 space-y-1">
-            <li>El Radar de Idea es gratuito.</li>
+            <li>El inicio de Blueprint de Negocio puede ofrecerse sin costo como parte del proceso comercial vigente.</li>
             <li>Los bloques OTC se pagan en su totalidad antes de iniciar.</li>
             <li>No hacemos reembolsos una vez iniciado el trabajo, salvo incumplimiento comprobable.</li>
             <li>En caso de disputa, buscamos resolución directa antes de cualquier proceso formal.</li>

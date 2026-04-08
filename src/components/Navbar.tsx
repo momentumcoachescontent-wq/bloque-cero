@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { LogIn, User, LogOut } from "lucide-react";
 
 const Navbar = () => {
-  const { session, profile, isAdmin, isLoading, signOut } = useAuth();
+  const { session, isAdmin, isLoading, signOut } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/80">
@@ -21,7 +21,6 @@ const Navbar = () => {
             Casos
           </a>
 
-          {/* CTA dinámico: si hay sesión → ir al dashboard, si no → diagnóstico */}
           {!isLoading && (
             session ? (
               <div className="flex items-center gap-2">
@@ -31,9 +30,9 @@ const Navbar = () => {
                     {isAdmin ? "Admin" : "Mi Espacio"}
                   </Button>
                 </a>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
+                <Button
+                  size="sm"
+                  variant="ghost"
                   onClick={() => signOut()}
                   className="rounded-full w-9 h-9 p-0 text-muted-foreground hover:text-destructive transition-colors"
                   title="Cerrar sesión"
@@ -47,26 +46,24 @@ const Navbar = () => {
                   <LogIn className="w-3.5 h-3.5" />
                   Acceder
                 </a>
-                <a href="/diagnostico">
+                <a href="/blueprint-info">
                   <Button size="sm" className="rounded-full px-5 font-medium">
-                    Iniciar Diagnóstico
+                    Iniciar Blueprint
                   </Button>
                 </a>
               </div>
             )
           )}
 
-          {/* Loading state */}
           {isLoading && (
             <div className="w-28 h-8 bg-muted rounded-full animate-pulse" />
           )}
         </div>
 
-        {/* Mobile CTA */}
         <div className="md:hidden">
-          <a href="/diagnostico">
+          <a href="/blueprint-info">
             <Button size="sm" className="rounded-full px-4 font-medium text-xs">
-              Diagnóstico
+              Blueprint
             </Button>
           </a>
         </div>

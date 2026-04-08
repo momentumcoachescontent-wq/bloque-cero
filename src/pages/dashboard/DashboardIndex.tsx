@@ -72,34 +72,34 @@ const DashboardIndex = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Bienvenido, {profile?.full_name?.split(" ")[0] || "Emprendedor"}</h1>
           <p className="text-muted-foreground mt-1">
-            Aquí podrás consultar y gestionar tu historial de análisis y diagnósticos.
+            Aquí podrás consultar y gestionar tu historial de Blueprints y análisis previos.
           </p>
         </div>
         <a href="/diagnostico" className="px-5 py-2.5 bg-primary text-primary-foreground rounded-full text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm">
-          + Nuevo Diagnóstico
+          + Nuevo Blueprint
         </a>
       </div>
 
       <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm">
         <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
           <Target className="w-5 h-5 text-primary" />
-          Mi Historial de Ideas (Diagnósticos)
+          Mi Historial de Blueprints
         </h2>
         <p className="text-sm text-muted-foreground mb-6">
-          Consulta las evaluaciones previas y la factibilidad calculada por nuestro motor especializado. Dale clic a cualquiera para ver los detalles.
+          Consulta tus análisis previos y la factibilidad calculada por nuestro motor especializado. Da clic en cualquiera para ver los detalles.
         </p>
         
         {loading ? (
           <div className="bg-muted/30 rounded-xl p-8 text-center border border-dashed border-border/50">
-            <p className="text-sm text-muted-foreground animate-pulse">Sincronizando tu historial de diagnósticos...</p>
+            <p className="text-sm text-muted-foreground animate-pulse">Sincronizando tu historial de Blueprints...</p>
           </div>
         ) : leads.length === 0 ? (
           <div className="bg-muted/30 rounded-xl p-8 text-center border border-dashed border-border/50">
             <p className="text-sm text-muted-foreground mb-4">
-              Aún no has completado tu diagnóstico inicial.
+              Aún no has iniciado tu Blueprint de Negocio.
             </p>
             <a href="/diagnostico" className="text-primary hover:underline text-sm font-bold">
-              Iniciar Diagnóstico Gratis →
+              Iniciar Blueprint de Negocio →
             </a>
           </div>
         ) : (

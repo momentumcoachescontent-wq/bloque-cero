@@ -145,3 +145,76 @@ No agregar nuevas capas de complejidad sin antes:
 
 ## Próximo checkpoint sugerido
 El siguiente documento a producir después de esta memoria debe ser una especificación funcional del **Blueprint de Negocio** y un mapa de migración del dominio actual al dominio objetivo.
+
+
+## Actualización de memoria — Fase 2.1
+### Ajustes públicos ejecutados
+Se completó una limpieza visible del producto para reforzar que **Blueprint de Negocio** es el punto de entrada comercial del sistema.
+
+#### Componentes públicos actualizados
+- `src/components/ProductGrid.tsx`
+- `src/pages/Diagnostic.tsx`
+- `src/pages/BlueprintLanding.tsx`
+- `src/components/Navbar.tsx`
+- `src/components/HeroSection.tsx`
+- `src/components/TestimonialsSection.tsx`
+- `src/components/DownloadsSection.tsx`
+- `src/pages/Login.tsx`
+- `src/pages/dashboard/DashboardIndex.tsx`
+- `src/pages/Terminos.tsx`
+
+#### Resultado funcional
+- Radar deja de ser visible como producto independiente en la experiencia pública
+- Blueprint de Negocio queda posicionado como Bloque 01
+- `/blueprint-info` queda como puerta comercial pública
+- `/diagnostico` permanece como ruta técnica transitoria para intake
+
+#### Integración adicional del ecosistema
+Se incorpora a la memoria del proyecto la referencia operativa de n8n:
+- `https://n8n-n8n.z3tydl.easypanel.host/home/workflows`
+
+Esta URL complementa la referencia base de la instancia y debe considerarse parte del mapa operativo del ecosistema para revisar workflows activos durante siguientes fases.
+
+## Skills adicionales recomendados para continuar
+A partir del nuevo alcance y de los repositorios de referencia compartidos, se identifican estas capacidades externas como útiles para siguientes fases.
+
+### 1. Marketing / growth skills
+**Referencia:** `coreyhaines31/marketingskills`
+
+**Valor para Bloque Cero:**
+- copywriting orientado a conversión
+- CRO para landing y formularios
+- content strategy
+- customer research
+- analytics tracking
+- email sequence
+- social content
+
+**Aplicación recomendada:**
+Fase 2.2 y Fase 4, para optimizar captación, posicionamiento del Blueprint y contenidos por vertical.
+
+### 2. Framework de skills y metodología agentic
+**Referencia:** `obra/superpowers`
+
+**Valor para Bloque Cero:**
+- disciplina de spec-first / plan-first
+- revisión estructurada antes de implementación
+- skills composables para desarrollo y debugging
+- metodología reusable para fases técnicas más complejas
+
+**Aplicación recomendada:**
+Fase 3 en adelante, especialmente para migración de dominio, refactor y workflows de implementación más controlados.
+
+### 3. Referencia de patrones SaaS
+**Referencia:** `eriktaveras/django-saas-boilerplate`
+
+**Valor para Bloque Cero:**
+- inspiración para tenancy, auth, billing y estructura SaaS
+- patrones de onboarding y organización de producto SaaS
+- utilidad conceptual, no para adopción directa del stack
+
+**Aplicación recomendada:**
+Como benchmark de arquitectura de producto, no como base técnica directa, dado que Bloque Cero hoy vive en React + Supabase + n8n, no en Django.
+
+## Conclusión operativa
+Para seguir avanzando, no hace falta incorporar un nuevo framework técnico al repo de inmediato. Sí conviene incorporar **skills de marketing/growth** y **disciplina metodológica de desarrollo** como referencia operativa en próximas fases.

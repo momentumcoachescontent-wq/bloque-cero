@@ -144,7 +144,7 @@ const Login = () => {
               <p className="mt-6 text-center text-xs text-muted-foreground">
                 ¿Aún no eres cliente?{" "}
                 <a href="/diagnostico" className="text-primary hover:underline font-medium">
-                  Inicia tu diagnóstico
+                  Inicia tu Blueprint de Negocio
                 </a>
               </p>
             </>

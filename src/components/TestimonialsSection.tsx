@@ -1,15 +1,12 @@
-// ─── TestimonialsSection.tsx ─────────────────────────────────────────────
-// Sección de evidencia: casos de uso con estructura Antes → Bloque → Después
-
 const CASES = [
   {
     id: "caso-01",
     before: "Llevaba 8 meses pensando en mi idea de marketplace sin dar el primer paso. Mi mayor miedo: no saber si el mercado la quería.",
-    bloque: "Radar de Idea",
-    after: "A las 48hrs tenía una matriz de riesgo clara. El análisis mostró que sí había demanda pero en un nicho diferente. Pivoteé antes de gastar un peso.",
+    bloque: "Blueprint de Negocio",
+    after: "En poco tiempo tenía una lectura clara de viabilidad, riesgos y siguiente bloque recomendado. El análisis mostró que sí había demanda, pero en un nicho distinto.",
     persona: "Fernanda G.",
     role: "Emprendedora, Guadalajara",
-    result: "Validó y pivoteó antes de construir",
+    result: "Validó y ajustó antes de construir",
     emoji: "🎯",
   },
   {
@@ -26,7 +23,7 @@ const CASES = [
     id: "caso-03",
     before: "Invertí 3 meses y $15,000 pesos en una app que nadie usó. No había validado si había demanda real.",
     bloque: "MVP de Validación",
-    after: "Con el blueprint y el MVP construido en 15 días conseguimos los primeros 3 clientes de pago antes de tener el producto terminado.",
+    after: "Con el Blueprint y el MVP construido en 15 días conseguimos los primeros 3 clientes de pago antes de tener el producto terminado.",
     persona: "Alejandro T.",
     role: "Fundador SaaS, Monterrey",
     result: "3 clientes pagando antes del lanzamiento",
@@ -99,9 +96,9 @@ const TestimonialsSection = () => {
 
         <div className="text-center">
           <p className="text-sm text-muted-foreground mb-4">¿Quieres ser el próximo caso de éxito?</p>
-          <a href="/diagnostico" id="casos-cta">
+          <a href="/blueprint-info" id="casos-cta">
             <button className="px-8 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all shadow-md shadow-primary/20">
-              Tomar el Radar de Idea — Es Gratis
+              Iniciar Blueprint de Negocio
             </button>
           </a>
         </div>
