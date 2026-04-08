@@ -259,3 +259,32 @@ Se implementa primero:
 ### Resultado esperado
 Preparar una migración real sin romper producción, evitando que frontend, admin y automatizaciones sigan dependiendo del lenguaje histórico de Radar.
 
+## Actualización de memoria — Fase 3B.1
+### Implementación estructural publicada
+Se publicó la primera capa estructural real de Fase 3B, orientada a introducir un modelo canónico sin romper compatibilidad con producción.
+
+#### Commits publicados
+- `daa9fd0` — `docs: define canonical business_blueprints model for phase 3B`
+- `7cfe1a8` — `feat: add canonical business blueprint read model`
+- `b58e19f` — `feat: add canonical n8n payload adapter for fulfillment`
+
+#### Activos incorporados
+- `docs/knowledge/business_blueprints_spec.md`
+- `src/types/businessBlueprints.ts`
+- `src/hooks/useBusinessBlueprints.ts`
+- `src/lib/businessBlueprintPayloads.ts`
+
+#### Superficies actualizadas
+- `src/hooks/useOmniFeed.ts`
+- `src/hooks/useFulfillmentQueue.ts`
+- `src/pages/admin/FulfillmentAdmin.tsx`
+
+#### Resultado arquitectónico
+- ya existe un read model canónico de `business_blueprints`
+- admin y fulfillment empiezan a depender del caso unificado y no sólo del modelo heredado
+- n8n ya puede recibir un payload de compatibilidad con bloque canónico embebido
+- sigue sin ejecutarse migración física de base, por decisión deliberada de seguridad operativa
+
+#### Siguiente objetivo
+La siguiente etapa debe consolidar persistencia o visibilidad estructural más explícita del modelo canónico, idealmente mediante una vista SQL o una capa de acceso todavía más centralizada, y reducir tipado duplicado entre fuentes de tipos Supabase.
+
