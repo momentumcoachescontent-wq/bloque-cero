@@ -116,3 +116,35 @@ Al finalizar Fase 3, Blueprint de Negocio debe existir como concepto unificado e
 - lifecycle de datos
 - lectura administrativa
 - automatizaciones
+
+## Actualización Fase 3B — Modelo canónico adoptado
+
+### Entidad objetivo adoptada
+Se adopta **`business_blueprints`** como entidad canónica objetivo del dominio.
+
+### Decisión de transición
+Durante esta fase no se elimina el esquema heredado.
+
+Se mantiene:
+- `leads` como intake heredado
+- `blueprint_requests` como delivery heredado
+
+Pero toda nueva lectura estructural debe orientarse a un caso canónico tipo `business_blueprints`.
+
+### Estrategia operativa
+1. capa canónica de lectura
+2. contratos unificados
+3. compatibilidad transitoria con n8n
+4. consolidación posterior de escritura
+
+### Recomendación técnica vigente
+No ejecutar rename destructivo ni migración física inmediata en producción.
+Primero estabilizar:
+- mapeo canónico
+- payloads externos
+- adapters de integración
+- lifecycle unificado
+
+### Entregable principal de esta fase
+Ver especificación técnica en `docs/knowledge/business_blueprints_spec.md`.
+

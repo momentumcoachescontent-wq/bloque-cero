@@ -234,3 +234,28 @@ Se inició una fase de alineación interna para que el sistema deje de pensar p�
 
 ### Decisión técnica clave
 No se migró aún la base de datos. La consolidación en esta fase es **lógica y semántica**, no física. Esto reduce riesgo operativo mientras prepara la futura migración de esquema.
+
+## Actualización de memoria — Fase 3B
+### Objetivo estructural
+La siguiente capa de implementación deja de ser semántica y pasa a ser estructural.
+
+### Estado heredado al cierre de Fase 3A
+- el sistema visible ya opera como Blueprint de Negocio
+- el admin interno ya interpreta `leads` como Blueprint Intake
+- el admin interno ya interpreta `blueprint_requests` como Blueprint Delivery
+- la base física aún conserva el modelo histórico
+
+### Decisión técnica de Fase 3B
+Se adopta **`business_blueprints`** como entidad canónica objetivo del dominio.
+
+### Enfoque de implementación
+No se ejecuta migración física destructiva todavía.
+Se implementa primero:
+- especificación canónica
+- estrategia de migración por etapas
+- compatibilidad con n8n
+- reducción progresiva de deuda entre `leads` y `blueprint_requests`
+
+### Resultado esperado
+Preparar una migración real sin romper producción, evitando que frontend, admin y automatizaciones sigan dependiendo del lenguaje histórico de Radar.
+
