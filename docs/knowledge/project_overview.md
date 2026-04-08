@@ -1,47 +1,95 @@
 # Bloque Cero — Project Overview
 
 ## Resumen Ejecutivo
-**Bloque Cero** es una agencia-producto enfocada en convertir ideas de emprendedores en Latinoamérica en **Sistemas Mínimos Operables (SMO)** — micro-MVPs funcionales entregados rápido, sin consultoría teórica.
+**Bloque Cero** es una agencia-producto enfocada en convertir ideas, servicios y operaciones pequeñas/medianas en **Sistemas Mínimos Operables (SMO)**. El proyecto combina validación estratégica, construcción operativa, automatización e IA aplicada sobre un stack ligero basado en Lovable, Supabase y n8n.
 
 ## Visión
 "Convertimos tu idea en un sistema mínimo operable."
 
+## Reenfoque Estratégico 2026-04
+El proyecto entra a una nueva etapa de consolidación con estos cambios de alcance:
+
+1. **Unificación de Radar de Idea + Blueprint de Negocio** en un solo bloque llamado **Blueprint de Negocio**
+2. Se mantienen como núcleo comercial los bloques posteriores de validación, operación y automatización
+3. Se incorporan nuevas líneas de valor:
+   - CRM Vertical para servicios
+   - Gestión de Negocios Locales
+   - Automatización de procesos con IA generativa
+   - Integración multicanal vía WhatsApp + email
+   - Offline-first selectivo para casos concretos
+
 ## Propuesta de Valor
-- Micro-MVPs y automatizaciones para emprendedores LATAM
-- Sal del caos → lanza con estructura
-- No consultoría, sino entregables funcionales y operables
-- Ágil, iterativo, por bloques — sin proyectos monolíticos de meses
+- Sistemas mínimos operables para emprendedores y negocios en LATAM
+- Menos consultoría abstracta, más estructura operativa utilizable
+- Implementación incremental por bloques
+- Integración entre diagnóstico, ejecución y automatización
 
-## Modelo de Negocio: Agencia-Producto
-**Build (Pago único / OTC):** Entregables a la carta
-**Run (Suscripción / MRR):** Mantenimiento y evolución
+## Modelo de Negocio
+**Build (OTC):** entregables, configuración e implementación por bloque  
+**Run (MRR):** evolución, soporte, mantenimiento y mejora continua
 
-## Metodología: La Escalera de Bloques
-1. **Radar de Idea** — Diagnóstico de viabilidad rápido y estructurado
-2. **Blueprint de Negocio** — Documentación del modelo en formato accionable
-3. **MVP de Validación** — Prototipo funcional para usuarios reales
-4. **Kit Operacional 1.0** — Herramientas base para el Día 1
-5. **Automatización Inicial** — Conexión de procesos clave con flujos automatizados
-6. **Operación Inteligente (IA)** — IA para escalar decisiones y optimizar operaciones
+## Portafolio Objetivo
+### Núcleo comercial
+1. **Blueprint de Negocio**
+2. **MVP de Validación**
+3. **Kit Operacional 1.0**
+4. **Automatización Inicial**
+5. **Operación Inteligente con IA**
+
+### Verticales prioritarias
+- **CRM Vertical para servicios**
+- **Gestión de Negocios Locales**
+
+### Capacidades transversales
+- IA generativa aplicada a procesos
+- Integración multicanal vía WhatsApp + email
+- Automatización operativa con n8n
+- Offline-first selectivo
 
 ## Audiencia Objetivo
-- Emprendedores en etapa temprana (LATAM)
-- Personas con idea → quieren sistema funcionando
-- Alta sensibilidad al precio inicial, aversión al riesgo, fatiga de suscripciones
+- Emprendedores en etapa temprana
+- Negocios de servicios que operan con WhatsApp, hojas de cálculo y procesos manuales
+- Negocios locales con necesidad de orden, seguimiento y automatización
+- Operadores con urgencia de resultados y aversión al gasto sin implementación tangible
 
-## Estado Actual (Marzo 2026)
-- Landing page funcional en **Lovable** (https://bloque-cero.lovable.app/)
-- Repositorio base en GitHub (Vite+React+Supabase)
-- Sin rutas internas activas (solo `/`)
-- Sin autenticación implementada
-- Sin backend funcional activo
+## Estado Actual Real del Repositorio (Abril 2026)
+### Implementado o avanzado
+- Landing page pública funcional
+- Catálogo de bloques visible
+- Ruta activa de diagnóstico (`/diagnostico`)
+- Formulario multi-step con scoring heurístico
+- Persistencia de leads en Supabase
+- Flujo de Blueprint construido sobre datos previos del Radar
+- Dashboard de cliente con múltiples rutas
+- Panel administrativo con feed unificado Radar/Blueprint
+- Integración frontend con Supabase
+- Disparo de webhook a n8n desde cliente
+
+### Desalineaciones detectadas
+- La documentación original describe un estado más temprano que el código real
+- Radar y Blueprint existen como flujos separados aunque el producto ya sugiere continuidad
+- El modelo de datos refleja separación histórica, no el modelo objetivo
+- La narrativa comercial del README y business context quedó atrás frente al avance actual
+
+## Riesgo Principal de Esta Etapa
+El mayor riesgo ya no es “falta de construcción inicial”, sino **desalineación entre producto, arquitectura y discurso comercial**. Si no se corrige, el proyecto crecerá con duplicidad conceptual y mayor costo de mantenimiento.
+
+## Plan de Implementación
+El proyecto se reorganiza en **6 fases**:
+
+1. **Reenfoque estratégico y plan maestro**
+2. **Consolidación del núcleo comercial y UX**
+3. **Refactor de dominio y backend operativo**
+4. **Verticalización de servicios**
+5. **Automatización multicanal + IA aplicada**
+6. **Escalamiento, resiliencia y offline-first selectivo**
 
 ## Links del Proyecto
-- **App (Lovable):** https://bloque-cero.lovable.app/
+- **App:** https://bloque-cero.lovable.app/
 - **GitHub:** https://github.com/momentumcoachescontent-wq/bloque-cero
-- **Supabase:** https://supabase.com/dashboard/project/ghbdarbyompzhwnqrxjz (ID: ghbdarbyompzhwnqrxjz)
+- **Supabase:** https://supabase.com/dashboard/project/ghbdarbyompzhwnqrxjz
+- **n8n:** https://n8n-n8n.z3tydl.easypanel.host/
 
-## Sesión de Inicio
-- Fecha: 2026-03-19
-- Agente: Antigravity (Google DeepMind)
-- Propósito: Generar plan de robustecimiento del proyecto completo
+## Documento Rector de Esta Etapa
+- `docs/knowledge/master_plan_v2.md`
+- `docs/knowledge/technical_memory.md`

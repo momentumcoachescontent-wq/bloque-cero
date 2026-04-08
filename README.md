@@ -2,7 +2,7 @@
 
 > **"Convertimos tu idea en un Sistema Mínimo Operable."**
 
-Agencia-producto para emprendedores en Latinoamérica. Entregamos micro-MVPs funcionales, rápido y sin consultoría teórica. Sin proyectos monolíticos de meses — operamos por bloques.
+Bloque Cero es una agencia-producto para emprendedores y negocios en Latinoamérica. Diseñamos, construimos y operamos sistemas mínimos funcionales para validar ideas, ordenar operaciones y escalar con automatización e IA aplicada.
 
 [![Lovable](https://img.shields.io/badge/hosted%20on-Lovable-8b5cf6?style=flat-square)](https://bloque-cero.lovable.app/)
 [![Supabase](https://img.shields.io/badge/backend-Supabase-3ecf8e?style=flat-square)](https://supabase.com/dashboard/project/ghbdarbyompzhwnqrxjz)
@@ -17,6 +17,7 @@ Agencia-producto para emprendedores en Latinoamérica. Entregamos micro-MVPs fun
 | App (producción) | https://bloque-cero.lovable.app/ |
 | Supabase Dashboard | https://supabase.com/dashboard/project/ghbdarbyompzhwnqrxjz |
 | n8n (automatización) | https://n8n-n8n.z3tydl.easypanel.host/ |
+| Repo GitHub | https://github.com/momentumcoachescontent-wq/bloque-cero |
 
 ---
 
@@ -25,26 +26,79 @@ Agencia-producto para emprendedores en Latinoamérica. Entregamos micro-MVPs fun
 | Capa | Tecnología |
 |------|-----------|
 | Frontend / Hosting | Lovable.app (Vite + React + Shadcn + TailwindCSS) |
-| Repositorio | GitHub (auto-sync con Lovable) |
+| Repositorio | GitHub (sync con Lovable) |
 | Base de Datos | Supabase (PostgreSQL + RLS) |
-| Autenticación | Supabase Auth (Magic Link + OAuth) |
-| Edge Functions | Supabase Edge Functions (Deno/TypeScript) |
+| Autenticación | Supabase Auth |
 | Automatización | n8n self-hosted (EasyPanel/Hostinger) |
-| Pagos | Stripe (MXN) |
-| Monitoring / Webhooks | Render.com |
+| Integraciones futuras | WhatsApp, email, CRM, IA aplicada |
 
 ---
 
-## 🪜 La Escalera de Bloques (Metodología)
+## 🧱 Portafolio objetivo
+
+### Núcleo comercial
 
 | # | Bloque | Descripción |
 |---|--------|-------------|
-| 01 | **Radar de Idea** | Diagnóstico de viabilidad rápido y estructurado |
-| 02 | **Blueprint de Negocio** | Modelo documentado en formato accionable |
-| 03 | **MVP de Validación** | Prototipo funcional para usuarios reales |
-| 04 | **Kit Operacional 1.0** | Herramientas base para el Día 1 |
-| 05 | **Automatización Inicial** | Conexión de procesos clave con flujos automatizados |
-| 06 | **Operación Inteligente (IA)** | IA para escalar decisiones y optimizar operaciones |
+| 01 | **Blueprint de Negocio** | Unifica Radar de Idea + Blueprint de Negocio en un solo flujo de descubrimiento, scoring, arquitectura inicial y recomendación de ruta |
+| 02 | **MVP de Validación** | Prototipo funcional para validar oferta y captar usuarios reales |
+| 03 | **Kit Operacional 1.0** | Herramientas base de operación para el día 1 |
+| 04 | **Automatización Inicial** | Integración de procesos clave con workflows automatizados |
+| 05 | **Operación Inteligente con IA** | IA aplicada a ventas, soporte, seguimiento y operación |
+
+### Verticales prioritarias
+- **CRM Vertical para servicios**
+- **Gestión de Negocios Locales**
+
+### Capacidades transversales
+- Automatización de procesos con IA generativa
+- Integración multicanal vía WhatsApp + email
+- Integraciones operativas con CRM, formularios, storage y notificaciones
+- Offline-first selectivo para casos de uso concretos
+
+---
+
+## 🚦 Estado actual del proyecto
+
+El repositorio ya cuenta con una base funcional superior a la descrita en la documentación original.
+
+### Implementado o parcialmente implementado
+- Landing pública funcional
+- Catálogo de bloques
+- Ruta de diagnóstico (`/diagnostico`)
+- Flujo de Blueprint montado sobre leads previos
+- Dashboard de cliente
+- Panel administrativo
+- Integración frontend con Supabase
+- Disparo de webhook a n8n desde cliente
+- React Query para cache y fetch de datos
+
+### Pendientes estructurales
+- Unificar Radar + Blueprint a nivel de producto y dominio
+- Normalizar modelo de datos
+- Actualizar narrativa comercial y documentación
+- Definir verticales oficiales
+- Formalizar estrategia multicanal e IA aplicada
+- Evaluar offline-first solo en módulos prioritarios
+
+---
+
+## 🗺️ Plan de implementación vigente
+
+El proyecto entra ahora a un plan de implementación en **6 fases**:
+
+| Fase | Nombre | Objetivo |
+|------|--------|----------|
+| 1 | Reenfoque estratégico y plan maestro | Actualizar alcance, documentación y portafolio |
+| 2 | Consolidación del núcleo comercial y UX | Unificar la experiencia de Blueprint de Negocio |
+| 3 | Refactor de dominio y backend operativo | Alinear modelo de datos, admin y workflows |
+| 4 | Verticalización de servicios | Empaquetar CRM para servicios y gestión de negocios locales |
+| 5 | Automatización multicanal + IA aplicada | Orquestar canales, seguimiento e inteligencia operativa |
+| 6 | Escalamiento y resiliencia | Endurecer operación, observabilidad y offline-first selectivo |
+
+Documentación fuente del plan:
+- `docs/knowledge/master_plan_v2.md`
+- `docs/knowledge/technical_memory.md`
 
 ---
 
@@ -75,7 +129,6 @@ VITE_SUPABASE_ANON_KEY=tu_anon_key_aqui
 
 ```bash
 npm run dev
-# → http://localhost:8080
 ```
 
 ### Build de producción
@@ -88,79 +141,39 @@ npm run build
 
 ## 📁 Estructura del Proyecto
 
-```
+```text
 bloque-cero/
 ├── src/
-│   ├── pages/           # Rutas (Index, NotFound, Diagnostic, Login, Dashboard...)
-│   ├── components/      # Componentes reutilizables (Navbar, Hero, ProductGrid...)
-│   │   └── ui/          # Componentes Shadcn UI
-│   ├── lib/             # Cliente Supabase, utils
-│   ├── hooks/           # Hooks personalizados (useAuth...)
-│   ├── context/         # Contextos React (AuthContext)
-│   └── App.tsx          # Router raíz
 ├── supabase/
-│   ├── migrations/      # Migrations SQL (schema + RLS policies)
-│   └── functions/       # Edge Functions Deno
 ├── docs/
-│   └── knowledge/       # Base de conocimiento del proyecto (para agente IA)
-└── n8n/
-    └── workflows/       # Workflows de automatización n8n (JSON)
+│   └── knowledge/
+├── public/
+└── README.md
 ```
 
----
-
-## 🤖 Agente IA (Antigravity)
-
-Este proyecto usa **Antigravity** (Google DeepMind) como agente de desarrollo. El directorio `docs/knowledge/` contiene la base de conocimiento estructurada que el agente usa para mantener contexto entre sesiones:
-
-| Archivo | Contenido |
-|---------|-----------|
-| `project_overview.md` | Resumen ejecutivo y estado actual |
-| `tech_stack.md` | Stack técnico completo y decisiones |
-| `architecture_decisions.md` | ADRs (Architecture Decision Records) |
-| `business_context.md` | Modelo de negocio y contexto |
-| `integrations_map.md` | Mapa de integraciones y servicios |
-| `risks_and_assumptions.md` | Riesgos identificados y supuestos |
-| `open_questions.md` | Preguntas abiertas pendientes de respuesta |
-| `backlog_insights.md` | Ideas de backlog priorizadas |
-| `domain_glossary.md` | Glosario del dominio |
-| `session_learnings.md` | Aprendizajes de sesiones anteriores |
+Archivos clave de conocimiento:
+- `docs/knowledge/project_overview.md`
+- `docs/knowledge/business_context.md`
+- `docs/knowledge/architecture_decisions.md`
+- `docs/knowledge/integrations_map.md`
+- `docs/knowledge/master_plan_v2.md`
+- `docs/knowledge/technical_memory.md`
 
 ---
 
-## 📋 Modelo de Negocio
+## 🤝 Flujo de trabajo
 
-| Modalidad | Tipo | Descripción |
-|-----------|------|-------------|
-| **Build** | Pago único (OTC) | Entregables a la carta por bloque |
-| **Run** | Suscripción (MRR) | Mantenimiento, soporte y evolución |
-
----
-
-## 🗺️ Roadmap
-
-- [x] **Fase 0** — Base de conocimiento y estructura del repo
-- [ ] **Fase 1** — Conexión Supabase + Schema inicial (Semana 1)
-- [ ] **Fase 2** — Diagnóstico funcional + Auth con Magic Link (Semana 2)
-- [ ] **Fase 3** — Dashboard de cliente + Pagos Stripe (Semana 3)
-- [ ] **Fase 4** — Automatización n8n: onboarding, notificaciones, seguimiento (Semana 4)
-
----
-
-## 🤝 Contribuir
-
-El flujo de trabajo es:
-
-```
-Lovable Editor → GitHub (auto-sync) → PR → main → Lovable Hosting
+```text
+Lovable Editor → GitHub (sync) → main → Lovable Hosting
 ```
 
-Para cambios de código desde fuera de Lovable:
-1. Crea un branch desde `main`
-2. Haz tus cambios y push
-3. Crea un Pull Request → `main`
-4. Lovable detecta el merge automáticamente
+Para cambios desde fuera de Lovable:
+1. partir de `main`
+2. hacer cambios
+3. validar localmente
+4. push y PR si aplica
+5. verificar impacto sobre el sync con Lovable
 
 ---
 
-*Bloque Cero © 2026 — Construido con ❤️ para emprendedores LATAM*
+*Bloque Cero © 2026 — Construido para emprendedores y operadores que necesitan sistema, no humo.*

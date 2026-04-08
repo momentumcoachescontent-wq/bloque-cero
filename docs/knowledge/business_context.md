@@ -2,66 +2,141 @@
 
 ## Contexto del Mercado LATAM
 
-### Psicología del Emprendedor Regional
-- **Alta sensibilidad al precio inicial** — El primer ticket debe ser bajo o demo
-- **Aversión al riesgo** — Miedo a que le vendan "humo" sin resultados tangibles
-- **Fatiga de suscripciones** — Prefiere pagar por resultados antes que una renta indefinida
-- **Urgencia operativa** — Quiere resultados en días/semanas, no meses
+### Psicología del Cliente Objetivo
+- **Alta sensibilidad al precio inicial**
+- **Aversión al riesgo y al humo**
+- **Fatiga de suscripciones sin implementación real**
+- **Urgencia operativa**: necesita estructura utilizable en días o semanas
+- **Dependencia de canales caóticos**: WhatsApp, email, hojas de cálculo, mensajes dispersos
 
 ### Dolor Central del Mercado
-El emprendedor en LATAM tiene una idea pero:
-1. No sabe por dónde empezar
-2. Pierde tiempo en herramientas que no conectan entre sí
-3. Paga consultoría teórica sin entregables concretos
-4. Su "sistema" es WhatsApp + hojas de cálculo + email
+El operador o emprendedor típico en LATAM:
+1. no sabe por dónde empezar
+2. opera con herramientas que no conversan entre sí
+3. compra consultoría sin traducción a sistema
+4. pierde seguimiento comercial y operativo por falta de estructura
+5. necesita vender, operar y responder rápido con pocos recursos
+
+## Replanteamiento del Portafolio
+Bloque Cero deja de presentarse como una secuencia separada entre descubrimiento y blueprint, y pasa a una estructura más compacta y vendible.
+
+### Núcleo comercial
+| # | Bloque | Descripción |
+|---|--------|-------------|
+| 1 | **Blueprint de Negocio** | Unifica Radar de Idea + Blueprint de Negocio. Evalúa viabilidad, problema, mercado, arquitectura mínima y ruta recomendada |
+| 2 | **MVP de Validación** | Prototipo funcional para salir al mercado y probar demanda |
+| 3 | **Kit Operacional 1.0** | Setup inicial de operación, CRM básico, activos y herramientas mínimas |
+| 4 | **Automatización Inicial** | Flujos clave entre captura, seguimiento, notificaciones y operación |
+| 5 | **Operación Inteligente con IA** | IA aplicada a ventas, soporte, clasificación y seguimiento |
+
+## Nuevas Líneas Incorporadas
+
+### 1. CRM Vertical para servicios
+Producto enfocado a negocios que venden servicios y necesitan:
+- seguimiento comercial
+- fichas de cliente
+- pipeline de oportunidades
+- tareas y recordatorios
+- cotización / onboarding / seguimiento
+- trazabilidad de conversaciones y estados
+
+**Valor:** muy alto  
+**Complejidad:** media  
+**Viabilidad:** alta
+
+### 2. Gestión de Negocios Locales
+Línea orientada a operaciones territoriales o presenciales.
+
+Puede incluir:
+- agenda operativa
+- sucursales o zonas
+- órdenes / solicitudes
+- asignación de responsables
+- seguimiento a clientes
+- visibilidad del estado de operación
+
+**Valor:** alto  
+**Complejidad:** media-alta  
+**Viabilidad:** media-alta si se define por subvertical
+
+### 3. Automatización de procesos con IA generativa
+No debe venderse como una promesa abstracta, sino como capability transversal sobre procesos concretos:
+- clasificación de leads
+- respuestas asistidas
+- propuestas y resúmenes
+- seguimiento automatizado
+- soporte operativo interno
+
+**Valor:** alto  
+**Complejidad:** media-alta  
+**Viabilidad:** alta cuando se empaqueta por caso de uso
+
+### 4. Integración multicanal vía WhatsApp + email
+Capacidad transversal prioritaria para captación, seguimiento y soporte.
+
+**Enfoque recomendado inicial:**
+- WhatsApp + email primero
+- redes sociales después
+
+**Valor:** muy alto  
+**Complejidad:** media-alta  
+**Viabilidad:** alta con alcance acotado
+
+### 5. SaaS offline-first
+Se mantiene como apuesta arquitectónica selectiva, no como estándar del portafolio completo.
+
+**Aplicación recomendada:**
+- captura en campo
+- operación local
+- módulos con conectividad irregular
+
+**Valor:** medio  
+**Complejidad:** alta  
+**Viabilidad:** media si se usa selectivamente
 
 ## Modelo Comercial
 
-> **Moneda:** Todos los precios cotizados en USD; cobro ejecutado en **Pesos Mexicanos (MXN)** vía Stripe al tipo de cambio del día.
+> **Moneda de referencia:** USD  
+> **Cobro operativo:** MXN vía pasarela compatible con el mercado objetivo
 
-### Micro-Productos Individuales (Build — OTC)
-| # | Fase | Nombre | Precio USD | Descripción |
-|---|------|--------|-----------|-------------|
-| 1 | Descubrimiento | **Radar de Idea** | $150 | Definición del problema, ICP, propuesta de valor, mapa de competidores |
-| 2 | Estructuración | **Plan de Acción Técnico** | $200 | Roadmap, arquitectura de datos inicial, selección de integraciones |
-| 3 | Validación | **Landing Page de Validación** | $600 | Página de captura (Lovable), formulario → Supabase + métricas |
-| 4 | Operación | **MVP Operativo** | $800 | Dashboard base, gestión central, políticas RLS |
-| 5 | Automatización | **Motores de Automatización** | $500 | Flujos n8n, notificaciones automáticas, sincronización de datos |
-| 6 | Escalamiento | **Escalamiento de Operaciones** | A medida | Multi-perfilado avanzado, agentes IA, optimización alto tráfico |
+### Oferta Build (OTC)
+- Blueprint de Negocio
+- MVP de Validación
+- Kit Operacional 1.0
+- Automatización Inicial
+- Implementaciones verticales de CRM o negocio local
 
-### Paquetes (Bundle — mejor valor percibido)
-| Pack | Incluye | Precio USD | Foco |
-|------|---------|-----------|------|
-| **Pack Lanzamiento Rápido** | Radar + PAT + Landing | $399 | Validar demanda en <10 días |
-| **Pack Operación Base** | MVP Operativo + 2 Motores n8n | $1,250 | Sistema mínimo operativo |
-| **Transformación Digital MVP** | Ciclo completo (Fases A–E) | $1,850 | Del Radar a la operación automatizada |
+### Oferta Run (MRR)
+- mantenimiento y soporte
+- mejora continua
+- nuevas automatizaciones
+- operación asistida con IA
+- evolución del sistema por bloques
 
-### Suscripciones de Mantenimiento (Run — MRR)
-| Plan | Precio/mes USD | Descripción |
-|------|---------------|-------------|
-| **Motor Base** | $89/mo | Hosting gestionado + monitoreo n8n + soporte básico |
-| **Growth Operativo** | $299/mo | 5h desarrollo mensual (n8n + Lovable + datos) |
-| **Partner Tecnológico** | $599/mo | Acompañamiento semanal + prioridad + soporte 24/7 |
+## Tesis Comercial Actualizada
+Bloque Cero no compite como agencia web genérica ni como consultora tradicional. Compite como una capa de implementación operativa para negocios que necesitan pasar de:
 
-### Estrategia de Entrada
-- **Freemium de diagnóstico** — Radar de Idea gratuito o a bajo costo como lead magnet
-- **Escalera natural** — Cada bloque lleva al siguiente (upsell estructural)
-- **Prueba de valor** — Entregable en menos de 7 días para el primer bloque
+- idea → validación
+- caos → sistema
+- improvisación → operación trazable
+- canales aislados → flujo conectado
+- trabajo manual → automatización útil
 
-## Posicionamiento
-- No somos una agencia de desarrollo web
-- No somos una consultora de negocios
-- Somos **constructores de sistemas mínimos operables para emprendedores que no quieren seguir improvisando**
-
-## Canales de Adquisición (Planificados)
-- Contenido en redes sociales (LinkedIn / Instagram / TikTok)
-- WhatsApp como CRM inicial
-- SEO con contenido educativo sobre micro-MVPs y automatización
-- Referidos de clientes satisfechos
+## Canales de Adquisición Prioritarios
+- contenido educativo y demostrativo
+- casos de uso por vertical
+- WhatsApp como canal de entrada y seguimiento
+- SEO sobre validación, automatización y operación
+- referidos y alianzas
 
 ## Métricas Clave
-- CAC (Costo por Adquisición de Cliente)
-- LTV (Lifetime Value por cliente)
-- Time-to-Delivery (días desde compra hasta entrega del bloque)
-- NPS (Net Promoter Score)
-- Tasa de upgrade (Build → Run, Bloque N → Bloque N+1)
+- CAC
+- LTV
+- Time-to-Delivery por bloque
+- tasa de upgrade entre bloques
+- tasa de conversión diagnóstico → implementación
+- activación de automatizaciones
+- adopción por vertical
+
+## Principio Estratégico
+La prioridad no es agregar más features sueltas; la prioridad es **construir una oferta coherente, modular y vendible** sobre una arquitectura que ya empezó a tomar forma.
