@@ -1,35 +1,27 @@
-import { Lightbulb, FileText, Rocket, Settings, Zap, Brain } from "lucide-react";
+import { FileText, Rocket, Settings, Zap, Brain } from "lucide-react";
 
 // ─── Productos con resultados tangibles y etiquetas de precio ──────────────
 const products = [
   {
     num: "01",
-    icon: Lightbulb,
-    name: "Radar de Idea",
-    tagline: "En 48hrs sabes si tu idea tiene potencial real.",
-    desc: "Matriz de riesgo, análisis de mercado express y evaluación de viabilidad técnica inicial. Nada de suposiciones: datos concretos antes de invertir un peso.",
-    entregables: ["Matriz de riesgo (mercado, técnico, ejecución)", "Análisis de mercado express", "Viabilidad técnica inicial"],
-    tiempo: "48 horas",
-    badge: "GRATIS",
-    badgeGreen: true,
-    ctaHref: "/diagnostico",
-    cta: "Iniciar Gratis",
+    icon: FileText,
+    name: "Blueprint de Negocio",
+    tagline: "De la idea al sistema: valida, estructura y decide qué construir primero.",
+    desc: "Unifica diagnóstico, scoring, análisis estratégico y arquitectura mínima para decirte qué tan viable es tu caso y cuál debe ser tu siguiente bloque.",
+    entregables: [
+      "Scoring de viabilidad y complejidad",
+      "Lectura estratégica del caso",
+      "Análisis Big 6 + riesgos principales",
+      "Recomendación del siguiente bloque"
+    ],
+    tiempo: "Inicio inmediato",
+    badge: "BLOQUE 01",
+    badgeGreen: false,
+    ctaHref: "/blueprint-info",
+    cta: "Comenzar",
   },
   {
     num: "02",
-    icon: FileText,
-    name: "Blueprint de Negocio",
-    tagline: "De la cabeza al papel en una semana. Tu modelo blindado.",
-    desc: "Documento accionable con modelo financiero base, propuesta de valor diferenciada y plan go-to-market paso a paso.",
-    entregables: ["Modelo financiero base", "Propuesta de valor clara", "Plan go-to-market"],
-    tiempo: "1 semana",
-    badge: "OTC",
-    badgeGreen: false,
-    ctaHref: "/blueprint-info",
-    cta: "Saber más",
-  },
-  {
-    num: "03",
     icon: Rocket,
     name: "MVP de Validación",
     tagline: "Tu primer cliente real en menos de 15 días.",
@@ -42,7 +34,7 @@ const products = [
     cta: "Conocer más",
   },
   {
-    num: "04",
+    num: "03",
     icon: Settings,
     name: "Kit Operacional 1.0",
     tagline: "Tu infraestructura del Día 1 sin fricciones técnicas.",
@@ -55,7 +47,7 @@ const products = [
     cta: "Conocer más",
   },
   {
-    num: "05",
+    num: "04",
     icon: Zap,
     name: "Automatización Inicial",
     tagline: "Procesos clave en piloto automático. Recupera tu tiempo.",
@@ -68,7 +60,7 @@ const products = [
     cta: "Conocer más",
   },
   {
-    num: "06",
+    num: "05",
     icon: Brain,
     name: "Operación Inteligente IA",
     tagline: "Tu negocio piensa y actúa mientras tú duermes.",
@@ -105,7 +97,6 @@ const ProductGrid = () => {
                 id={`bloque-${p.num}`}
                 className="group relative rounded-2xl border border-border bg-card p-7 transition-all duration-300 hover:border-primary/40 hover:-translate-y-1 hover:shadow-lg flex flex-col"
               >
-                {/* Header row */}
                 <div className="flex items-start justify-between mb-5">
                   <div className="flex items-center gap-3">
                     <span className="font-mono text-2xl font-black text-foreground/15">{p.num}</span>
@@ -120,12 +111,10 @@ const ProductGrid = () => {
                   </span>
                 </div>
 
-                {/* Content */}
                 <h3 className="text-lg font-bold text-foreground mb-1">{p.name}</h3>
                 <p className="text-sm font-medium text-primary mb-3 leading-snug">{p.tagline}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{p.desc}</p>
 
-                {/* Entregables */}
                 <ul className="space-y-1 mb-5">
                   {p.entregables.map((e) => (
                     <li key={e} className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -135,7 +124,6 @@ const ProductGrid = () => {
                   ))}
                 </ul>
 
-                {/* Footer */}
                 <div className="flex items-center justify-between pt-4 border-t border-border/40">
                   <span className="text-xs text-muted-foreground">⏱ {p.tiempo}</span>
                   <a href={p.ctaHref} id={`cta-bloque-${p.num}`}>
