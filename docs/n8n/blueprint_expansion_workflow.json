@@ -1,0 +1,165 @@
+{
+  "name": "Bloque Cero - Motor IA (Blueprint Generator)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bloque-cero-blueprint",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "e98e4d29-1a06-4448-b4c4-7dbafbf9a87d",
+      "name": "Supabase Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "bloque-cero-blueprint-engine"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "messageValues": [
+            {
+              "content": "Actúa bajo la identidad de un Coach Senior en Psicología Aplicada para Bloque Cero. Tu enfoque es el crecimiento post-traumático, la resiliencia operativa y la transformación de la oscuridad personal/empresarial en poder real.\n\nRecibirás las respuestas de un diagnóstico profundo. Tu objetivo es generar un 'Blueprint de Negocio' provocativo pero sanador, altamente profesional (estilo McKinsey) pero con alma.\n\nEstructura tu respuesta en Markdown:\n\n# Blueprint Estratégico: Más allá del Miedo\n\n## 1. El Portal del Caos (Diagnóstico)\nAnálisis de la situación actual. ¿Qué te está deteniendo realmente? No lo que dices, sino lo que subyace.\n\n## 2. Propuesta de Valor Blindada\nLa verdad innegable de tu negocio. ¿Por qué el mercado no puede ignorarte?\n\n## 3. Arquitectura del Sistema\nUnit economics y proyecciones. La frialdad de los números que sostiene la pasión.\n\n## 4. Plan de Acción — 4 Semanas de Transformación\nAcciones directas para romper patrones de miedo y ejecutar con precisión.\n\n## 5. Riesgos y Mitigaciones\nLos fantasmas que vendrán y cómo derrotarlos antes de que aparezcan.\n\nSé directo, demoledoramente honesto y estratégicamente impecable. Evita el lenguaje genérico."
+            },
+            {
+              "role": "user",
+              "content": "={{ 'Aquí están las respuestas del diagnóstico:\\n\\n' + JSON.stringify($json.body.diagnostic_answers, null, 2) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1f1dbce-b8b8-4c8d-b0dd-4f5b5b1a6a58",
+      "name": "Cerebro OpenAI (Blueprint)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ 'https://' + $env.SUPABASE_PROJECT_ID + '.supabase.co/rest/v1/blueprint_requests?id=eq.' + $('Supabase Webhook').item.json.body.request_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ status: 'completed', progress_day: 7, generated_blueprint: { markdown: $json.text, generated_at: new Date().toISOString() } }) }}",
+        "options": {}
+      },
+      "id": "e2f07ab2-d698-422f-ae23-f36fb7f21689",
+      "name": "Guardar Blueprint en BD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1000, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ 'https://' + $env.SUPABASE_PROJECT_ID + '.supabase.co/rest/v1/blueprint_requests?id=eq.' + $('Supabase Webhook').item.json.body.request_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ status: 'error', progress_day: 1 }) }}",
+        "options": {}
+      },
+      "id": "a9f3c4b2-e871-4d52-9a1c-8f2b3d7e6c90",
+      "name": "Marcar Error en BD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [800, 520]
+    }
+  ],
+  "connections": {
+    "Supabase Webhook": {
+      "main": [
+        [
+          {
+            "node": "Cerebro OpenAI (Blueprint)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cerebro OpenAI (Blueprint)": {
+      "main": [
+        [
+          {
+            "node": "Guardar Blueprint en BD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ],
+      "error": [
+        [
+          {
+            "node": "Marcar Error en BD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Blueprint en BD": {
+      "error": [
+        [
+          {
+            "node": "Marcar Error en BD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
+
