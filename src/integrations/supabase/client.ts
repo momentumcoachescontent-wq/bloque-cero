@@ -1,5 +1,5 @@
 // Bloque Cero — Supabase Client
-// Credenciales centralizadas en config.ts — no usar import.meta.env
+// Credenciales inyectadas de manera segura vía config.ts -> import.meta.env
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { config } from '@/lib/config';

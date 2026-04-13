@@ -25,11 +25,19 @@ La tabla `blueprint_requests` representa a un "lead" que compró o activó la Fa
 - **progress_day**: Entero (1 a 7). Representa el ciclo semanal de SLA (Service Level Agreement).
 - **format_pdf, format_presentation, format_infographic**: Booleanos. Indican qué formatos documentales solicitó el usuario.
 
-## 3. Filosofía del Fulfillment Admin (Cola Omnicanal)
+## 3. Modelo Canónico: `business_blueprints` (Fase 3B+)
+Para reducir la complejidad de la herencia `leads` -> `blueprint_requests`, el sistema transiciona hacia un objeto canónico **`business_blueprints`**.
+- **Blueprint Intake**: Representado por los datos de descubrimiento (antes en `leads`).
+- **Blueprint Delivery**: Representado por el ciclo de cumplimiento y archivos (antes en `blueprint_requests`).
+- **Estados Unificados**: `draft`, `processing`, `delivered`, `archived`.
+
+## 4. Filosofía del Fulfillment Admin (Cola Omnicanal)
 Las pantallas maestras (`AdminIndex.tsx` y `FulfillmentAdmin.tsx`) son "Omnicanales". Analizan el universo entero.
-- **Radar Items**: Provienen de `leads`. Se listan cronológicamente. Su estado avanza mediante operaciones manuales (botones de "Dictamen Generado" y "Enviado").
-- **Blueprint Items**: Provienen de `blueprint_requests`. Conviven en la misma lista que los Radares, pero requieren lógica visual diferente. Sus estados cambian con un control deslizante de "Días" y finalizan al cargar los documentos (Upload) y Enviar (Send).
+- **Intake Items**: Entradas de descubrimiento que requieren validación.
+- **Delivery Items**: Proyectos en construcción con SLA de 7 días.
 
 ## Directriz de Intervención:
+- **Priorizar el Modelo Canónico**: Al crear nuevos hooks o componentes, usar `src/types/businessBlueprints.ts` en lugar de los tipos base de Supabase cuando sea posible.
+- **Resiliencia Geográfica**: Dado que la migración física SQL puede demorar, usar los adapters en `src/lib/businessBlueprintPayloads.ts` para mapear datos heterogéneos al modelo canónico.
 - Nunca modificar la estructura JSON del `diagnostic_answers` sin considerar retrocompatibilidad.
-- Ante la duda, verificar en la interfaz de Supabase si existen Forreign Keys activas (ej. `blueprint_requests.user_id -> profiles.id`). Si no existen, es imperativo solucionarlo con un cruce local de datos `items.find(id)`.
+- Ante la duda, verificar en la interfaz de Supabase si existen Foreign Keys activas.

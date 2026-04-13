@@ -1,15 +1,16 @@
 // ============================================================
 // Bloque Cero — Configuración centralizada v3
-// Última actualización: 2026-03-26 — Fases 0-3 completadas
-// NUNCA uses import.meta.env — todo va aquí.
+// Última actualización: 2026-04-12 — Refactor de Seguridad (Fase 4 Inicio)
+// Precaución: Variables sensibles deben inyectarse mediante CI/CD o .env
 // ============================================================
 
-const SUPABASE_URL = 'https://ghbdarbyompzhwnqrxjz.supabase.co';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 export const config = {
   supabase: {
     url: SUPABASE_URL,
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoYmRhcmJ5b21wemh3bnFyeGp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NTcxMjAsImV4cCI6MjA4OTUzMzEyMH0.ioR_knb3DEDHXsLZcwY574dJr2HwT-0AkvFTnXIC8iU',
+    anonKey: SUPABASE_ANON_KEY,
   },
   app: {
     name: 'Bloque Cero',

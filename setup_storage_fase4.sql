@@ -14,6 +14,14 @@ VALUES ('blueprint_deliverables', 'blueprint_deliverables', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. POLÍTICAS DE SEGURIDAD PARA STORAGE (RLS)
+-- Limpiar políticas previas si el script se vuelve a ejecutar
+DROP POLICY IF EXISTS "Public Access for Radar" ON storage.objects;
+DROP POLICY IF EXISTS "Public Access for Blueprint" ON storage.objects;
+DROP POLICY IF EXISTS "Admin Upload Radar" ON storage.objects;
+DROP POLICY IF EXISTS "Admin Upload Blueprint" ON storage.objects;
+DROP POLICY IF EXISTS "Admin Update Radar" ON storage.objects;
+DROP POLICY IF EXISTS "Admin Update Blueprint" ON storage.objects;
+
 -- Permitir a usuarios anónimos o autenticados LEER los archivos (ya que los mandaremos por correo).
 CREATE POLICY "Public Access for Radar" ON storage.objects FOR SELECT USING (bucket_id = 'radar_deliverables');
 CREATE POLICY "Public Access for Blueprint" ON storage.objects FOR SELECT USING (bucket_id = 'blueprint_deliverables');

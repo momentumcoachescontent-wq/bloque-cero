@@ -189,9 +189,11 @@ export default function BlueprintWizard() {
       // Buscamos el lead original para enviar el análisis base del Blueprint a n8n
       const selectedLead = leadsData.find((l: any) => l.id === selectedLeadId);
 
-      // Disparo directo a n8n desde el cliente para bypassear pg_net que colapsaba la DB
+      // FIXME: Disparo directo a n8n desde el cliente. Esto es un riesgo de seguridad operativa.
+      // Debe migrarse a un trigger de Supabase o a una Edge Function (Bloque A Fase 3B).
       try {
-        await fetch('https://n8n-n8n.z3tydl.easypanel.host/webhook-test/bloque-cero-blueprint', {
+        const webhookUrl = import.meta.env.VITE_N8N_BLUEPRINT_WEBHOOK_URL || 'https://n8n-n8n.z3tydl.easypanel.host/webhook-test/bloque-cero-blueprint';
+        await fetch(webhookUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

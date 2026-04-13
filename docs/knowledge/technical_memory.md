@@ -285,6 +285,18 @@ Se publicó la primera capa estructural real de Fase 3B, orientada a introducir 
 - n8n ya puede recibir un payload de compatibilidad con bloque canónico embebido
 - sigue sin ejecutarse migración física de base, por decisión deliberada de seguridad operativa
 
-#### Siguiente objetivo
-La siguiente etapa debe consolidar persistencia o visibilidad estructural más explícita del modelo canónico, idealmente mediante una vista SQL o una capa de acceso todavía más centralizada, y reducir tipado duplicado entre fuentes de tipos Supabase.
+## Actualización de memoria — Fase 4 (Inicio)
+### Infraestructura para Verticalización
+Se identificó el script `setup_storage_fase4.sql` que prepara buckets públicos (`radar_deliverables`, `blueprint_deliverables`) y expande el esquema de `leads` y `blueprint_requests` con campos específicos para URLs de archivos.
+
+### Estado de la transición
+- **Visibilidad:** El producto ya está posicionado como Bloque 01 (Fase 2 completa).
+- **Estructura lógica:** El sistema ya opera con tipos canónicos `business_blueprints` (Fase 3B avanzada).
+- **Infraestructura (Storage):** El script `setup_storage_fase4.sql` se ejecutó exitosamente en producción. Los buckets `radar_deliverables` y `blueprint_deliverables` están activos con reglas RLS públicas de solo lectura.
+- **Persistencia física (Datos):** Sigue pendiente la migración de datos hacia la nueva tabla centralizada `business_blueprints`.
+
+### Decisión de Skills
+Se incorporan dos nuevas capacidades operativas al sistema para guiar el desarrollo de las verticales y la automatización inteligente:
+- **Growth Marketing:** Foco en conversión y narrativa premium.
+- **Agentic Methodology:** Disciplina de implementación para sistemas complejos.
 

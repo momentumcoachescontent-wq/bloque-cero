@@ -23,8 +23,18 @@ const DOWNLOADS = [
 ];
 
 const DownloadsSection = () => {
-  const handleDownload = (title: string) => {
-    alert(`El archivo "${title}" estará disponible muy pronto. Inicia tu Blueprint de Negocio y te avisamos.`);
+  const handleDownload = (item: typeof DOWNLOADS[0]) => {
+    // Fase 4: Descarga real desde Supabase Storage
+    // Los documentos (ej. "Plantilla_Blueprint_Express.pdf") vivirán en el bucket "radar_deliverables"
+    const storageUrl = import.meta.env.VITE_SUPABASE_URL 
+      ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/radar_deliverables/${item.id}.pdf`
+      : null;
+      
+    if (storageUrl) {
+      window.open(storageUrl, '_blank');
+    } else {
+      alert(`El archivo "${item.title}" estará disponible muy pronto. Inicia tu Blueprint de Negocio y te avisamos.`);
+    }
   };
 
   return (
@@ -61,7 +71,7 @@ const DownloadsSection = () => {
               <p className="text-xs text-muted-foreground mb-4 font-mono">📄 {item.format}</p>
               <button
                 id={`btn-download-${item.id}`}
-                onClick={() => handleDownload(item.title)}
+                onClick={() => handleDownload(item)}
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-green-500/30 bg-green-500/10 text-green-400 font-semibold text-sm hover:bg-green-500/20 transition-all"
               >
                 <span>↓</span> Descargar gratis

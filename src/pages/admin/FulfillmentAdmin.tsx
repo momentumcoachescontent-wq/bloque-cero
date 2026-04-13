@@ -23,9 +23,8 @@ const FulfillmentAdmin = () => {
 
   const handleNotifyClient = async (item: typeof items[0]) => {
     try {
-      // Endpoint del Webhook en n8n. En producción usar variable de entorno: import.meta.env.VITE_N8N_WEBHOOK_URL
-      const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://tu-n8n.com/webhook/bloque-cero-dispatch';
-      
+      // FIXME: Endpoint del Webhook en n8n disparado desde Admin. Mismo riesgo, debe migrarse a Edge Function segura.
+      const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n-n8n.z3tydl.easypanel.host/webhook/bloque-cero-dispatch';      
       const payload = toN8nCompatibilityPayload(item.businessBlueprint, item.type);
 
       // toast.info("Despachando...", { description: "Conectando con n8n..." });
