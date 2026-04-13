@@ -19,7 +19,7 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardIndex from "./pages/dashboard/DashboardIndex";
 import Profile from "./pages/dashboard/Profile";
 import PremiumBlock from "./pages/dashboard/PremiumBlock";
-
+import OperationalKit from "./pages/dashboard/OperationalKit";
 // Admin Interface
 import AdminLayout from "./layouts/AdminLayout";
 import AdminIndex from "./pages/admin/AdminIndex";
@@ -74,19 +74,7 @@ const App = () => (
                   ]}
                 />
               } />
-              <Route path="/dashboard/kit-operacional" element={
-                <PremiumBlock 
-                  title="Kit Operacional" 
-                  description="Herramientas y sistemas core para estabilizar tu flujo de trabajo."
-                  priceTag="OTC"
-                  features={[
-                    "Setup de CRM y bases de datos",
-                    "Estructuración de herramientas de equipo",
-                    "Definición de KPIs base",
-                    "Preparación para automatización avanzada"
-                  ]}
-                />
-              } />
+              <Route path="/dashboard/kit-operacional" element={<OperationalKit />} />
               <Route path="/dashboard/automatizaciones" element={
                 <PremiumBlock 
                   title="Automatizaciones Base" 
