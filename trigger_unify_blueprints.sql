@@ -9,6 +9,7 @@ RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO public.business_blueprints (
         source_lead_id,
+        user_id,
         created_at,
         client_name,
         client_email,
@@ -16,11 +17,12 @@ BEGIN
         business_name,
         intake_score,
         intake_payload,
-        lifecycle_stage
+        lifecycle_stage,
+        metadata
     )
     VALUES (
         NEW.id,
-        NEW.user_id,
+        auth.uid(),
         NEW.created_at,
         NEW.name,
         NEW.email,
