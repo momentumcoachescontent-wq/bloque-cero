@@ -153,8 +153,18 @@ const Sidebar = () => {
             <p className="text-sm font-medium truncate">{profile?.full_name || "Usuario"}</p>
             <p className="text-xs text-muted-foreground truncate">{profile?.email}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={signOut} title="Cerrar Sessión">
+          <Button variant="ghost" size="icon" onClick={signOut} title="Cerrar Sesión">
             <LogOut className="w-4 h-4" />
+          </Button>
+        </div>
+        <div className="mt-2 px-2 pb-2">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start gap-3 text-xs border-border/50 hover:bg-muted font-medium"
+            onClick={() => window.location.href = '/'}
+          >
+            <Rocket className="w-3.5 h-3.5" />
+            <span>Volver al Sitio Público</span>
           </Button>
         </div>
       </div>
