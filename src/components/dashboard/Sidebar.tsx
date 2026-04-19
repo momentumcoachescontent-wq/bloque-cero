@@ -35,6 +35,13 @@ const Sidebar = () => {
       isLocked: !isPremium && !isAdmin,
     },
     {
+      id: "implementacion",
+      label: "2B. Implementación Continua",
+      icon: Sparkles,
+      path: "/dashboard/implementacion",
+      isLocked: !isAdmin,
+    },
+    {
       id: "mvp",
       label: "3. MVP de Validación",
       icon: Rocket,

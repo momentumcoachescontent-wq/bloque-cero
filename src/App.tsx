@@ -24,6 +24,7 @@ import OperationalKit from "./pages/dashboard/OperationalKit";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminIndex from "./pages/admin/AdminIndex";
 import BlueprintPage from "./pages/dashboard/BlueprintPage";
+import ImplementationRoadmap from "./pages/dashboard/ImplementationRoadmap";
 import UsersAdmin from "./pages/admin/UsersAdmin";
 import SystemAdmin from "./pages/admin/SystemAdmin";
 import FulfillmentAdmin from "./pages/admin/FulfillmentAdmin";
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="/dashboard" element={<DashboardIndex />} />
               <Route path="/dashboard/perfil" element={<Profile />} />
               <Route path="/dashboard/blueprint" element={<BlueprintPage />} /> {/* Dashboard Forzado */}
+              <Route path="/dashboard/implementacion" element={<ImplementationRoadmap />} />
               <Route path="/dashboard/mvp" element={
                 <PremiumBlock 
                   title="MVP de Validación" 
