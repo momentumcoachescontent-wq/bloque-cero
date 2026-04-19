@@ -108,6 +108,8 @@ const FulfillmentAdmin = () => {
                   const sla = calculateSLA(item.createdAt, item.deadlineDays);
                   
                   return (
+                    <tr key={`${item.type}-${item.id}`} className={`border-b border-border/30 hover:bg-muted/10 transition-colors ${sla.urgent && !item.isCompleted ? 'bg-red-500/5' : ''} ${item.isCompleted ? 'opacity-70 bg-muted/5' : ''}`}>
+                      
                       <td className="px-6 py-5">
                         <div className="flex flex-col items-center gap-2">
                           <div className={`p-2 rounded-lg ${item.businessType === 'psicologia_salud' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-muted text-muted-foreground'}`}>
