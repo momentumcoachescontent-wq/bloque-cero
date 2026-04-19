@@ -7,6 +7,7 @@ import { AdminBlueprintExpanded } from "@/components/admin/AdminBlueprintExpande
 import ImplementationStatusPanel from "@/components/admin/ImplementationStatusPanel";
 import ImplementationWorkstreamsTable from "@/components/admin/ImplementationWorkstreamsTable";
 import CrmTransitionRulesPanel from "@/components/admin/CrmTransitionRulesPanel";
+import OperationalReadinessPanel from "@/components/admin/OperationalReadinessPanel";
 
 const AdminIndex = () => {
   const { stats, loadingMetrics, refetchMetrics } = useGlobalMetrics();
@@ -56,6 +57,8 @@ const AdminIndex = () => {
       <ImplementationWorkstreamsTable />
 
       <CrmTransitionRulesPanel />
+
+      <OperationalReadinessPanel feed={feed} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {metricCards.map((c, i) => (
