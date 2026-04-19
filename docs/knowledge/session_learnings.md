@@ -73,3 +73,23 @@ Primera sesión de trabajo del agente. Objetivo: analizar el proyecto existente 
 2. Ejecutar el plan de robustecimiento por fases (ver implementation_plan.md)
 3. Implementar Fase 1: Diagnóstico funcional + Supabase Auth
 4. Definir el schema completo de la base de datos antes de escribir código
+
+---
+## Sesión 003 — 2026-04-19 (Sincronización de Memoria y Orquestación MCP)
+
+### Contexto
+Revisión del estado del Plan Maestro v2 y sincronización de la documentación técnica con la realidad del repositorio después de la consolidación lógica del dominio.
+
+### Lo que funcionó
+- **Memoria Técnica Vívela:** La documentación técnica (`technical_memory.md`) se mantuvo como la fuente de verdad más precisa del proyecto, superando al README histórico.
+- **Integración n8n-mcp:** Se validó la visibilidad de los flujos de automatización desde el agente, permitiendo una auditoría profunda de la lógica de "Fulfillment".
+- **Estructura Zero-Trust:** Confirmación de que las URLs de infraestructura están protegidas tras el `n8n-bridge`.
+
+### Lo que se detectó (Gaps)
+- **Desincronización por Seguridad:** La decisión de no ejecutar la migración física SQL (`consolidate_business_blueprints.sql`) genera una discrepancia entre el modelo de tipos (canónico) y las tablas base (heredadas). Se manejó con adapters en `src/lib/`.
+- **Fase 5 Pendiente:** La lógica de entrega de reportes ("Delivered" state) aún no existe en el frontend del panel administrativo.
+
+### Decisiones Tomadas
+- **Mantener Dualismo de Datos:** Priorizar la estabilidad de producción sobre la elegancia del esquema. Se opera con el Read Model canónico en el admin.
+- **Preparar Bloque F:** Definir la Fase 5 como el próximo hito crítico para cerrar el ciclo de valor del Blueprint.
+- **Formalización de Skills:** Catalogar los 6 skills agénticos para asegurar que futuras sesiones mantengan la estética "Beyond Fear" y la disciplina arquitectónica.

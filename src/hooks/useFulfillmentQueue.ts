@@ -28,48 +28,36 @@ export const useFulfillmentQueue = () => {
     try {
       setLoadingQueue(true);
 
-      const { data: blueprintsData, error: bpError } = await supabase
-        .from('blueprint_requests')
-        .select(`*`);
+      const { data, error } = await supabase
+        .from('business_blueprints')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      if (bpError) {
-        toast.error("Aviso: No se pudieron cargar las entregas de Blueprint (" + bpError.message + ")");
-      }
+      if (error) throw error;
 
-      const { data: leadsData, error: leadsError } = await supabase
-        .from('leads')
-        .select('*');
-
-      if (leadsError) {
-        toast.error("Aviso: No se pudieron cargar los ingresos de Blueprint (" + leadsError.message + ")");
-      }
-
-      const canonical = mapCollectionsToBusinessBlueprints(leadsData || [], blueprintsData || []);
-      let unified: FulfillmentItem[] = canonical.map(bp => {
-        const isDelivery = !!bp.sourceBlueprintRequestId;
-        const formats = isDelivery
-          ? bp.requestedFormats.map(f => f === 'pdf' ? 'PDF Blueprint' : f === 'presentation' ? 'Pitch Deck' : f === 'infographic' ? 'Infografía' : f)
-          : ['Análisis base de Blueprint'];
+      const blueprints = (data || []).map(row => {
+        const isDelivery = row.source_blueprint_id !== null;
+        const formats = (row.requested_formats || []);
 
         return {
-          id: bp.id,
-          type: isDelivery ? 'blueprint' : 'radar',
-          stageLabel: isDelivery ? 'Blueprint Delivery' : 'Blueprint Intake',
-          title: bp.businessName,
-          clientName: bp.clientName,
-          clientEmail: bp.clientEmail,
-          createdAt: bp.createdAt,
+          id: row.id,
+          type: isDelivery ? ('blueprint' as const) : ('radar' as const),
+          stageLabel: isDelivery ? ('Blueprint Delivery' as const) : ('Blueprint Intake' as const),
+          title: row.business_name || 'Sin nombre de negocio',
+          clientName: row.client_name || 'Sin nombre',
+          clientEmail: row.client_email,
+          createdAt: row.created_at,
           deadlineDays: isDelivery ? 7 : 2,
-          isCompleted: isDelivery ? bp.lifecycleStage === 'delivered' : bp.lead?.is_analysis_sent === true,
-          progressDay: isDelivery ? (bp.deliveryProgressDay || 1) : undefined,
+          isCompleted: row.lifecycle_stage === 'delivered' || row.lifecycle_stage === 'completed',
+          progressDay: row.delivery_progress || 1,
           formats,
-          sourceData: isDelivery ? (bp.blueprintRequest as BlueprintRequest) : (bp.lead as Lead),
-          businessBlueprint: bp,
+          sourceData: row, // Mantenemos el row por compatibilidad
+          businessBlueprint: row, 
         };
       });
 
-      unified.sort((a, b) => {
-        const getRemainingDays = (item: FulfillmentItem) => {
+      blueprints.sort((a, b) => {
+        const getRemainingDays = (item: any) => {
           const start = new Date(item.createdAt);
           const deadline = new Date(start.getTime() + item.deadlineDays * 24 * 60 * 60 * 1000);
           return (deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24);
@@ -81,7 +69,7 @@ export const useFulfillmentQueue = () => {
         return getRemainingDays(a) - getRemainingDays(b);
       });
 
-      setItems(unified);
+      setItems(blueprints as FulfillmentItem[]);
     } catch (err: unknown) {
       toast.error("Error cargando cola de fulfillment: " + (err as Error).message);
     } finally {
@@ -92,8 +80,11 @@ export const useFulfillmentQueue = () => {
   const updateBlueprintProgress = async (id: string, newDay: number) => {
     try {
       const { error } = await supabase
-        .from('blueprint_requests')
-        .update({ progress_day: newDay, status: newDay >= 7 ? 'completed' : 'analyzing' })
+        .from('business_blueprints')
+        .update({ 
+          delivery_progress: newDay, 
+          lifecycle_stage: newDay >= 7 ? 'delivered' : 'expanded' 
+        })
         .eq('id', id);
 
       if (error) throw error;
@@ -107,8 +98,10 @@ export const useFulfillmentQueue = () => {
   const toggleIntakeCompletion = async (id: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
-        .from('leads')
-        .update({ is_analysis_generated: !currentStatus, is_analysis_sent: !currentStatus })
+        .from('business_blueprints')
+        .update({ 
+          lifecycle_stage: !currentStatus ? 'scored' : 'captured'
+        })
         .eq('id', id);
 
       if (error) throw error;

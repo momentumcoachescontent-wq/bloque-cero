@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { DeliverableUploader } from "@/components/admin/DeliverableUploader";
 import { useFulfillmentQueue } from "@/hooks/useFulfillmentQueue";
 import { toN8nCompatibilityPayload } from "@/lib/businessBlueprintPayloads";
+import { supabase } from "@/lib/supabase";
 
 const calculateSLA = (createdAt: string, deadlineDays: number) => {
   const start = new Date(createdAt);
@@ -23,24 +24,25 @@ const FulfillmentAdmin = () => {
 
   const handleNotifyClient = async (item: typeof items[0]) => {
     try {
-      // FIXME: Endpoint del Webhook en n8n disparado desde Admin. Mismo riesgo, debe migrarse a Edge Function segura.
-      const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://n8n-n8n.z3tydl.easypanel.host/webhook/bloque-cero-dispatch';      
       const payload = toN8nCompatibilityPayload(item.businessBlueprint, item.type);
 
-      // toast.info("Despachando...", { description: "Conectando con n8n..." });
-
-      const res = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      const { data, error: functionError } = await supabase.functions.invoke('n8n-bridge', {
+        body: { 
+          action: 'dispatch', 
+          payload 
+        }
       });
 
-      if (!res.ok) throw new Error("Fallo en la respuesta del Webhook n8n");
+      if (functionError) throw functionError;
 
-      toast.success("Notificación Disparada", { description: `Los entregables de ${item.clientName} fueron enviados al orquestador.` });
-    } catch (err: unknown) {
-      // Por ahora es un toast de error si tu n8n no está vivo, no bloquea la DB.
-      toast.error("Aviso de Despacho", { description: "Simulación de envío; configura VITE_N8N_WEBHOOK_URL en .env para el envío real." });
+      toast.success("Notificación Disparada", { 
+        description: `Los entregables de ${item.clientName} fueron enviados al orquestador seguro.` 
+      });
+    } catch (err: any) {
+      console.error("Error disparando bridge:", err);
+      toast.error("Error de Comunicación", { 
+        description: err.message || "No se pudo conectar con el puente seguro de n8n." 
+      });
     }
   };
 
@@ -169,11 +171,16 @@ const FulfillmentAdmin = () => {
                           {/* Botones universales de cumplimiento (siempre visibles para Blueprint Delivery, condicionales para Blueprint Intake) */}
                           <div className={`grid grid-cols-2 gap-2 transition-all duration-300 ${item.type === 'blueprint' || item.isCompleted ? 'opacity-100 scale-100 pointer-events-auto mt-1' : 'opacity-50 scale-95 pointer-events-none h-0 overflow-hidden'}`}>
                              <DeliverableUploader item={item} onUploadSuccess={refetchQueue}>
-                               <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-primary/20 hover:bg-primary/5 hover:text-primary">
+                               <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-primary/20 hover:bg-primary/5 hover:text-primary w-full">
                                  <UploadCloud className="w-3 h-3" /> Subir
                                </Button>
                              </DeliverableUploader>
-                             <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-green-500/20 hover:bg-green-500/10 hover:text-green-600" onClick={() => handleNotifyClient(item)}>
+                             {item.businessBlueprint.pdfUrl && (
+                               <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-purple-500/20 hover:bg-purple-500/5 text-purple-600" onClick={() => window.open(item.businessBlueprint.pdfUrl, '_blank')}>
+                                 <FileText className="w-3 h-3" /> Ver PDF
+                               </Button>
+                             )}
+                             <Button size="sm" variant="outline" className="text-[10px] h-7 px-2 gap-1.5 bg-background shadow-sm border-green-500/20 hover:bg-green-500/10 hover:text-green-600 w-full col-span-2" onClick={() => handleNotifyClient(item)}>
                                <Send className="w-3 h-3" /> Reenviar Correo
                              </Button>
                           </div>

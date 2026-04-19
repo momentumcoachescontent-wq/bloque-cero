@@ -118,10 +118,10 @@ export default function BlueprintWizard() {
 
   // Queries con Cache
   const { data: requestData, isLoading: loadingRequest } = useQuery({
-    queryKey: ['blueprint_requests', profile?.id],
+    queryKey: ['business_blueprints', profile?.id],
     queryFn: async () => {
       const { data } = await supabase
-        .from('blueprint_requests')
+        .from('business_blueprints')
         .select('*')
         .eq('user_id', profile?.id)
         .order('created_at', { ascending: false })
@@ -130,7 +130,7 @@ export default function BlueprintWizard() {
       return data || null;
     },
     enabled: !!profile?.id,
-    refetchInterval: (query) => query.state.data && query.state.data.progress_day < 7 ? 30000 : false,
+    refetchInterval: (query) => query.state.data && query.state.data.delivery_progress < 7 ? 30000 : false,
   });
 
   const { data: leadsData = [], isLoading: loadingLeads } = useQuery({
@@ -170,16 +170,14 @@ export default function BlueprintWizard() {
     setSubmitting(true);
     try {
       const { data, error } = await supabase
-        .from('blueprint_requests')
+        .from('business_blueprints')
         .insert({
           user_id: profile!.id,
-          lead_id: selectedLeadId,
-          diagnostic_answers: answers,
-          format_pdf: selectedFormat.includes('pdf'),
-          format_presentation: selectedFormat.includes('presentation'),
-          format_infographic: selectedFormat.includes('infographic'),
-          status: 'analyzing',
-          progress_day: 1
+          source_lead_id: selectedLeadId,
+          intake_payload: answers,
+          requested_formats: selectedFormat.split('_'),
+          lifecycle_stage: 'captured',
+          delivery_progress: 1
         })
         .select()
         .single();
@@ -189,14 +187,10 @@ export default function BlueprintWizard() {
       // Buscamos el lead original para enviar el análisis base del Blueprint a n8n
       const selectedLead = leadsData.find((l: any) => l.id === selectedLeadId);
 
-      // FIXME: Disparo directo a n8n desde el cliente. Esto es un riesgo de seguridad operativa.
-      // Debe migrarse a un trigger de Supabase o a una Edge Function (Bloque A Fase 3B).
-      try {
-        const webhookUrl = import.meta.env.VITE_N8N_BLUEPRINT_WEBHOOK_URL || 'https://n8n-n8n.z3tydl.easypanel.host/webhook-test/bloque-cero-blueprint';
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+      const { error: functionError } = await supabase.functions.invoke('n8n-bridge', {
+        body: {
+          action: 'blueprint',
+          payload: {
             type: 'nuevo_blueprint_request',
             request_id: data.id,
             user_id: profile!.id,
@@ -209,14 +203,14 @@ export default function BlueprintWizard() {
               presentation: selectedFormat.includes('presentation'),
               infographic: selectedFormat.includes('infographic')
             }
-          })
-        });
-      } catch (webhookErr) {
-        console.error("Error disparando webhook n8n:", webhookErr);
-      }
+          }
+        }
+      });
+
+      if (functionError) throw functionError;
       
       toast.success("¡Blueprint en marcha!");
-      await queryClient.invalidateQueries({ queryKey: ['blueprint_requests', profile?.id] });
+      await queryClient.invalidateQueries({ queryKey: ['business_blueprints', profile?.id] });
       setStep(4);
       
     } catch (err) {
@@ -407,7 +401,7 @@ export default function BlueprintWizard() {
 
               {/* BASELINE DEL RADAR: Conectividad con el inicio */}
               {(() => {
-                const lead = leadsData.find((l: any) => l.id === existingRequest.lead_id);
+                const lead = leadsData.find((l: any) => l.id === existingRequest.source_lead_id);
                 if (!lead) return null;
                 const projectName = lead.diagnostic_answers?.business_name || lead.business_name || "Proyecto en análisis";
                 
@@ -434,7 +428,7 @@ export default function BlueprintWizard() {
                 );
               })()}
 
-              {existingRequest.status === 'error' && (
+              {existingRequest.lifecycle_stage === 'archived' && (
                 <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 flex items-start gap-3">
                   <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                   <div>
@@ -461,7 +455,7 @@ export default function BlueprintWizard() {
                     <div className="absolute top-1/2 left-0 w-full h-1 bg-muted -translate-y-1/2 rounded-full overflow-hidden">
                        <div 
                           className="h-full bg-primary transition-all duration-1000 ease-out" 
-                          style={{ width: `${Math.min(100, (existingRequest.progress_day / 7) * 100)}%` }}
+                          style={{ width: `${Math.min(100, (existingRequest.delivery_progress / 7) * 100)}%` }}
                        />
                     </div>
                     
@@ -472,8 +466,8 @@ export default function BlueprintWizard() {
                         { day: 5, label: "Maquetación", d: "Arquitectura Estructural" },
                         { day: 7, label: "Entrega", d: "Revisión Final" }
                       ].map((milestone, idx) => {
-                        const isCompleted = existingRequest.progress_day >= milestone.day;
-                        const isCurrent = existingRequest.progress_day === milestone.day;
+                        const isCompleted = existingRequest.delivery_progress >= milestone.day;
+                        const isCurrent = existingRequest.delivery_progress === milestone.day;
                         
                         return (
                           <div key={milestone.day} className="flex flex-col items-center group relative">
@@ -501,7 +495,7 @@ export default function BlueprintWizard() {
                   </div>
 
                   {/* SISTEMA DE HITOS DINÁMICOS: CERTIDUMBRE PROACTIVA */}
-                  {existingRequest.progress_day < 7 && (
+                  {existingRequest.delivery_progress < 7 && (
                     <div className="mb-10 p-5 bg-background border border-border/50 rounded-xl shadow-sm animate-in fade-in slide-in-from-left-4 duration-1000">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
@@ -511,19 +505,19 @@ export default function BlueprintWizard() {
                            <h4 className="text-sm font-bold uppercase tracking-widest">Estado del Algoritmo</h4>
                         </div>
                         <span className="text-[10px] font-black bg-primary/20 text-primary px-2 py-0.5 rounded-full uppercase tracking-tighter">
-                          Procesando {existingRequest.progress_day < 3 ? "Día 1-2" : existingRequest.progress_day < 5 ? "Día 3-4" : "Día 5-6"}
+                          Procesando {existingRequest.delivery_progress < 3 ? "Día 1-2" : existingRequest.delivery_progress < 5 ? "Día 3-4" : "Día 5-6"}
                         </span>
                       </div>
 
                       <div className="grid gap-4 md:grid-cols-2">
                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/40">
-                             {existingRequest.progress_day < 3 ? <FolderSearch className="w-4 h-4 text-primary" /> : <Database className="w-4 h-4 text-primary" />}
+                             {existingRequest.delivery_progress < 3 ? <FolderSearch className="w-4 h-4 text-primary" /> : <Database className="w-4 h-4 text-primary" />}
                              <div>
                                 <p className="text-[11px] font-bold text-foreground">Hito Actual</p>
                                 <p className="text-[11px] text-muted-foreground leading-snug">
-                                   {existingRequest.progress_day < 3 
+                                   {existingRequest.delivery_progress < 3 
                                      ? "Cruzando intake base con Deep Diagnostic para identificar anomalías." 
-                                     : existingRequest.progress_day < 5 
+                                     : existingRequest.delivery_progress < 5 
                                        ? "Extrayendo Unit Economics y proyecciones de rentabilidad operativa."
                                        : "Ensamblando arquitectura de GTM y Blindaje Competitivo (Moat)."}
                                 </p>
@@ -532,11 +526,11 @@ export default function BlueprintWizard() {
                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border border-border/40 relative opacity-60">
                              <LineChart className="w-4 h-4 text-muted-foreground" />
                              <div>
-                                <p className="text-[11px] font-bold text-foreground">Próximo Hito: {existingRequest.progress_day < 3 ? "Día 3" : existingRequest.progress_day < 5 ? "Día 5" : "Día 7"}</p>
+                                <p className="text-[11px] font-bold text-foreground">Próximo Hito: {existingRequest.delivery_progress < 3 ? "Día 3" : existingRequest.delivery_progress < 5 ? "Día 5" : "Día 7"}</p>
                                 <p className="text-[11px] text-muted-foreground leading-snug">
-                                   {existingRequest.progress_day < 3 
+                                   {existingRequest.delivery_progress < 3 
                                      ? "Auditoría Financiera y Matriz de Sostenibilidad." 
-                                     : existingRequest.progress_day < 5 
+                                     : existingRequest.delivery_progress < 5 
                                        ? "Maquetación Estructural y Puntos de Ruptura."
                                        : "Entrega Final y Acceso a Drive Estratégico."}
                                 </p>
@@ -548,14 +542,14 @@ export default function BlueprintWizard() {
                   )}
 
                   {/* Análisis Preliminar Inyectado */}
-                  {(existingRequest.generated_blueprint as any)?.preliminary && (
+                  {(existingRequest.metadata as any)?.preliminary && (
                     <div className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-xl animate-in fade-in slide-in-from-top-4 duration-1000">
                       <div className="flex items-center gap-2 mb-3">
                         <Zap className="w-4 h-4 text-primary" />
                         <h3 className="text-sm font-bold uppercase tracking-widest text-primary">Inyección de Análisis Inicial</h3>
                       </div>
                       <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap italic">
-                        {(existingRequest.generated_blueprint as any).preliminary}
+                        {(existingRequest.metadata as any).preliminary}
                       </div>
                       <p className="text-[10px] text-primary/60 mt-4 uppercase tracking-tighter">
                         * Este análisis es una primera aproximación algorítmica. Tu Blueprint final de 7 días incluirá la arquitectura completa.
@@ -567,8 +561,8 @@ export default function BlueprintWizard() {
 
               {/* SKELETON MOCK VIEW SIEMPRE VISIBLE */}
               <div className="border border-border/50 rounded-2xl p-8 bg-card shadow-sm relative overflow-hidden h-[450px]">
-                 <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center transition-all ${existingRequest.progress_day >= 7 ? 'bg-background/80 backdrop-blur-sm' : 'pointer-events-none'}`}>
-                    {existingRequest.progress_day < 7 ? (
+                 <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center transition-all ${existingRequest.delivery_progress >= 7 ? 'bg-background/80 backdrop-blur-sm' : 'pointer-events-none'}`}>
+                    {existingRequest.delivery_progress < 7 ? (
                       <div className="absolute top-6 right-6 flex items-center gap-2 bg-card/90 border border-primary/20 px-4 py-2 rounded-full shadow-md animate-pulse">
                         <Loader2 className="w-4 h-4 animate-spin text-primary" />
                         <span className="text-xs font-bold uppercase tracking-widest text-primary">Mapificando Estructura</span>
@@ -578,17 +572,17 @@ export default function BlueprintWizard() {
                         <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3 drop-shadow-sm" />
                         <p className="text-sm font-semibold text-foreground uppercase tracking-widest mb-6">Blueprint Finalizado</p>
                         <div className="flex justify-center flex-wrap gap-3 pointer-events-auto">
-                          {existingRequest.format_pdf && existingRequest.pdf_url && (
+                          {existingRequest.requested_formats?.includes('pdf') && existingRequest.pdf_url && (
                             <Button variant="outline" onClick={() => window.open(existingRequest.pdf_url, '_blank')} className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
                               <FileDown className="w-4 h-4" /> Bajar PDF
                             </Button>
                           )}
-                          {existingRequest.format_presentation && existingRequest.presentation_url && (
+                          {existingRequest.requested_formats?.includes('presentation') && existingRequest.presentation_url && (
                             <Button variant="outline" onClick={() => window.open(existingRequest.presentation_url, '_blank')} className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
                               <Presentation className="w-4 h-4" /> Bajar Pitch
                             </Button>
                           )}
-                          {existingRequest.format_infographic && existingRequest.infographic_url && (
+                          {existingRequest.requested_formats?.includes('infographic') && existingRequest.infographic_url && (
                             <Button variant="outline" onClick={() => window.open(existingRequest.infographic_url, '_blank')} className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
                               <Aperture className="w-4 h-4" /> Bajar Infografía
                             </Button>
@@ -607,36 +601,36 @@ export default function BlueprintWizard() {
                    {[
                      "Foso Defensivo", "Unit Econ.", "Anti-Segmento"
                    ].map((title) => (
-                     <div key={title} className={`h-24 rounded-xl flex flex-col items-center justify-center p-2 text-center transition-all duration-1000 ${existingRequest.progress_day < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-primary/10 border border-primary/50 text-primary/80 shadow-sm'}`}>
+                     <div key={title} className={`h-24 rounded-xl flex flex-col items-center justify-center p-2 text-center transition-all duration-1000 ${existingRequest.delivery_progress < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-primary/10 border border-primary/50 text-primary/80 shadow-sm'}`}>
                        <span className="text-[10px] font-black uppercase tracking-widest">{title}</span>
-                       {existingRequest.progress_day >= 7 && <CheckCircle2 className="w-3 h-3 mt-2 text-primary/40" />}
+                       {existingRequest.delivery_progress >= 7 && <CheckCircle2 className="w-3 h-3 mt-2 text-primary/40" />}
                      </div>
                    ))}
                  </div>
                  
                  <div className="grid grid-cols-5 gap-4 pointer-events-none">
-                   <div className={`h-64 rounded-xl col-span-2 flex items-center justify-center p-4 text-center transition-all duration-1000 ${existingRequest.progress_day < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-card border border-primary/30 shadow-sm'}`}>
-                     <span className={`text-[10px] font-black uppercase tracking-widest ${existingRequest.progress_day < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Estructura Operativa</span>
+                   <div className={`h-64 rounded-xl col-span-2 flex items-center justify-center p-4 text-center transition-all duration-1000 ${existingRequest.delivery_progress < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-card border border-primary/30 shadow-sm'}`}>
+                     <span className={`text-[10px] font-black uppercase tracking-widest ${existingRequest.delivery_progress < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Estructura Operativa</span>
                    </div>
-                   <div className={`h-64 rounded-xl col-span-3 flex items-center justify-center p-4 text-center transition-all duration-1000 ${existingRequest.progress_day < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-card border border-primary/30 shadow-sm'}`}>
-                     <span className={`text-[10px] font-black uppercase tracking-widest ${existingRequest.progress_day < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Framework de Adquisición</span>
+                   <div className={`h-64 rounded-xl col-span-3 flex items-center justify-center p-4 text-center transition-all duration-1000 ${existingRequest.delivery_progress < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-card border border-primary/30 shadow-sm'}`}>
+                     <span className={`text-[10px] font-black uppercase tracking-widest ${existingRequest.delivery_progress < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Framework de Adquisición</span>
                    </div>
                  </div>
               </div>
 
-              {existingRequest.progress_day >= 7 && (existingRequest.generated_blueprint as { markdown?: string })?.markdown && (
+              {existingRequest.delivery_progress >= 7 && (existingRequest.metadata as { markdown?: string })?.markdown && (
                 <div className="border border-border/50 rounded-xl p-8 bg-card shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <h3 className="font-semibold mb-6 flex items-center gap-2">
                     <FileText className="w-4 h-4 text-primary" />
                     Contenido del Blueprint
                   </h3>
                   <div className="whitespace-pre-wrap text-sm text-muted-foreground leading-relaxed max-h-[600px] overflow-y-auto pr-2">
-                    {(existingRequest.generated_blueprint as { markdown?: string }).markdown}
+                    {(existingRequest.metadata as { markdown?: string }).markdown}
                   </div>
                 </div>
               )}
 
-              {existingRequest.progress_day < 7 && (
+              {existingRequest.delivery_progress < 7 && (
                 <div className="mt-6 flex items-start gap-3 bg-muted/40 p-5 rounded-xl border border-border/50 animate-in fade-in slide-in-from-bottom-4">
                   <Clock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -646,7 +640,7 @@ export default function BlueprintWizard() {
               )}
 
               {/* STEP 6: CONVERSION & FEEDBACK */}
-              {existingRequest.progress_day >= 7 && (
+              {existingRequest.delivery_progress >= 7 && (
                 <div className="space-y-12 mt-12 mb-20 animate-in fade-in slide-in-from-bottom-8 duration-700">
                   
                   {/* Next Step Strategic Card */}

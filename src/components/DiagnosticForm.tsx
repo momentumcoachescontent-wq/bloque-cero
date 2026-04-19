@@ -204,15 +204,34 @@ const DiagnosticForm = () => {
       converted_to: null,
     };
 
-    const { error } = await supabase.from("leads").insert(leadData);
-    setIsSubmitting(false);
-
+    const { data: insertData, error } = await supabase.from("leads").insert(leadData).select().single();
+    
     if (error) {
+      setIsSubmitting(false);
       console.error("Supabase insert error:", JSON.stringify(error, null, 2));
       setSubmitError(error);
       toast.error("Error al guardar el diagnóstico en la base de datos.");
       return;
     }
+
+    // DISPARO SEGURO AL ORQUESTRADOR (BRIDGE)
+    try {
+      await supabase.functions.invoke('n8n-bridge', {
+        body: {
+          action: 'score',
+          payload: {
+            ...leadData,
+            id: insertData.id,
+            created_at: insertData.created_at
+          }
+        }
+      });
+    } catch (bridgeErr) {
+      console.error("Error disparando bridge (score):", bridgeErr);
+      // No bloqueamos al usuario si falla el bridge, ya guardamos en DB.
+    }
+
+    setIsSubmitting(false);
 
     setResult(scoring);
   };

@@ -1,0 +1,92 @@
+{
+  "name": "Bloque Cero - 02 - Deliverable Dispatch",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bloque-cero-dispatch",
+        "options": {}
+      },
+      "name": "Webhook Bridge",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "dispatch-id"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"body\"][\"projectType\"]}}",
+              "value2": "radar"
+            }
+          ]
+        }
+      },
+      "name": "Is Radar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "email": "={{$json[\"body\"][\"clientEmail\"]}}",
+        "subject": "Tu Radar de Ideas de Negocio está listo",
+        "body": "Hola {{$json[\"body\"][\"clientName\"]}},\n\nTu análisis inicial de Radar de Ideas ya está disponible en: {{$json[\"body\"][\"intakeAnalysisUrl\"]}}",
+        "appendAttribution": false
+      },
+      "name": "Notify Radar Ready",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "email": "={{$json[\"body\"][\"clientEmail\"]}}",
+        "subject": "Tu Blueprint de Negocio ha sido generado",
+        "body": "Hola {{$json[\"body\"][\"clientName\"]}},\n\nTu Blueprint técnico avanzado ya está disponible.\nPDF: {{$json[\"body\"][\"blueprintPdf\"]}}\nPitch: {{$json[\"body\"][\"blueprintPitch\"]}}",
+        "appendAttribution": false
+      },
+      "name": "Notify Blueprint Ready",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [650, 400]
+    }
+  ],
+  "connections": {
+    "Webhook Bridge": {
+      "main": [
+        [
+          {
+            "node": "Is Radar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Radar?": {
+      "main": [
+        [
+          {
+            "node": "Notify Radar Ready",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Blueprint Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

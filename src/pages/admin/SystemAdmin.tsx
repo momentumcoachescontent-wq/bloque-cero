@@ -40,11 +40,17 @@ const SystemAdmin = () => {
           </div>
           
           <div className="space-y-4">
-            <div className="bg-muted p-3 rounded-lg text-xs font-mono text-muted-foreground break-all">
-              https://primary-production-46e3.up.railway.app/webhook/bloque-cero-score
+            <div className="bg-primary/5 p-4 rounded-xl border border-primary/20">
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Secure Orchestration Bridge</p>
+              <div className="bg-muted p-3 rounded-lg text-xs font-mono text-muted-foreground break-all">
+                supabase.functions.invoke('n8n-bridge')
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-3 leading-relaxed">
+                Todas las peticiones a n8n ahora pasan por este puente seguro que valida el JWT del usuario y protege las URLs finales.
+              </p>
             </div>
-            <Button onClick={() => handlePing('n8n webhooks')} className="w-full" variant="outline">
-              <Server className="w-4 h-4 mr-2" /> Probar Conexión (Ping)
+            <Button onClick={() => handlePing('n8n-bridge')} className="w-full" variant="outline">
+              <Server className="w-4 h-4 mr-2" /> Verificar Salud del Bridge
             </Button>
           </div>
         </div>

@@ -73,44 +73,37 @@ Este documento redefine el plan maestro de Bloque Cero a partir del estado real 
 
 ---
 
-### Fase 3 — Refactor de dominio y backend operativo
+### Fase 3 — Refactor de dominio y backend operativo [ESTABILIZADA]
 **Objetivo:** alinear modelo de datos y flujos con el nuevo producto.
 
-**Trabajo principal:**
-- revisar separación entre `leads` y `blueprint_requests`
-- definir modelo objetivo (`assessments` o extensión progresiva del esquema actual)
-- normalizar estados, tipados y entregables
-- consolidar feed administrativo
-- reducir lógica frágil en frontend
-- fortalecer integración Supabase + n8n
-
-**Resultado esperado:** backend coherente con el lifecycle comercial y operativo.
+**Resultado:**
+- Tabla canónica `business_blueprints` definida conceptualmente.
+- Orquestación segura vía `n8n-bridge` activa.
+- Read Model canónico implementado en frontend/admin (Fase 3B.1).
+- **Nota:** La migración física de tablas se posterga por seguridad operativa, operando con adapters de compatibilidad.
 
 ---
 
-### Fase 4 — Verticalización de servicios
+### Fase 4 — Verticalización de servicios [EN PROGRESO]
 **Objetivo:** empacar soluciones vendibles sobre la base común.
 
 **Trabajo principal:**
-- definir módulos y alcance de CRM Vertical para servicios
-- definir subverticales o patrón base de Negocios Locales
-- identificar módulos compartidos reutilizables
-- traducir capacidades técnicas a oferta clara
-
-**Resultado esperado:** dos verticales con forma comercial y operativa clara.
+- Configuración de Storage Buckets para entregables (¡Hecho!).
+- Definición de esquemas extendidos para verticales de Salud y Consultoría.
+- Adaptación de formularios de captura por nicho.
 
 ---
 
-### Fase 5 — Automatización multicanal + IA aplicada
-**Objetivo:** elevar el valor operativo y diferenciar la propuesta.
+### Fase 5 — Automatización Avanzada y Reportes (Bloque F) [SIGUIENTE PASO]
+**Objetivo:** elevar el valor percibido del Blueprint mediante entregables de alta consultoría.
 
 **Trabajo principal:**
-- priorizar WhatsApp + email
-- dejar redes sociales en fase posterior
-- automatizar captación, seguimiento, onboarding y soporte
-- aplicar IA a clasificación, respuesta sugerida, resumen y propuesta
+- Implementar generador de Reportes PDF estratégicos en n8n (Blueprint Generator).
+- Integrar almacenamiento automático en buckets `radar_deliverables` / `blueprint_deliverables`.
+- Automatizar la notificación multicanal (WhatsApp/Email) sincronizada con el estado `delivered`.
+- Aplicar IA para personalización profunda de recomendaciones tácticas.
 
-**Resultado esperado:** operación más conectada, medible y menos manual.
+**Resultado esperado:** El cliente recibe un activo digital premium minutos después de completar su diagnóstico/wizard.
 
 ---
 

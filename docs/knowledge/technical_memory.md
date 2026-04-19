@@ -285,18 +285,30 @@ Se publicó la primera capa estructural real de Fase 3B, orientada a introducir 
 - n8n ya puede recibir un payload de compatibilidad con bloque canónico embebido
 - sigue sin ejecutarse migración física de base, por decisión deliberada de seguridad operativa
 
-## Actualización de memoria — Fase 4 (Inicio)
-### Infraestructura para Verticalización
-Se identificó el script `setup_storage_fase4.sql` que prepara buckets públicos (`radar_deliverables`, `blueprint_deliverables`) y expande el esquema de `leads` y `blueprint_requests` con campos específicos para URLs de archivos.
+#### Estado de Seguridad y Orquestación
+- El sistema ha alcanzado un nivel de **Zero-Trust Frontend**. Ninguna URL de infraestructura externa (n8n, APIs de terceros) está expuesta en el código cliente.
+- **Ecosistema Agentic:** El servidor `n8n-mcp` ha sido instalado y conectado exitosamente en el entorno local (Claude Code). 
+- **Próximos Pasos (Nueva Sesión):** Se iniciará la Fase 4/5 (Bloque F - Reportes) con el agente teniendo visibilidad directa de los flujos de n8n mediante las nuevas herramientas MCP.
 
-### Estado de la transición
-- **Visibilidad:** El producto ya está posicionado como Bloque 01 (Fase 2 completa).
-- **Estructura lógica:** El sistema ya opera con tipos canónicos `business_blueprints` (Fase 3B avanzada).
-- **Infraestructura (Storage):** El script `setup_storage_fase4.sql` se ejecutó exitosamente en producción. Los buckets `radar_deliverables` y `blueprint_deliverables` están activos con reglas RLS públicas de solo lectura.
-- **Persistencia física (Datos):** Sigue pendiente la migración de datos hacia la nueva tabla centralizada `business_blueprints`.
+## Actualización de memoria — Fase 4 (Infraestructura y Verticales)
+### Estado de la Infraestructura
+- **Storage:** Los buckets `radar_deliverables` y `blueprint_deliverables` están plenamente operativos en Supabase con reglas RLS públicas para lectura.
+- **Base de Datos:** El script `setup_storage_fase4.sql` ha sido ejecutado, añadiendo campos de soporte para URLs de archivos en `leads` y `blueprint_requests`.
+- **Automatización:** Conectividad establecida con `n8n-mcp`, permitiendo una auditoría profunda de flujos desde el agente.
 
-### Decisión de Skills
-Se incorporan dos nuevas capacidades operativas al sistema para guiar el desarrollo de las verticales y la automatización inteligente:
-- **Growth Marketing:** Foco en conversión y narrativa premium.
-- **Agentic Methodology:** Disciplina de implementación para sistemas complejos.
+### Sincronización del Dominio
+- El modelo canónico `business_blueprints` ha sido adoptado en la capa de tipos (`src/types/businessBlueprints.ts`) y hooks (`src/hooks/useBusinessBlueprints.ts`).
+- El panel de **FulfillmentAdmin** ya filtra y presenta la información bajo la lógica de **Blueprint Intake** y **Blueprint Delivery**, aunque los datos físicos residan en tablas heredadas.
+
+### Skills Consolidados
+Se han formalizado 6 bibliotecas de habilidades en `.agents/skills/` para guiar el desarrollo futuro:
+- `bloque-cero-agentic-methodology`
+- `bloque-cero-aprendizajes`
+- `bloque-cero-domain-logic`
+- `bloque-cero-growth-marketing`
+- `bloque-cero-n8n-orchestrator`
+- `bloque-cero-ui-standards`
+
+## Conclusión de Sincronización (Abril 2026)
+El sistema está listo para la **Fase 5 (Automatización de Reportes)**. La deuda técnica de dominio está bajo control gracias a los adapters de compatibilidad, permitiendo postergar la migración física SQL hasta una ventana de mantenimiento de bajo riesgo.
 

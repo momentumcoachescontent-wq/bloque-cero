@@ -1,0 +1,80 @@
+{
+  "name": "Bloque Cero - 01 - Lead Scoring & Welcome",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bloque-cero-score",
+        "options": {}
+      },
+      "name": "Webhook Bridge",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "scoring-id"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "client_name",
+              "value": "={{$json[\"body\"][\"name\"]}}"
+            },
+            {
+              "name": "client_email",
+              "value": "={{$json[\"body\"][\"email\"]}}"
+            },
+            {
+              "name": "viability_score",
+              "value": "={{$json[\"body\"][\"score\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Extract Lead Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "email": "={{$node[\"Extract Lead Data\"].json[\"client_email\"]}}",
+        "subject": "¡Bienvenido a Bloque Cero! Tu Score de Viabilidad",
+        "body": "Hola {{$node[\"Extract Lead Data\"].json[\"client_name\"]}},\n\nTu negocio ha sido evaluado con un score de {{$node[\"Extract Lead Data\"].json[\"viability_score\"]}}/100.\n\nPróximamente un consultor senior se pondrá en contacto contigo.",
+        "appendAttribution": false
+      },
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Bridge": {
+      "main": [
+        [
+          {
+            "node": "Extract Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
