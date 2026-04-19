@@ -101,7 +101,10 @@ const BIG_6_QUESTIONS = [
   }
 ];
 
+import { useParams } from "react-router-dom";
+
 export default function BlueprintWizard() {
+  const { publicId } = useParams();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
 
@@ -109,12 +112,26 @@ export default function BlueprintWizard() {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   
-  // Data State ya no se manejan con useState, se manejan abajo con useQuery
-  
   // Form State
   const [selectedLeadId, setSelectedLeadId] = useState<string>("");
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [selectedFormat, setSelectedFormat] = useState<string>("");
+
+  // Query para Blueprint por ID Público (Anónimo o Directo)
+  const { data: publicRequestData, isLoading: loadingPublic } = useQuery({
+    queryKey: ['business_blueprints_public', publicId],
+    queryFn: async () => {
+      if (!publicId) return null;
+      const { data, error } = await supabase
+        .from('business_blueprints')
+        .select('*')
+        .eq('public_id', publicId)
+        .single();
+      if (error) return null;
+      return data;
+    },
+    enabled: !!publicId,
+  });
 
   // Queries con Cache
   const { data: requestData, isLoading: loadingRequest } = useQuery({
@@ -129,7 +146,7 @@ export default function BlueprintWizard() {
         .maybeSingle();
       return data || null;
     },
-    enabled: !!profile?.id,
+    enabled: !!profile?.id && !publicId, // Solo si no hay publicId en la URL
     refetchInterval: (query) => query.state.data && query.state.data.delivery_progress < 7 ? 30000 : false,
   });
 
@@ -143,11 +160,11 @@ export default function BlueprintWizard() {
         .order('created_at', { ascending: false });
       return data || [];
     },
-    enabled: !!profile?.email, // Siempre cargamos leads para tener contexto del Blueprint Intake
+    enabled: !!profile?.email,
   });
 
-  const loading = loadingRequest || (loadingLeads && !requestData);
-  const existingRequest = requestData;
+  const existingRequest = publicRequestData || requestData;
+  const loading = loadingPublic || loadingRequest || (loadingLeads && !existingRequest && !!profile);
   const leads = leadsData;
 
   useEffect(() => {

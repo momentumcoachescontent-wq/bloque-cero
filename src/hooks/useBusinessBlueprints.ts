@@ -28,9 +28,21 @@ export const useBusinessBlueprints = () => {
     }
   };
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
+  const getByPublicId = async (publicId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('business_blueprints')
+        .select('*')
+        .eq('public_id', publicId)
+        .single();
 
-  return { items, loading, refetch: fetchItems };
+      if (error) throw error;
+      return mapRowToBusinessBlueprint(data);
+    } catch (error: unknown) {
+      console.error('Error fetching blueprint by public_id:', error);
+      return null;
+    }
+  };
+
+  return { items, loading, refetch: fetchItems, getByPublicId };
 };

@@ -50,6 +50,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/diagnostico" element={<Diagnostic />} />
+            <Route path="/b/:publicId" element={<BlueprintPage />} /> {/* Vista Pública/Anónima */}
 
             {/* Páginas legales y contacto — Fase 2.5 */}
             <Route path="/privacidad" element={<Privacidad />} />

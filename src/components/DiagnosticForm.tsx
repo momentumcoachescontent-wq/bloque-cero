@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase, Database } from "@/lib/supabase";
 import {
   BusinessType, Audience, TicketLevel, SalesChannel, Etapa, TiempoDisponible,
@@ -107,6 +108,7 @@ function Option({
 
 // ─── Componente principal ────────────────────────────────────────────────────
 const DiagnosticForm = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<ScoringResult | null>(null);
@@ -240,7 +242,35 @@ const DiagnosticForm = () => {
 
     setIsSubmitting(false);
 
-    setResult(scoring);
+    // REDIRECCIÓN A BLUEPRINT UNIFICADO (POLLING PARA ESPERAR EL TRIGGER)
+    toast.promise(
+      async () => {
+        let attempts = 0;
+        while (attempts < 5) {
+          const { data: blueprint, error: bError } = await supabase
+            .from('business_blueprints')
+            .select('public_id')
+            .eq('source_lead_id', insertData.id)
+            .maybeSingle();
+          
+          if (blueprint?.public_id) {
+            navigate(`/b/${blueprint.public_id}`);
+            return "Blueprint creado";
+          }
+          
+          attempts++;
+          await new Promise(r => setTimeout(r, 800)); // Esperar al trigger
+        }
+        // Si falla el polling, mostramos el resultado local como fallback
+        setResult(scoring);
+        return "Mostrando resultado preliminar";
+      },
+      {
+        loading: 'Unificando tu Blueprint de Negocio...',
+        success: '¡Blueprint Generado!',
+        error: 'Error al redirigir al Blueprint.',
+      }
+    );
   };
 
   // ─── Pantalla de Error DB ────────────────────────────────────
