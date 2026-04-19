@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import { mapCollectionsToBusinessBlueprints } from "@/types/businessBlueprints";
 
 export const useGlobalMetrics = () => {
   const [stats, setStats] = useState({
@@ -16,23 +15,23 @@ export const useGlobalMetrics = () => {
     try {
       setLoadingMetrics(true);
 
-      const [leadsRes, profilesRes, blueprintsRes] = await Promise.all([
-        supabase.from("leads").select("*"),
+      const [blueprintsRes, profilesRes] = await Promise.all([
+        supabase.from("business_blueprints").select("*"),
         supabase.from("profiles").select("id", { count: "exact" }),
-        supabase.from("blueprint_requests").select("*"),
       ]);
 
-      const canonical = mapCollectionsToBusinessBlueprints(leadsRes.data || [], blueprintsRes.data || []);
-      const scored = canonical.filter(item => item.intakeScore !== null);
-      const avg = scored.length
-        ? Math.round(scored.reduce((acc, curr) => acc + (curr.intakeScore || 0), 0) / scored.length)
-        : 0;
+      if (blueprintsRes.error) throw blueprintsRes.error;
+
+      const blueprints = blueprintsRes.data || [];
+      const scoredCount = blueprints.filter(item => item.intake_score !== null).length;
+      const totalScore = blueprints.reduce((acc, curr) => acc + (curr.intake_score || 0), 0);
+      const avg = scoredCount > 0 ? Math.round(totalScore / scoredCount) : 0;
 
       setStats({
-        totalLeads: canonical.filter(item => !item.sourceBlueprintRequestId).length,
+        totalLeads: blueprints.filter(item => !item.source_blueprint_id).length,
         totalProfiles: profilesRes.count || 0,
         avgScore: avg,
-        totalBlueprints: canonical.filter(item => !!item.sourceBlueprintRequestId).length,
+        totalBlueprints: blueprints.filter(item => !!item.source_blueprint_id).length,
       });
 
     } catch (error: unknown) {
@@ -48,3 +47,4 @@ export const useGlobalMetrics = () => {
 
   return { stats, loadingMetrics, refetchMetrics: fetchMetrics };
 };
+

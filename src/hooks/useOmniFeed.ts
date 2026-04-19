@@ -47,14 +47,26 @@ export const useOmniFeed = () => {
   }, [blueprintItems]);
 
   const deleteItem = async (id: string, type: 'radar' | 'blueprint') => {
-    if (!confirm(`¿Estás seguro de que deseas eliminar este ${type === 'blueprint'? 'proyecto':'prospecto'}? Esto no se puede deshacer.`)) return false;
+    if (!confirm(`¿Estás seguro de que deseas eliminar este registro? Esto afectará tanto al cliente como al administrador.`)) return false;
     
     try {
-      const table = type === 'radar' ? "leads" : "blueprint_requests";
-      const { error } = await supabase.from(table).delete().eq("id", id);
-      if (error) throw error;
+      // 1. Obtener info del blueprint para saber si tiene un lead asociado
+      const { data: bp } = await supabase
+        .from("business_blueprints")
+        .select("source_lead_id")
+        .eq("id", id)
+        .single();
+
+      // 2. Borrar el blueprint (La tabla unificada)
+      const { error: bpError } = await supabase.from("business_blueprints").delete().eq("id", id);
+      if (bpError) throw bpError;
+
+      // 3. Borrar el lead asociado si existe (Limpieza completa de fantasma)
+      if (bp?.source_lead_id) {
+        await supabase.from("leads").delete().eq("id", bp.source_lead_id);
+      }
       
-      toast.success("Registro eliminado correctamente.");
+      toast.success("Registro eliminado de forma permanente.");
       setFeed(prev => prev.filter(item => item.id !== id));
       return true;
     } catch (error: unknown) {
@@ -62,6 +74,7 @@ export const useOmniFeed = () => {
       return false;
     }
   };
+
 
   const toggleRadarFlag = async (id: string, field: 'is_analysis_generated' | 'is_analysis_sent', currentValue: boolean) => {
     try {

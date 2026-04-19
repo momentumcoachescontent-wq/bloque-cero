@@ -52,12 +52,26 @@ const DashboardIndex = () => {
     if (!confirm("¿Estás seguro de que deseas eliminar este análisis? Esto no se puede deshacer.")) return;
 
     try {
-      const { error } = await supabase
+      // 1. Obtener lead asociado
+      const { data: bp } = await supabase
+        .from("business_blueprints")
+        .select("source_lead_id")
+        .eq("id", id)
+        .single();
+
+      // 2. Borrar blueprint
+      const { error: bpError } = await supabase
         .from("business_blueprints")
         .delete()
         .eq("id", id);
 
-      if (error) throw error;
+      if (bpError) throw bpError;
+
+      // 3. Borrar lead si existe
+      if (bp?.source_lead_id) {
+        await supabase.from("leads").delete().eq("id", bp.source_lead_id);
+      }
+
       toast.success("Análisis eliminado correctamente");
       // Actualizar la caché en lugar de hacer refetch
       queryClient.setQueryData(['business-blueprints-dashboard', profile?.email, profile?.id], (oldData: any[]) => 
@@ -68,6 +82,7 @@ const DashboardIndex = () => {
       toast.error("Error al eliminar el análisis: " + error.message);
     }
   };
+
 
   return (
     <div className="space-y-6">
