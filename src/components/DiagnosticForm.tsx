@@ -223,22 +223,8 @@ const DiagnosticForm = () => {
       return;
     }
 
-    // DISPARO SEGURO AL ORQUESTRADOR (BRIDGE)
-    try {
-      await supabase.functions.invoke('n8n-bridge', {
-        body: {
-          action: 'score',
-          payload: {
-            ...leadData,
-            id: insertData.id,
-            created_at: insertData.created_at
-          }
-        }
-      });
-    } catch (bridgeErr) {
-      console.error("Error disparando bridge (score):", bridgeErr);
-      // No bloqueamos al usuario si falla el bridge, ya guardamos en DB.
-    }
+    // LA ORQUESTACIÓN AHORA SE DISPARA AUTOMÁTICAMENTE VIA TRIGGER DE BD (n8n_webhook_setup.sql)
+    // Esto garantiza que inclusive usuarios anónimos disparen n8n sin fallos de 401.
 
     setIsSubmitting(false);
 
