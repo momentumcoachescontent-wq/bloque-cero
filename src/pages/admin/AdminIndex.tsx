@@ -9,6 +9,7 @@ import ImplementationWorkstreamsTable from "@/components/admin/ImplementationWor
 import CrmTransitionRulesPanel from "@/components/admin/CrmTransitionRulesPanel";
 import OperationalReadinessPanel from "@/components/admin/OperationalReadinessPanel";
 import OperationalActionsPanel from "@/components/admin/OperationalActionsPanel";
+import OperationalPayloadInspector from "@/components/admin/OperationalPayloadInspector";
 
 const AdminIndex = () => {
   const { stats, loadingMetrics, refetchMetrics } = useGlobalMetrics();
@@ -62,6 +63,8 @@ const AdminIndex = () => {
       <OperationalReadinessPanel feed={feed} />
 
       <OperationalActionsPanel feed={feed} />
+
+      <OperationalPayloadInspector feed={feed} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {metricCards.map((c, i) => (
