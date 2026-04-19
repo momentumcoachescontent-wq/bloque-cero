@@ -4,6 +4,7 @@ import { useGlobalMetrics } from "@/hooks/useGlobalMetrics";
 import { useOmniFeed, UnifiedQueueItem } from "@/hooks/useOmniFeed";
 import { AdminRadarExpanded } from "@/components/admin/AdminRadarExpanded";
 import { AdminBlueprintExpanded } from "@/components/admin/AdminBlueprintExpanded";
+import ImplementationStatusPanel from "@/components/admin/ImplementationStatusPanel";
 
 const AdminIndex = () => {
   const { stats, loadingMetrics, refetchMetrics } = useGlobalMetrics();
@@ -47,6 +48,8 @@ const AdminIndex = () => {
         <h1 className="text-3xl font-bold tracking-tight">Status Global</h1>
         <p className="text-muted-foreground mt-1">Métricas en tiempo real de Bloque Cero.</p>
       </div>
+
+      <ImplementationStatusPanel />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {metricCards.map((c, i) => (
