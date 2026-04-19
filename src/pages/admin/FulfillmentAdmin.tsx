@@ -1,11 +1,29 @@
 import React from "react";
 import { toast } from "sonner";
-import { Clock, CheckCircle2, AlertTriangle, FileText, UploadCloud, Send, Zap, Target } from "lucide-react";
+import { Clock, CheckCircle2, AlertTriangle, FileText, UploadCloud, Send, Zap, Target, Brain, ShoppingBag, Play, BookOpen, Wallet, Truck, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeliverableUploader } from "@/components/admin/DeliverableUploader";
 import { useFulfillmentQueue } from "@/hooks/useFulfillmentQueue";
 import { toN8nCompatibilityPayload } from "@/lib/businessBlueprintPayloads";
 import { supabase } from "@/lib/supabase";
+
+const VERTICAL_ICONS: Record<string, React.ReactNode> = {
+  psicologia_salud: <Brain className="w-4 h-4" />,
+  contenido: <Play className="w-4 h-4" />,
+  ecommerce: <ShoppingBag className="w-4 h-4" />,
+  educacion: <BookOpen className="w-4 h-4" />,
+  fintech: <Wallet className="w-4 h-4" />,
+  logistica: <Truck className="w-4 h-4" />,
+};
+
+const VERTICAL_LABELS: Record<string, string> = {
+  psicologia_salud: "Salud/Psicología",
+  contenido: "Contenido/Infoproductos",
+  ecommerce: "E-commerce",
+  educacion: "Educación",
+  fintech: "Fintech",
+  logistica: "Logística",
+};
 
 const calculateSLA = (createdAt: string, deadlineDays: number) => {
   const start = new Date(createdAt);
@@ -74,7 +92,7 @@ const FulfillmentAdmin = () => {
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-muted-foreground uppercase bg-muted/30 border-b border-border/50">
               <tr>
-                <th className="px-6 py-4 font-semibold">Tipo & Entregables</th>
+                <th className="px-6 py-4 font-semibold text-center">Vertical</th>
                 <th className="px-6 py-4 font-semibold">Proyecto & Cliente</th>
                 <th className="px-6 py-4 font-semibold">SLA (Límite)</th>
                 <th className="px-6 py-4 font-semibold">Control de Operación</th>
@@ -90,32 +108,52 @@ const FulfillmentAdmin = () => {
                   const sla = calculateSLA(item.createdAt, item.deadlineDays);
                   
                   return (
-                    <tr key={`${item.type}-${item.id}`} className={`border-b border-border/30 hover:bg-muted/10 transition-colors ${sla.urgent && !item.isCompleted ? 'bg-red-500/5' : ''} ${item.isCompleted ? 'opacity-70 bg-muted/5' : ''}`}>
-                      
-                      {/* TIPO Y ENTREGABLES */}
                       <td className="px-6 py-5">
-                        <div className="flex items-center gap-2 mb-2">
-                          {item.stageLabel === 'Blueprint Intake' ? (
-                            <span className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded-md text-xs font-bold uppercase tracking-wider">
-                              <Target className="w-3 h-3" /> Blueprint Intake
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1.5 px-2.5 py-1 bg-purple-500/10 text-purple-500 border border-purple-500/20 rounded-md text-xs font-bold uppercase tracking-wider">
-                              <FileText className="w-3 h-3" /> Blueprint Delivery
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          {item.formats.map((f, i) => (
-                            <span key={i} className="bg-background text-foreground/80 text-[10px] px-2 py-0.5 rounded border border-border/60 shadow-sm">{f}</span>
-                          ))}
+                        <div className="flex flex-col items-center gap-2">
+                          <div className={`p-2 rounded-lg ${item.businessType === 'psicologia_salud' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-muted text-muted-foreground'}`}>
+                            {VERTICAL_ICONS[item.businessType || ''] || <Target className="w-4 h-4" />}
+                          </div>
+                          <span className="text-[10px] font-bold uppercase tracking-tighter opacity-70">
+                            {VERTICAL_LABELS[item.businessType || ''] || 'General'}
+                          </span>
                         </div>
                       </td>
 
                       {/* PROYECTO & CLIENTE */}
                       <td className="px-6 py-5">
+                        <div className="flex items-center gap-2 mb-1">
+                          {item.stageLabel === 'Blueprint Intake' ? (
+                            <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded text-[10px] font-bold uppercase">Intake</span>
+                          ) : (
+                            <span className="px-1.5 py-0.5 bg-purple-500/10 text-purple-500 border border-purple-500/20 rounded text-[10px] font-bold uppercase">Delivery</span>
+                          )}
+                          {item.isHighBurnout && (
+                            <span className="flex items-center gap-1 px-1.5 py-0.5 bg-red-500/10 text-red-500 border border-red-500/20 rounded text-[10px] font-bold animate-pulse">
+                              <AlertTriangle className="w-3 h-3" /> Riesgo Burnout
+                            </span>
+                          )}
+                        </div>
                         <p className={`font-bold text-base tracking-tight ${item.isCompleted ? 'text-muted-foreground' : 'text-foreground'}`}>{item.title}</p>
-                        <p className="text-muted-foreground text-sm mt-0.5">{item.clientName}</p>
+                        <p className="text-muted-foreground text-sm flex items-center gap-1.5 group">
+                          {item.clientName}
+                          <div className="relative inline-block">
+                             <Info className="w-3.5 h-3.5 text-muted-foreground/50 hover:text-primary cursor-help transition-colors" />
+                             <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 p-3 bg-popover border border-border rounded-xl shadow-xl z-50 text-xs animate-in fade-in slide-in-from-bottom-1">
+                                <p className="font-bold text-primary mb-1 inline-flex items-center gap-1.5">
+                                  <Brain className="w-3 h-3" /> Coach Insight:
+                                </p>
+                                <p className="text-muted-foreground mb-2 italic">Análisis de dolores operativos declarados por el cliente:</p>
+                                <div className="space-y-1.5">
+                                  {item.pains && item.pains.length > 0 ? item.pains.map((p, idx) => (
+                                    <div key={idx} className="flex items-start gap-1.5 bg-muted/50 p-1.5 rounded border border-border/30">
+                                      <div className="w-1.5 h-1.5 mt-1 rounded-full bg-primary flex-shrink-0" />
+                                      <span className="capitalize">{p.replace(/_/g, ' ')}</span>
+                                    </div>
+                                  )) : <p className="text-muted-foreground opacity-50">Sin dolores específicos reportados.</p>}
+                                </div>
+                             </div>
+                          </div>
+                        </p>
                         <p className="text-xs text-muted-foreground opacity-70 border-t border-border/50 pt-1 mt-1 inline-block">{item.clientEmail}</p>
                       </td>
 

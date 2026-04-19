@@ -16,6 +16,9 @@ export interface FulfillmentItem {
   isCompleted: boolean;
   progressDay?: number;
   formats: string[];
+  businessType?: string;
+  pains?: string[];
+  isHighBurnout?: boolean;
   sourceData: Lead | BlueprintRequest;
   businessBlueprint: BusinessBlueprint;
 }
@@ -51,7 +54,10 @@ export const useFulfillmentQueue = () => {
           isCompleted: row.lifecycle_stage === 'delivered' || row.lifecycle_stage === 'completed',
           progressDay: row.delivery_progress || 1,
           formats,
-          sourceData: row, // Mantenemos el row por compatibilidad
+          businessType: row.intake_payload?.business_profile?.type || row.intake_payload?.type || 'N/A',
+          pains: row.intake_payload?.business_profile?.dolores || row.intake_payload?.dolores || [],
+          isHighBurnout: (row.intake_payload?.business_profile?.dolores || row.intake_payload?.dolores || []).includes('agotamiento_1_1'),
+          sourceData: row, 
           businessBlueprint: row, 
         };
       });
