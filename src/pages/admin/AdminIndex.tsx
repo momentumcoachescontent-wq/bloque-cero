@@ -5,6 +5,7 @@ import { useOmniFeed, UnifiedQueueItem } from "@/hooks/useOmniFeed";
 import { AdminRadarExpanded } from "@/components/admin/AdminRadarExpanded";
 import { AdminBlueprintExpanded } from "@/components/admin/AdminBlueprintExpanded";
 import ImplementationStatusPanel from "@/components/admin/ImplementationStatusPanel";
+import ImplementationWorkstreamsTable from "@/components/admin/ImplementationWorkstreamsTable";
 
 const AdminIndex = () => {
   const { stats, loadingMetrics, refetchMetrics } = useGlobalMetrics();
@@ -50,6 +51,8 @@ const AdminIndex = () => {
       </div>
 
       <ImplementationStatusPanel />
+
+      <ImplementationWorkstreamsTable />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {metricCards.map((c, i) => (
