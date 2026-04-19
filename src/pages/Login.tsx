@@ -14,7 +14,9 @@ const Login = () => {
   const { session, isLoading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/";
+  const queryParams = new URLSearchParams(location.search);
+  const claimId = queryParams.get("claim");
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || (claimId ? `/b/${claimId}` : "/");
 
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
@@ -104,9 +106,13 @@ const Login = () => {
           {step === "email" ? (
             <>
               <div className="mb-6">
-                <h1 className="text-xl font-bold text-foreground mb-1">Accede a tu panel</h1>
+                <h1 className="text-xl font-bold text-foreground mb-1">
+                  {claimId ? "Asegura tu Blueprint" : "Accede a tu panel"}
+                </h1>
                 <p className="text-sm text-muted-foreground">
-                  Te enviamos un código de acceso de 6 dígitos — sin contraseña.
+                  {claimId 
+                    ? "Regístrate con el mismo correo para guardar tu análisis permanentemente." 
+                    : "Te enviamos un código de acceso de 6 dígitos — sin contraseña."}
                 </p>
               </div>
 

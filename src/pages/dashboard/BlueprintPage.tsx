@@ -194,6 +194,11 @@ export default function BlueprintWizard() {
     setTimeout(() => window.location.href = "/", 3000);
   };
 
+  const handleClaimBlueprint = () => {
+    const loginUrl = publicId ? `/login?claim=${publicId}` : '/login';
+    navigate(loginUrl);
+  };
+
   const handleCreateRequest = async () => {
     if (!selectedLeadId || Object.keys(answers).length < BIG_6_QUESTIONS.length || !selectedFormat) {
       toast.error("Por favor completa toda la información.");
@@ -671,11 +676,35 @@ export default function BlueprintWizard() {
               )}
 
               {existingRequest.delivery_progress < 7 && (
-                <div className="mt-6 flex items-start gap-3 bg-muted/40 p-5 rounded-xl border border-border/50 animate-in fade-in slide-in-from-bottom-4">
-                  <Clock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Serás notificado al correo registrado cuando el algoritmo concluya el análisis estructural. Al finalizar, encontrarás los documentos estratégicos disponibles para descarga en esta misma vista.
-                  </p>
+                <div className="mt-6 flex flex-col gap-6">
+                  <div className="flex items-start gap-3 bg-muted/40 p-5 rounded-xl border border-border/50 animate-in fade-in slide-in-from-bottom-4">
+                    <Clock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Serás notificado al correo registrado cuando el algoritmo concluya el análisis estructural. Al finalizar, encontrarás los documentos estratégicos disponibles para descarga en esta misma vista.
+                    </p>
+                  </div>
+
+                  {!profile && (
+                    <div className="bg-primary/10 border border-primary/30 p-6 rounded-2xl animate-in fade-in slide-in-from-bottom-8 duration-700">
+                      <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="text-left">
+                          <h4 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
+                            <ShieldCheck className="w-5 h-5 text-primary" />
+                            Asegura tu Blueprint
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                            Este es un acceso temporal. Regístrate para guardar este análisis permanentemente en tu panel y recibir notificaciones de progreso.
+                          </p>
+                        </div>
+                        <Button 
+                          onClick={handleClaimBlueprint}
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 shadow-lg shadow-primary/20 w-full md:w-auto whitespace-nowrap"
+                        >
+                          Reclamar y Guardar →
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
