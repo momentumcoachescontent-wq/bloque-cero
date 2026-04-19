@@ -19,9 +19,7 @@
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
-export type BusinessType =
-  | "saas" | "ecommerce" | "marketplace" | "servicio_local"
-  | "educacion" | "fintech" | "logistica" | "contenido" | "psicologia_salud";
+export type BusinessType = "saas" | "servicio_digital" | "ecommerce" | "educacion" | "fintech" | "logistica" | "contenido" | "psicologia_salud" | "dentistas" | "restaurantes";
 
 export type Audience = "b2b" | "b2c" | "mixto";
 export type TicketLevel = "bajo" | "medio" | "alto";
@@ -152,6 +150,8 @@ const BUSINESS_TYPE_PROFILES: Record<BusinessType, BusinessTypeProfile> = {
   logistica:      { digitalDependency: 0.55, regulatoryBurden: 0.50, logisticsComplexity: 0.90, minTicketViability: "medio", scalabilityIndex: 0.65 },
   contenido:      { digitalDependency: 0.85, regulatoryBurden: 0.10, logisticsComplexity: 0.00, minTicketViability: "bajo",  scalabilityIndex: 0.70 },
   psicologia_salud: { digitalDependency: 0.40, regulatoryBurden: 0.60, logisticsComplexity: 0.00, minTicketViability: "medio", scalabilityIndex: 0.60 },
+  dentistas:        { digitalDependency: 0.50, regulatoryBurden: 0.65, logisticsComplexity: 0.10, minTicketViability: "medio", scalabilityIndex: 0.55 },
+  restaurantes:      { digitalDependency: 0.60, regulatoryBurden: 0.45, logisticsComplexity: 0.85, minTicketViability: "medio", scalabilityIndex: 0.50 },
 };
 
 // ─── Lógica de scoring ───────────────────────────────────────────────────────

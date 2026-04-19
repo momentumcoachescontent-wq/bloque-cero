@@ -1,6 +1,6 @@
 import React from "react";
 import { toast } from "sonner";
-import { Clock, CheckCircle2, AlertTriangle, FileText, UploadCloud, Send, Zap, Target, Brain, ShoppingBag, Play, BookOpen, Wallet, Truck, Info } from "lucide-react";
+import { Clock, CheckCircle2, AlertTriangle, FileText, UploadCloud, Send, Zap, Target, Brain, ShoppingBag, Play, BookOpen, Wallet, Truck, Info, Stethoscope, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeliverableUploader } from "@/components/admin/DeliverableUploader";
 import { useFulfillmentQueue } from "@/hooks/useFulfillmentQueue";
@@ -14,6 +14,8 @@ const VERTICAL_ICONS: Record<string, React.ReactNode> = {
   educacion: <BookOpen className="w-4 h-4" />,
   fintech: <Wallet className="w-4 h-4" />,
   logistica: <Truck className="w-4 h-4" />,
+  dentistas: <Stethoscope className="w-4 h-4" />,
+  restaurantes: <Utensils className="w-4 h-4" />,
 };
 
 const VERTICAL_LABELS: Record<string, string> = {
@@ -23,6 +25,8 @@ const VERTICAL_LABELS: Record<string, string> = {
   educacion: "Educación",
   fintech: "Fintech",
   logistica: "Logística",
+  dentistas: "Clínica Dental",
+  restaurantes: "Restaurante / F&B",
 };
 
 const calculateSLA = (createdAt: string, deadlineDays: number) => {

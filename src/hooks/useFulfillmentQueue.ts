@@ -56,7 +56,9 @@ export const useFulfillmentQueue = () => {
           formats,
           businessType: row.intake_payload?.business_profile?.type || row.intake_payload?.type || 'N/A',
           pains: row.intake_payload?.business_profile?.dolores || row.intake_payload?.dolores || [],
-          isHighBurnout: (row.intake_payload?.business_profile?.dolores || row.intake_payload?.dolores || []).includes('agotamiento_1_1'),
+          isHighBurnout: (row.intake_payload?.business_profile?.dolores || row.intake_payload?.dolores || []).some(p => 
+            ['agotamiento_1_1', 'agenda_saturada', 'dependencia_delivery'].includes(p)
+          ),
           sourceData: row, 
           businessBlueprint: row, 
         };
