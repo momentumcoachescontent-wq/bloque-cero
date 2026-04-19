@@ -48,6 +48,7 @@ const BUSINESS_TYPES: { value: BusinessType; label: string; icon: string }[] = [
   { value: "fintech",        label: "Fintech",            icon: "💳" },
   { value: "logistica",      label: "Logística",          icon: "📦" },
   { value: "contenido",      label: "Contenido / Media",  icon: "🎬" },
+  { value: "psicologia_salud", label: "Psicología / Salud", icon: "🧠" },
 ];
 
 const LATAM_COUNTRIES = [
@@ -66,6 +67,8 @@ const DOLORES_OPTIONS = [
   { value: "sin_sistema",         label: "Sin sistema — hago todo manual" },
   { value: "sin_automatizacion",  label: "Sin automatización — pierdo tiempo" },
   { value: "sin_ventas",          label: "Sin ventas consistentes — flujo irregular" },
+  { value: "agotamiento_1_1",     label: "Agotamiento 1-1 — dependo de mis horas" },
+  { value: "dificultad_escala",   label: "Dificultad para escalar mi conocimiento" },
   { value: "otro",                label: "Otro" },
 ];
 

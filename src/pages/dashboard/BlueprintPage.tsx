@@ -224,8 +224,13 @@ export default function BlueprintWizard() {
   return (
     <div className="max-w-4xl mx-auto pb-24">
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-           <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="space-y-8 animate-pulse">
+           <div className="h-10 w-64 bg-muted rounded-lg mb-4" />
+           <div className="h-24 w-full bg-muted rounded-xl" />
+           <div className="space-y-4">
+             <div className="h-40 w-full bg-muted/50 rounded-xl" />
+             <div className="h-40 w-full bg-muted/50 rounded-xl" />
+           </div>
         </div>
       ) : (
         <>
@@ -451,12 +456,14 @@ export default function BlueprintWizard() {
                     Nuestro sistema operativo está ensamblando tu Blueprint de Negocio. Este proceso involucra análisis de datos cruzados y auditoría de viabilidad a 7 días.
                   </p>
 
-                  <div className="relative mb-16">
-                    <div className="absolute top-1/2 left-0 w-full h-1 bg-muted -translate-y-1/2 rounded-full overflow-hidden">
+                  <div className="relative mb-20 px-2">
+                    <div className="absolute top-1/2 left-0 w-full h-1.5 bg-muted/30 -translate-y-1/2 rounded-full overflow-hidden">
                        <div 
-                          className="h-full bg-primary transition-all duration-1000 ease-out" 
+                          className="h-full bg-gradient-to-r from-primary/40 via-primary to-primary shadow-[0_0_15px_rgba(var(--primary),0.5)] transition-all duration-1000 ease-out relative" 
                           style={{ width: `${Math.min(100, (existingRequest.delivery_progress / 7) * 100)}%` }}
-                       />
+                       >
+                          <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.3)_50%,transparent_100%)] animate-[shimmer_2s_infinite]" />
+                       </div>
                     </div>
                     
                     <div className="relative flex justify-between">
@@ -471,14 +478,14 @@ export default function BlueprintWizard() {
                         
                         return (
                           <div key={milestone.day} className="flex flex-col items-center group relative">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 shadow-sm z-10 transition-all duration-500 ${
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center border-4 shadow-xl z-20 transition-all duration-700 ${
                               isCompleted 
-                                ? "bg-primary border-primary/20 text-white scale-110" 
+                                ? "bg-primary border-primary/20 text-white scale-110 shadow-primary/30" 
                                 : isCurrent
-                                  ? "bg-background border-primary text-primary ring-4 ring-primary/10"
-                                  : "bg-muted border-background text-muted-foreground"
+                                  ? "bg-background border-primary text-primary ring-8 ring-primary/5 animate-pulse"
+                                  : "bg-background border-muted text-muted-foreground/30"
                             }`}>
-                              {isCompleted ? <CheckCircle2 className="w-5 h-5" /> : <span>{idx + 1}</span>}
+                              {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : <span className="text-sm font-bold">{idx + 1}</span>}
                             </div>
                             <div className="text-center mt-4 absolute top-10 w-32 -translate-x-1/2 left-1/2">
                               <p className={`text-[10px] font-black uppercase tracking-widest ${isCompleted || isCurrent ? "text-primary" : "text-muted-foreground/40"}`}>
