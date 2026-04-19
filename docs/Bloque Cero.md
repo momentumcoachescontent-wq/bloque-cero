@@ -238,6 +238,11 @@ Build notifications reported a failed deploy after the docs/knowledge-base merge
 10. End-to-end operational validation
 11. Production release gate
 
+### Publish signal
+- Last GitHub publish: 2026-04-18
+- Publish intent: force Lovable sync detection after documentation implementation update
+- Commit strategy: dedicated docs commit on `main`
+
 ## Roadmap matrix
 | Module | Role inside Blueprint de Negocio | Primary stack layer | Base skill/repo | Phase | Status |
 |---|---|---|---|---|---|
