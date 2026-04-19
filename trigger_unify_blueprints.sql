@@ -20,6 +20,7 @@ BEGIN
     )
     VALUES (
         NEW.id,
+        NEW.user_id,
         NEW.created_at,
         NEW.name,
         NEW.email,
@@ -30,7 +31,15 @@ BEGIN
         CASE 
             WHEN NEW.is_analysis_generated THEN 'scored'
             ELSE 'captured'
-        END
+        END,
+        jsonb_build_object(
+            'preliminary', 
+            CASE 
+                WHEN NEW.score >= 75 THEN 'Tu tesis presenta un Blindaje Lógico superior. El Blueprint se enfocará en la escalabilidad agresiva y la optimización de Unit Economics para dominación de mercado.'
+                WHEN NEW.score >= 50 THEN 'Estructura sólida con cuellos de botella identificados. El Blueprint priorizará el ajuste de Product-Market Fit y la arquitectura de GTM para estabilizar el crecimiento.'
+                ELSE 'Riesgo estructural detectado. El Blueprint actuará como un Diagnóstico de Supervivencia, rediseñando la propuesta de valor y simplificando el modelo de ingresos antes de la expansión.'
+            END
+        )
     )
     ON CONFLICT (source_lead_id) DO UPDATE
     SET 
@@ -41,7 +50,12 @@ BEGIN
         business_name = EXCLUDED.business_name,
         intake_score = EXCLUDED.intake_score,
         intake_payload = EXCLUDED.intake_payload,
-        lifecycle_stage = EXCLUDED.lifecycle_stage;
+        lifecycle_stage = EXCLUDED.lifecycle_stage,
+        metadata = jsonb_set(
+            COALESCE(public.business_blueprints.metadata, '{}'::jsonb),
+            '{preliminary}',
+            EXCLUDED.metadata->'preliminary'
+        );
     
     RETURN NEW;
 END;

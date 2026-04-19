@@ -164,7 +164,23 @@ export default function BlueprintWizard() {
   });
 
   const existingRequest = publicRequestData || requestData;
-  const loading = loadingPublic || loadingRequest || (loadingLeads && !existingRequest && !!profile);
+
+  // Query para el Lead de origen específico (para usuarios anónimos o directos)
+  const { data: sourceLead, isLoading: loadingSourceLead } = useQuery({
+    queryKey: ['source_lead', existingRequest?.source_lead_id],
+    queryFn: async () => {
+      if (!existingRequest?.source_lead_id) return null;
+      const { data } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('id', existingRequest.source_lead_id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!existingRequest?.source_lead_id,
+  });
+
+  const loading = loadingPublic || loadingRequest || (loadingLeads && !existingRequest && !!profile) || (loadingSourceLead && !!existingRequest);
   const leads = leadsData;
 
   useEffect(() => {
@@ -423,7 +439,7 @@ export default function BlueprintWizard() {
 
               {/* BASELINE DEL RADAR: Conectividad con el inicio */}
               {(() => {
-                const lead = leadsData.find((l: any) => l.id === existingRequest.source_lead_id);
+                const lead = sourceLead;
                 if (!lead) return null;
                 const projectName = lead.diagnostic_answers?.business_name || lead.business_name || "Proyecto en análisis";
                 
