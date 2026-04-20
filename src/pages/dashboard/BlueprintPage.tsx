@@ -491,7 +491,7 @@ export default function BlueprintWizard() {
                 <div className="relative z-10">
                   <h2 className="text-2xl font-bold mb-2">Construyendo tu Imperio Lógico</h2>
                   <p className="text-muted-foreground mb-10 max-w-xl">
-                    Nuestro sistema operativo está ensamblando tu Blueprint de Negocio. Este proceso involucra análisis de datos cruzados y auditoría de viabilidad a 7 días.
+                    Nuestro Motor de IA está procesando tu modelo táctico en tiempo real. Cruzando variables estructurales para ensamblar tu Blueprint de Negocio de forma inmediata.
                   </p>
 
                   <div className="relative mb-20 px-2">
@@ -506,16 +506,16 @@ export default function BlueprintWizard() {
                     
                     <div className="relative flex justify-between">
                       {[
-                        { day: 1, label: "Diagnóstico", d: "Datos Inyectados" },
-                        { day: 3, label: "Finanzas", d: "Unit Econ. Analizados" },
-                        { day: 5, label: "Maquetación", d: "Arquitectura Estructural" },
-                        { day: 7, label: "Entrega", d: "Revisión Final" }
+                        { progress: 1, label: "Ingestión", d: "Datos Base" },
+                        { progress: 3, label: "Motor IA", d: "Viabilidad y Unit Economics" },
+                        { progress: 5, label: "Ensamblaje", d: "Estructura Operativa" },
+                        { progress: 7, label: "Despliegue", d: "Liberado" }
                       ].map((milestone, idx) => {
-                        const isCompleted = existingRequest.delivery_progress >= milestone.day;
-                        const isCurrent = existingRequest.delivery_progress === milestone.day;
+                        const isCompleted = existingRequest.delivery_progress >= milestone.progress;
+                        const isCurrent = existingRequest.delivery_progress === milestone.progress;
                         
                         return (
-                          <div key={milestone.day} className="flex flex-col items-center group relative">
+                          <div key={milestone.progress} className="flex flex-col items-center group relative">
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center border-4 shadow-xl z-20 transition-all duration-700 ${
                               isCompleted 
                                 ? "bg-primary border-primary/20 text-white scale-110 shadow-primary/30" 
@@ -527,7 +527,7 @@ export default function BlueprintWizard() {
                             </div>
                             <div className="text-center mt-4 absolute top-10 w-32 -translate-x-1/2 left-1/2">
                               <p className={`text-[10px] font-black uppercase tracking-widest ${isCompleted || isCurrent ? "text-primary" : "text-muted-foreground/40"}`}>
-                                {milestone.day === 7 ? "LIBERADO" : `DÍA ${milestone.day}`}
+                                {milestone.progress === 7 ? "LIBERADO" : `FASE ${idx + 1}`}
                               </p>
                               <p className={`text-[10px] leading-tight mt-1 transition-opacity ${isCompleted || isCurrent ? "opacity-100 text-muted-foreground" : "opacity-0"}`}>
                                 {milestone.label}
@@ -550,7 +550,7 @@ export default function BlueprintWizard() {
                            <h4 className="text-sm font-bold uppercase tracking-widest">Estado del Algoritmo</h4>
                         </div>
                         <span className="text-[10px] font-black bg-primary/20 text-primary px-2 py-0.5 rounded-full uppercase tracking-tighter">
-                          Procesando {existingRequest.delivery_progress < 3 ? "Día 1-2" : existingRequest.delivery_progress < 5 ? "Día 3-4" : "Día 5-6"}
+                          Procesando {existingRequest.delivery_progress < 3 ? "Fase 1" : existingRequest.delivery_progress < 5 ? "Fase 2" : "Fase 3"}
                         </span>
                       </div>
 
@@ -561,9 +561,9 @@ export default function BlueprintWizard() {
                                 <p className="text-[11px] font-bold text-foreground">Hito Actual</p>
                                 <p className="text-[11px] text-muted-foreground leading-snug">
                                    {existingRequest.delivery_progress < 3 
-                                     ? "Cruzando intake base con Deep Diagnostic para identificar anomalías." 
+                                     ? "Cruzando intake base con Deep Diagnostic e inyectando contexto." 
                                      : existingRequest.delivery_progress < 5 
-                                       ? "Extrayendo Unit Economics y proyecciones de rentabilidad operativa."
+                                       ? "Extrayendo Unit Economics y proyecciones operativas."
                                        : "Ensamblando arquitectura de GTM y Blindaje Competitivo (Moat)."}
                                 </p>
                              </div>
@@ -571,13 +571,13 @@ export default function BlueprintWizard() {
                          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border border-border/40 relative opacity-60">
                              <LineChart className="w-4 h-4 text-muted-foreground" />
                              <div>
-                                <p className="text-[11px] font-bold text-foreground">Próximo Hito: {existingRequest.delivery_progress < 3 ? "Día 3" : existingRequest.delivery_progress < 5 ? "Día 5" : "Día 7"}</p>
+                                <p className="text-[11px] font-bold text-foreground">Próximo Hito: {existingRequest.delivery_progress < 3 ? "Fase 2" : existingRequest.delivery_progress < 5 ? "Fase 3" : "Fase Final"}</p>
                                 <p className="text-[11px] text-muted-foreground leading-snug">
                                    {existingRequest.delivery_progress < 3 
-                                     ? "Auditoría Financiera y Matriz de Sostenibilidad." 
+                                     ? "Generación de Modelo Estructural IA." 
                                      : existingRequest.delivery_progress < 5 
-                                       ? "Maquetación Estructural y Puntos de Ruptura."
-                                       : "Entrega Final y Acceso a Drive Estratégico."}
+                                       ? "Maquetación de Documentos y PDFs."
+                                       : "Liberación Inmediata de Activos."}
                                 </p>
                              </div>
                              <ChevronRight className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
@@ -597,7 +597,7 @@ export default function BlueprintWizard() {
                         {(existingRequest.metadata as any).preliminary}
                       </div>
                       <p className="text-[10px] text-primary/60 mt-4 uppercase tracking-tighter">
-                        * Este análisis es una primera aproximación algorítmica. Tu Blueprint final de 7 días incluirá la arquitectura completa.
+                        * Este análisis inicial fue procesado al instante. El Blueprint completo está finalizando su renderizado ahora mismo.
                       </p>
                     </div>
                   )}
@@ -680,7 +680,7 @@ export default function BlueprintWizard() {
                   <div className="flex items-start gap-3 bg-muted/40 p-5 rounded-xl border border-border/50 animate-in fade-in slide-in-from-bottom-4">
                     <Clock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Serás notificado al correo registrado cuando el algoritmo concluya el análisis estructural. Al finalizar, encontrarás los documentos estratégicos disponibles para descarga en esta misma vista.
+                      La inyección de tu información tomó segundos. La generación del Blueprint AI requiere 1 a 3 minutos aprox. Mantén esta pestaña abierta, o si cierras, serás notificado al correo registrado en cuanto tus documentos se liberen.
                     </p>
                   </div>
 
@@ -792,7 +792,7 @@ export default function BlueprintWizard() {
                             Mantener Privado
                           </Button>
                           <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 w-full sm:w-auto font-semibold" onClick={() => window.location.href = '/contacto?subject=blueprint_qa'}>
-                            Solicitar Aclaración de 7 Días
+                            Solicitar Revisión Estratégica
                           </Button>
                         </div>
                       </div>
