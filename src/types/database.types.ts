@@ -90,6 +90,50 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['blueprint_requests']['Row'], 'created_at' | 'updated_at'> & { created_at?: string, updated_at?: string }
         Update: Partial<Database['public']['Tables']['blueprint_requests']['Insert']>
       }
+      business_blueprints: {
+        Row: {
+          id: string
+          public_id: string | null
+          source_lead_id: string | null
+          assigned_user_id: string | null
+          lifecycle_stage: string
+          delivery_progress: number
+          intake_payload: Json | null
+          metadata: Json | null
+          version: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['business_blueprints']['Row'], 'created_at' | 'updated_at'> & { created_at?: string, updated_at?: string }
+        Update: Partial<Database['public']['Tables']['business_blueprints']['Insert']>
+      }
+      system_logs: {
+        Row: {
+          id: string
+          service_name: string
+          log_level: string
+          message: string
+          latency_ms: number | null
+          lead_id: string | null
+          metadata: Json | null
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['system_logs']['Row'], 'created_at' | 'id'> & { created_at?: string, id?: string }
+        Update: Partial<Database['public']['Tables']['system_logs']['Insert']>
+      }
+    }
+    Views: {
+      vw_orchestration_metrics: {
+        Row: {
+          total_intakes: number
+          total_delivered: number
+          delivery_success_rate: number
+          avg_ttv_minutes: number
+          total_invocations: number
+          webhook_sla_percentage: number
+          avg_latency_ms: number
+        }
+      }
     }
   }
 }
@@ -98,3 +142,5 @@ export interface Database {
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Lead = Database['public']['Tables']['leads']['Row']
 export type BlueprintRequest = Database['public']['Tables']['blueprint_requests']['Row']
+export type BusinessBlueprint = Database['public']['Tables']['business_blueprints']['Row']
+export type SystemLog = Database['public']['Tables']['system_logs']['Row']
