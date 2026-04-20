@@ -88,9 +88,9 @@ const DashboardIndex = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bienvenido, {profile?.full_name?.split(" ")[0] || "Emprendedor"}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Cabina de Mando, {profile?.full_name?.split(" ")[0] || "Fundador"}</h1>
           <p className="text-muted-foreground mt-1">
-            Aquí podrás consultar y gestionar tu historial de Blueprints y análisis previos.
+            El sistema de diseño para tu Imperio Lógico. Destruye la ineficiencia. Escala con arquitectura operativa.
           </p>
         </div>
         <a href="/diagnostico" className="px-5 py-2.5 bg-primary text-primary-foreground rounded-full text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm">
@@ -101,10 +101,10 @@ const DashboardIndex = () => {
       <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm">
         <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
           <Target className="w-5 h-5 text-primary" />
-          Mi Historial de Blueprints
+          Bóveda Estratégica (Blueprints Activos)
         </h2>
         <p className="text-sm text-muted-foreground mb-6">
-          Consulta tus análisis previos y la factibilidad calculada por nuestro motor especializado. Da clic en cualquiera para ver los detalles.
+          Auditoría en tiempo real de tu Perímetro Operativo. Revisa aquí la viabilidad estructural calculada por nuestro motor de inteligencia.
         </p>
         
         {loading ? (
@@ -113,11 +113,14 @@ const DashboardIndex = () => {
           </div>
         ) : blueprints.length === 0 ? (
           <div className="bg-muted/30 rounded-xl p-8 text-center border border-dashed border-border/50">
-            <p className="text-sm text-muted-foreground mb-4">
-              Aún no has iniciado tu Blueprint de Negocio.
+            <p className="text-sm text-foreground mb-2 font-semibold">
+              El miedo paraliza. La arquitectura libera.
             </p>
-            <a href="/diagnostico" className="text-primary hover:underline text-sm font-bold">
-              Iniciar Blueprint de Negocio →
+            <p className="text-sm text-muted-foreground mb-6">
+              Aún no has trazado tu plano operativo. No hay nada escalar si no hay cimientos que soportar.
+            </p>
+            <a href="/diagnostico" className="text-primary hover:underline text-sm font-bold uppercase tracking-wider">
+              Trazar Perímetro Operativo →
             </a>
           </div>
         ) : (
@@ -145,7 +148,7 @@ const DashboardIndex = () => {
                         ) : null}
                       </div>
                       <h3 className="text-base font-bold text-foreground line-clamp-1">
-                        Caso: {bp.businessName || "Blueprint sin idea registrada"}
+                        Operación: {bp.businessName || "Blueprint sin núcleo registrado"}
                       </h3>
                       <p className="text-sm text-muted-foreground">
                         Recomendado: {bp.intakeRecommendation || "Pendiente de análisis"}
@@ -154,7 +157,7 @@ const DashboardIndex = () => {
 
                     <div className="flex items-center gap-6">
                       <div className="text-right">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Score</p>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tensión Operativa</p>
                         <p className={`text-2xl font-black leading-none ${SCORE_COLOR(bp.intakeScore || 0)}`}>
                           {bp.intakeScore || 0}<span className="text-sm opacity-50">/100</span>
                         </p>
@@ -174,22 +177,22 @@ const DashboardIndex = () => {
                           href={`/dashboard/blueprint?id=${bp.publicId}`} 
                           className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl text-sm font-bold border border-primary/20 transition-colors"
                         >
-                          <ExternalLink className="w-4 h-4" /> Ver Dashboard Detallado
+                          <ExternalLink className="w-4 h-4" /> Ingresar a Bóveda de Rediseño
                         </a>
                         <Button variant="outline" size="sm" onClick={(e) => handleDelete(bp.id, e)} className="text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20">
-                          <Trash2 className="w-4 h-4 mr-2" /> Eliminar Variante
+                          <Trash2 className="w-4 h-4 mr-2" /> Purgar Variante
                         </Button>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Score principal */}
                         <div className={`rounded-xl border p-6 flex flex-col items-center justify-center text-center shadow-sm ${SCORE_BG(bp.intakeScore || 0)}`}>
-                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Score de Viabilidad</p>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Índice de Viabilidad</p>
                           <p className={`text-6xl font-black mb-1 ${SCORE_COLOR(bp.intakeScore || 0)}`}>
                             {bp.intakeScore || 0}<span className="text-3xl opacity-50">/100</span>
                           </p>
-                          <div className="mt-4 px-4 py-2 bg-background/50 rounded-full text-xs font-semibold text-foreground border border-border/50 shadow-sm">
-                            ⭐ Veredicto: {bp.intakeRecommendation || "Sin recomendación"}
+                          <div className="mt-4 px-4 py-2 bg-background/50 rounded-full text-xs font-semibold text-foreground border border-border/50 shadow-sm uppercase tracking-wider">
+                            Veredicto: {bp.intakeRecommendation || "Sin dictamen"}
                           </div>
                         </div>
 

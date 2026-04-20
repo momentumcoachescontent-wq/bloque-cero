@@ -52,13 +52,13 @@ export default function Profile() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-3xl font-bold tracking-tight mb-2">Mi Perfil</h1>
-      <p className="text-muted-foreground mb-8">Administra tus datos personales y de contacto.</p>
+      <h1 className="text-3xl font-bold tracking-tight mb-2">Identidad del Fundador</h1>
+      <p className="text-muted-foreground mb-8">Mantén tu perímetro operativo actualizado.</p>
 
       <form onSubmit={handleSave} className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm space-y-6">
         
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Datos Personales</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Credenciales Tácticas</h3>
           
           <div className="grid gap-2">
             <Label htmlFor="email">Correo electrónico (solo lectura)</Label>
@@ -87,9 +87,9 @@ export default function Profile() {
 
         {/* PROXIMAMENTE: Datos de empresa para alimentar el N8N */}
         <div className="space-y-4 pt-6 border-t border-border/50">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Datos de Empresa</h3>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Matriz Operativa</h3>
           <p className="text-xs text-muted-foreground">
-            Los datos de registro de empresa se asociarán con tu cuenta próximamente en las iteraciones de la Fase 3.
+            La arquitectura de tu negocio será enlazada a tu identidad operativa en nuestra próxima iteración sistémica. Preparado para escalar.
           </p>
         </div>
 
