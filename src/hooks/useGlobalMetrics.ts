@@ -15,23 +15,25 @@ export const useGlobalMetrics = () => {
     try {
       setLoadingMetrics(true);
 
-      const [blueprintsRes, profilesRes] = await Promise.all([
-        supabase.from("business_blueprints").select("*"),
-        supabase.from("profiles").select("id", { count: "exact" }),
+      const [leadsRes, blueprintsCountRes, profilesRes] = await Promise.all([
+        supabase.from("leads").select("score"),
+        supabase.from("business_blueprints").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
       ]);
 
-      if (blueprintsRes.error) throw blueprintsRes.error;
+      if (leadsRes.error) throw leadsRes.error;
 
-      const blueprints = blueprintsRes.data || [];
-      const scoredCount = blueprints.filter(item => item.intake_score !== null).length;
-      const totalScore = blueprints.reduce((acc, curr) => acc + (curr.intake_score || 0), 0);
-      const avg = scoredCount > 0 ? Math.round(totalScore / scoredCount) : 0;
+      const leads = leadsRes.data || [];
+      const scoredLeads = leads.filter(l => l.score !== null);
+      const avg = scoredLeads.length > 0 
+        ? Math.round(scoredLeads.reduce((acc, curr) => acc + (curr.score || 0), 0) / scoredLeads.length) 
+        : 0;
 
       setStats({
-        totalLeads: blueprints.filter(item => !item.source_blueprint_id).length,
+        totalLeads: leads.length,
         totalProfiles: profilesRes.count || 0,
         avgScore: avg,
-        totalBlueprints: blueprints.filter(item => !!item.source_blueprint_id).length,
+        totalBlueprints: blueprintsCountRes.count || 0,
       });
 
     } catch (error: unknown) {

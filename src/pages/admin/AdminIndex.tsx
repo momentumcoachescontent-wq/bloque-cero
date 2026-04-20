@@ -12,6 +12,7 @@ import OperationalActionsPanel from "@/components/admin/OperationalActionsPanel"
 import OperationalPayloadInspector from "@/components/admin/OperationalPayloadInspector";
 import OperationalTimelinePanel from "@/components/admin/OperationalTimelinePanel";
 import OperationalLeadConsole from "@/components/admin/OperationalLeadConsole";
+import { OrchestrationHealthPanel } from "@/components/admin/OrchestrationHealthPanel";
 
 const AdminIndex = () => {
   const { stats, loadingMetrics, refetchMetrics } = useGlobalMetrics();
@@ -55,6 +56,8 @@ const AdminIndex = () => {
         <h1 className="text-3xl font-bold tracking-tight">Status Global</h1>
         <p className="text-muted-foreground mt-1">Métricas en tiempo real de Bloque Cero.</p>
       </div>
+
+      <OrchestrationHealthPanel />
 
       <ImplementationStatusPanel />
 
