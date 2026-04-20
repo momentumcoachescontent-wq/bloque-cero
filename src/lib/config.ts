@@ -17,6 +17,10 @@ export const config = {
     version: '1.0.0',
     environment: 'production' as const,
   },
+  contact: {
+    whatsapp: import.meta.env.VITE_CONTACT_WHATSAPP || 'https://wa.me/521234567890',
+    email: import.meta.env.VITE_CONTACT_EMAIL || 'hola@bloquecero.com'
+  },
   edgeFunctions: {
     notifyBlueprint:  `${SUPABASE_URL}/functions/v1/notify-blueprint`,
     notifyOnboarding: `${SUPABASE_URL}/functions/v1/notify-onboarding`,

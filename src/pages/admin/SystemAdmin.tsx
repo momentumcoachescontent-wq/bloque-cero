@@ -1,17 +1,31 @@
 import { Button } from "@/components/ui/button";
 import { Server, Webhook, CreditCard, CheckCircle, Database } from "lucide-react";
 import { toast } from "sonner";
-
+import { supabase } from "@/lib/supabase";
 const SystemAdmin = () => {
-  const handlePing = (service: string) => {
-    toast.promise(
-      new Promise((resolve) => setTimeout(resolve, 1500)), // Simulate API call
-      {
-        loading: `Verificando conexión con ${service}...`,
-        success: `${service} responde correctamente (HTTP 200).`,
-        error: `Error al conectar con ${service}`,
-      }
-    );
+  const handlePing = async (service: string) => {
+    if (service === 'n8n-bridge') {
+      toast.promise(
+        supabase.functions.invoke('n8n-bridge', { body: { ping: true, message: 'Health check from Admin' } }),
+        {
+          loading: `Verificando latencia y conexión con ${service}...`,
+          success: (res) => {
+            if (res.error) throw new Error(res.error.message || 'Error desconocido del edge function');
+            return `${service} responde correctamente (Auth JWT verificado).`;
+          },
+          error: (err) => `Fallo crítico de conexión: ${err.message}`,
+        }
+      );
+    } else {
+      toast.promise(
+        new Promise((resolve) => setTimeout(resolve, 1500)), // Simulate API call for non-critical services
+        {
+          loading: `Verificando conexión con ${service}...`,
+          success: `${service} responde correctamente (HTTP 200).`,
+          error: `Error al conectar con ${service}`,
+        }
+      );
+    }
   };
 
   return (

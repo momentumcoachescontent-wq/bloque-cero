@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Send, MessageCircle, Mail } from "lucide-react";
+import { config } from "@/lib/config";
+import { supabase } from "@/lib/supabase";
 
 const Contacto = () => {
   const [form, setForm] = useState({ nombre: "", email: "", mensaje: "" });
@@ -17,11 +19,23 @@ const Contacto = () => {
       return;
     }
     setEnviando(true);
-    // TODO Fase 3: integrar con n8n webhook
-    await new Promise((r) => setTimeout(r, 1200));
+    // Conexión real hacia la BD
+    const { error } = await supabase.from('contact_requests').insert({
+      name: form.nombre,
+      email: form.email,
+      message: form.mensaje
+    });
+
     setEnviando(false);
+    
+    if (error) {
+      console.error("Error al enviar contacto:", error);
+      toast.error("Ocurrió un error de red. Intenta por WhatsApp directo.");
+      return;
+    }
+
     setEnviado(true);
-    toast.success("¡Mensaje recibido! Te respondemos en menos de 24 horas.");
+    toast.success(`¡Mensaje recibido! Te respondemos por ${form.email}.`);
   };
 
   return (
@@ -49,7 +63,7 @@ const Contacto = () => {
         {/* Quick options */}
         <div className="grid grid-cols-2 gap-4 mb-8">
           <a
-            href="https://wa.me/521234567890"
+            href={config.contact.whatsapp}
             id="contact-whatsapp"
             target="_blank"
             rel="noopener noreferrer"
@@ -62,14 +76,14 @@ const Contacto = () => {
             </div>
           </a>
           <a
-            href="mailto:hola@bloquecero.com"
+            href={`mailto:${config.contact.email}`}
             id="contact-email"
             className="flex items-center gap-3 bg-primary/10 border border-primary/20 rounded-2xl px-4 py-4 hover:bg-primary/15 transition-colors"
           >
             <Mail className="w-5 h-5 text-primary flex-shrink-0" />
             <div>
               <p className="text-sm font-semibold text-foreground">Email</p>
-              <p className="text-xs text-muted-foreground">hola@bloquecero.com</p>
+              <p className="text-xs text-muted-foreground">{config.contact.email}</p>
             </div>
           </a>
         </div>

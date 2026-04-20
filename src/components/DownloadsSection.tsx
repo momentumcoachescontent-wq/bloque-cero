@@ -1,3 +1,5 @@
+import { config } from "@/lib/config";
+
 const DOWNLOADS = [
   {
     id: "blueprint-template",
@@ -26,8 +28,8 @@ const DownloadsSection = () => {
   const handleDownload = (item: typeof DOWNLOADS[0]) => {
     // Fase 4: Descarga real desde Supabase Storage
     // Los documentos (ej. "Plantilla_Blueprint_Express.pdf") vivirán en el bucket "radar_deliverables"
-    const storageUrl = import.meta.env.VITE_SUPABASE_URL 
-      ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/radar_deliverables/${item.id}.pdf`
+    const storageUrl = config.supabase.url 
+      ? `${config.supabase.url}/storage/v1/object/public/radar_deliverables/${item.id}.pdf`
       : null;
       
     if (storageUrl) {
