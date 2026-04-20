@@ -309,6 +309,19 @@ Se han formalizado 6 bibliotecas de habilidades en `.agents/skills/` para guiar 
 - `bloque-cero-n8n-orchestrator`
 - `bloque-cero-ui-standards`
 
-## Conclusión de Sincronización (Abril 2026)
-El sistema está listo para la **Fase 5 (Automatización de Reportes)**. La deuda técnica de dominio está bajo control gracias a los adapters de compatibilidad, permitiendo postergar la migración física SQL hasta una ventana de mantenimiento de bajo riesgo.
+## Actualización de Memoria — Auditoría y Sanitización (Abril 2026)
+### Hallazgos de la Auditoría Técnica
+- **Limpieza de Deuda Técnica:** Se identificaron y eliminaron múltiples valores hardcoded en los componentes `Contacto.tsx` y `DownloadsSection.tsx`.
+- **Centralización de Configuración:** Creación de `src/lib/config.ts` como única fuente de verdad para metadatos de negocio (WhatsApp, Email, Links sociales).
+- **Observabilidad Real:** Refactorización de `SystemAdmin.tsx`. Se eliminó la lógica de "mocking" que simulaba la salud del sistema; ahora realiza llamadas reales a la Edge Function `n8n-bridge`.
+- **Diagnóstico Preciso:** Identificación de error UUID en el nodo de guardado de n8n; la solución requiere mapear `{{ $('Webhook').item.json.body.request_id }}` en lugar de un string vacío.
+
+### Evolución del Dominio
+- **Fulfillment IA:** Formalización de la skill `bloque-cero-document-fulfillment` para la generación de reportes PDF de alta autoridad.
+- **Flujo de Entrega:** Integración de la lógica de buckets de Supabase para la descarga directa de Blueprints generados.
+
+### Próximos Objetivos Operativos
+1. Activación del **Blueprint Generator** en n8n con el mapeo corregido.
+2. Implementación de **Supabase Realtime** en `DiagnosticForm` para eliminar el polling de experiencia de usuario.
+3. Investigación e integración de **Stripe** para la monetización del Bloque F (Premium).
 

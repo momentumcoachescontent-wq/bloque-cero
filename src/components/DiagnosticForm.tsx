@@ -228,33 +228,38 @@ const DiagnosticForm = () => {
 
     setIsSubmitting(false);
 
-    // REDIRECCIÓN A BLUEPRINT UNIFICADO (POLLING PARA ESPERAR EL TRIGGER)
+    // REDIRECCIÓN A BLUEPRINT UNIFICADO (REALTIME SUBSCRIPTION)
     toast.promise(
-      async () => {
-        let attempts = 0;
-        while (attempts < 5) {
-          const { data: blueprint, error: bError } = await supabase
-            .from('business_blueprints')
-            .select('public_id')
-            .eq('source_lead_id', insertData.id)
-            .maybeSingle();
-          
-          if (blueprint?.public_id) {
-            navigate(`/b/${blueprint.public_id}`);
-            return "Blueprint creado";
-          }
-          
-          attempts++;
-          await new Promise(r => setTimeout(r, 800)); // Esperar al trigger
-        }
-        // Si falla el polling, mostramos el resultado local como fallback
-        setResult(scoring);
-        return "Mostrando resultado preliminar";
-      },
+      new Promise(async (resolve, reject) => {
+        const timeout = setTimeout(() => {
+          subscription.unsubscribe();
+          setResult(scoring); // Fallback a resultado local
+          resolve("Mostrando resultado preliminar");
+        }, 12000); // 12 segundos de gracia para la orquestación
+
+        const subscription = supabase
+          .channel('public:business_blueprints')
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'business_blueprints',
+              filter: `source_lead_id=eq.${insertData.id}`
+            },
+            (payload) => {
+              clearTimeout(timeout);
+              subscription.unsubscribe();
+              navigate(`/b/${payload.new.public_id}`);
+              resolve("¡Blueprint Generado!");
+            }
+          )
+          .subscribe();
+      }),
       {
         loading: 'Unificando tu Blueprint de Negocio...',
-        success: '¡Blueprint Generado!',
-        error: 'Error al redirigir al Blueprint.',
+        success: (msg: any) => msg,
+        error: 'Error al conectar con la base de datos.',
       }
     );
   };

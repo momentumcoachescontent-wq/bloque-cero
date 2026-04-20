@@ -73,24 +73,37 @@ Este documento redefine el plan maestro de Bloque Cero a partir del estado real 
 
 ---
 
-### Fase 3 — Refactor de dominio y backend operativo [ESTABILIZADA]
+### Fase 3 — Refactor de dominio y backend operativo [COMPLETADA]
 **Objetivo:** alinear modelo de datos y flujos con el nuevo producto.
 
 **Resultado:**
-- Tabla canónica `business_blueprints` definida conceptualmente.
-- Orquestación segura vía `n8n-bridge` activa.
-- Read Model canónico implementado en frontend/admin (Fase 3B.1).
-- **Nota:** La migración física de tablas se posterga por seguridad operativa, operando con adapters de compatibilidad.
+- Tabla canónica `business_blueprints` definida y con read-model activo.
+- Orquestación segura vía `n8n-bridge` activa y verificada.
+- Eliminación de hardcoding en Contacto y Admin (Auditoría Abril 2026).
+- **Nota:** Se eliminó la simulación en paneles administrativos; ahora reportan salud real.
 
 ---
 
-### Fase 4 — Verticalización de servicios [EN PROGRESO]
+### Fase 4 — Verticalización de servicios [COMPLETADA/ESTABILIZADA]
 **Objetivo:** empacar soluciones vendibles sobre la base común.
 
 **Trabajo principal:**
-- Configuración de Storage Buckets para entregables (¡Hecho!).
-- Definición de esquemas extendidos para verticales de Salud y Consultoría.
-- Adaptación de formularios de captura por nicho.
+- Configuración de Storage Buckets para entregables (Activos).
+- Adopción de la "Ley Documental" (Skill de Fulfillment) para estandarización.
+- Refactor de `DownloadsSection` para uso de bucket `radar_deliverables`.
+
+---
+
+### Fase 5 — Automatización Avanzada y Reportes (Bloque F) [EN EJECUCIÓN]
+**Objetivo:** elevar el valor percibido del Blueprint mediante entregables de alta consultoría.
+
+**Trabajo principal:**
+- **Upgrade UX:** Migrar de Polling (reintentos) a **Supabase Realtime** en el formulario de diagnóstico para redirección inmediata.
+- **Blueprint Generator:** Corregir y activar el flujo de n8n para generar el reporte estratégico real.
+- **Notificación:** Automatizar avisos vía WhatsApp/Email al cambiar estado a `delivered`.
+- **Monetización:** Integración de Stripe para desbloqueo de Blueprints Premium.
+
+**Resultado esperado:** El cliente vive una experiencia de "magia técnica": termina su diagnóstico y su reporte premium aparece/se descarga instantáneamente.
 
 ---
 
