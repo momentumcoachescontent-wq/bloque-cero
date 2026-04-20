@@ -22,16 +22,15 @@ BEGIN
   -- -------------------------------------------------------------------------
   
   -- Insert Lead Base
-  INSERT INTO public.leads (id, name, email, whatsapp, business_name, status, score, diagnostic_answers)
+  INSERT INTO public.leads (id, name, email, whatsapp, status, score, diagnostic_answers)
   VALUES (
     psicologia_lead_id, 
     'Paciente Demo 1',
     'demo1@bloquecero.com', 
     '5550000001', 
-    'Clínica Renacer: Trascendencia del Trauma', 
     'new',
     85,
-    '{"business_name": "Clínica Renacer", "idea_description": "Terapia psicológica 1 a 1 cobrada por hora. Los pacientes abandonan al sentirse un poco mejor, no completan la transformación profunda.", "target_audience": "Personas con trauma complejo", "core_problem": "Falta de adherencia al tratamiento", "monetization": "Cobro por sesión", "marketing": "Boca a boca", "tech_stack": "Agenda física y WhatsApp"}'::jsonb
+    '{"business_name": "Clínica Renacer: Trascendencia del Trauma", "idea_description": "Terapia psicológica 1 a 1 cobrada por hora. Los pacientes abandonan al sentirse un poco mejor, no completan la transformación profunda.", "target_audience": "Personas con trauma complejo", "core_problem": "Falta de adherencia al tratamiento", "monetization": "Cobro por sesión", "marketing": "Boca a boca", "tech_stack": "Agenda física y WhatsApp"}'::jsonb
   );
 
   -- Insert Blueprint
@@ -73,16 +72,15 @@ El modelo es viable, pero la arquitectura de adquisición está rota. Requiere i
   -- CASO 2: AGENCIA DE MARKETING / GROWTH B2B
   -- -------------------------------------------------------------------------
   
-  INSERT INTO public.leads (id, name, email, whatsapp, business_name, status, score, diagnostic_answers)
+  INSERT INTO public.leads (id, name, email, whatsapp, status, score, diagnostic_answers)
   VALUES (
     agencia_lead_id, 
     'Fundador Agencia Demo',
     'demo2@bloquecero.com', 
     '5550000002', 
-    'Nexus Growth Ops', 
     'new',
     65,
-    '{"business_name": "Nexus", "idea_description": "Agencia digital ofreciendo de todo (Pauta, Redes, Web). El margen es mínimo y los clientes exigen como si fuéramos sus socios.", "target_audience": "Cualquier Pyme con presupuesto", "monetization": "Retainer mensual bajo"}'::jsonb
+    '{"business_name": "Nexus Growth Ops", "idea_description": "Agencia digital ofreciendo de todo (Pauta, Redes, Web). El margen es mínimo y los clientes exigen como si fuéramos sus socios.", "target_audience": "Cualquier Pyme con presupuesto", "monetization": "Retainer mensual bajo"}'::jsonb
   );
 
   INSERT INTO public.business_blueprints (
@@ -115,16 +113,15 @@ Si multiplicas tu demanda actual x10, tu equipo (y tú) colapsarían en 48 horas
   -- CASO 3: SAAS B2B / SOFTWARE VERTICAL
   -- -------------------------------------------------------------------------
   
-  INSERT INTO public.leads (id, name, email, whatsapp, business_name, status, score, diagnostic_answers)
+  INSERT INTO public.leads (id, name, email, whatsapp, status, score, diagnostic_answers)
   VALUES (
     saas_lead_id, 
     'SaaS Founders Demo',
     'demo3@bloquecero.com', 
     '5550000003', 
-    'Vectra: ERP para Ferreterías', 
     'new',
     78,
-    '{"business_name": "Vectra", "idea_description": "Software en la nube para inventario. Los clientes no entienden cómo usarlo y la rotación (churn) es del 30% en los primeros meses.", "monetization": "Suscripción 30 USD/mes"}'::jsonb
+    '{"business_name": "Vectra: ERP para Ferreterías", "idea_description": "Software en la nube para inventario. Los clientes no entienden cómo usarlo y la rotación (churn) es del 30% en los primeros meses.", "monetization": "Suscripción 30 USD/mes"}'::jsonb
   );
 
   INSERT INTO public.business_blueprints (
