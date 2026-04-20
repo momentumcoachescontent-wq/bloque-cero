@@ -15,9 +15,14 @@ DECLARE
   saas_lead_id UUID := '7b6a5d4c-3e2f-1a0b-9c8d-7e6f5a4b3c2d';
 BEGIN
 
-  -- 1. LIMPIAR VERSIONES PREVIAS (Orden correcto por integridad referencial)
-  DELETE FROM public.business_blueprints WHERE public_id IN ('demo-psicologia', 'demo-agencia', 'demo-saas');
-  DELETE FROM public.leads WHERE id IN (psicologia_lead_id, agencia_lead_id, saas_lead_id);
+  -- 1. LIMPIAR VERSIONES PREVIAS (Agresivo para evitar llaves duplicadas)
+  DELETE FROM public.business_blueprints 
+  WHERE public_id IN ('demo-psicologia', 'demo-agencia', 'demo-saas')
+     OR source_lead_id IN (psicologia_lead_id, agencia_lead_id, saas_lead_id);
+     
+  DELETE FROM public.leads 
+  WHERE id IN (psicologia_lead_id, agencia_lead_id, saas_lead_id)
+     OR email IN ('demo1@bloquecero.com', 'demo2@bloquecero.com', 'demo3@bloquecero.com');
 
   -- -------------------------------------------------------------------------
   -- CASO 1: PSICOLOGÍA CLÍNICA / COACHING TRANSFORMACIONAL
