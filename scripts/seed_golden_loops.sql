@@ -2,67 +2,93 @@
 -- SEMILLA DE CASOS DE ÉXITO: GOLDEN LOOPS (BLOQUE CERO)
 -- Estos registros crean URLs públicas demostrativas de Alta Conversión.
 -- Rutas: /b/demo-psicologia /b/demo-agencia /b/demo-saas
+--
+-- IMPORTANTE:
+-- - Este script ASUME que el trigger tr_sync_lead_to_blueprint existe y funciona.
+-- - Al insertar en public.leads, el trigger crea/sincroniza public.business_blueprints.
+-- - Luego este script ENRIQUECE ese blueprint con public_id, payload final y markdown.
 -- =============================================================================
 
--- Habilitar extensión si no existe
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-DO $$ 
+DO $seed$
 DECLARE
-  -- UUIDs FIJOS para asegurar idempotencia total en re-ejecución
+  -- UUIDs fijos para asegurar consistencia
   psicologia_lead_id UUID := '8fdf00d4-d8ea-49fb-bf7b-11d64f08d0bd';
-  agencia_lead_id UUID := '9c9e0edb-8d6f-4c92-9e8a-3f1a23456789';
-  saas_lead_id UUID := '7b6a5d4c-3e2f-1a0b-9c8d-7e6f5a4b3c2d';
+  agencia_lead_id    UUID := '9c9e0edb-8d6f-4c92-9e8a-3f1a23456789';
+  saas_lead_id       UUID := '7b6a5d4c-3e2f-1a0b-9c8d-7e6f5a4b3c2d';
 BEGIN
 
-  -- 1. LIMPIAR VERSIONES PREVIAS (Agresivo para evitar llaves duplicadas)
-  DELETE FROM public.business_blueprints 
+  -- ---------------------------------------------------------------------------
+  -- 0. LIMPIEZA PREVIA
+  -- ---------------------------------------------------------------------------
+  DELETE FROM public.business_blueprints
   WHERE public_id IN ('demo-psicologia', 'demo-agencia', 'demo-saas')
      OR source_lead_id IN (psicologia_lead_id, agencia_lead_id, saas_lead_id);
-     
-  DELETE FROM public.leads 
+
+  DELETE FROM public.leads
   WHERE id IN (psicologia_lead_id, agencia_lead_id, saas_lead_id)
      OR email IN ('demo1@bloquecero.com', 'demo2@bloquecero.com', 'demo3@bloquecero.com');
 
-  -- -------------------------------------------------------------------------
+  -- ---------------------------------------------------------------------------
   -- CASO 1: PSICOLOGÍA CLÍNICA / COACHING TRANSFORMACIONAL
-  -- -------------------------------------------------------------------------
-  
-  -- Insert Lead Base
-  INSERT INTO public.leads (id, name, email, whatsapp, status, score, diagnostic_answers)
-  VALUES (
-    psicologia_lead_id, 
-    'Paciente Demo 1',
-    'demo1@bloquecero.com', 
-    '5550000001', 
-    'new',
-    85,
-    '{"business_name": "Clínica Renacer: Trascendencia del Trauma", "idea_description": "Terapia psicológica 1 a 1 cobrada por hora. Los pacientes abandonan al sentirse un poco mejor, no completan la transformación profunda.", "target_audience": "Personas con trauma complejo", "core_problem": "Falta de adherencia al tratamiento", "monetization": "Cobro por sesión", "marketing": "Boca a boca", "tech_stack": "Agenda física y WhatsApp"}'::jsonb
-  );
-
-  -- Insert Blueprint
-  INSERT INTO public.business_blueprints (
-    public_id, source_lead_id, lifecycle_stage, delivery_progress, 
-    intake_payload, metadata
+  -- ---------------------------------------------------------------------------
+  INSERT INTO public.leads (
+    id, name, email, whatsapp, status, score, diagnostic_answers
   )
   VALUES (
-    'demo-psicologia', psicologia_lead_id, 'delivered', 7,
-    '{"real_problem": "Modelo de cobro que incentiva el abandono precoz", "value_prop": "Programa de 12 semanas para alquimia del dolor", "unit_economics": "High ticket ($2,500 USD por programa en lugar de $50 USD por hora)", "anti_segment": "Personas que solo buscan validación, no transformación."}'::jsonb,
-    jsonb_build_object(
-      'preliminary', 'La dependencia del cobro por hora está erosionando tu energía clínica y la transformación del paciente.',
-      'markdown', '# El Imperio Lógico: Clínica Renacer
+    psicologia_lead_id,
+    'Paciente Demo 1',
+    'demo1@bloquecero.com',
+    '5550000001',
+    'new',
+    85,
+    $json_psico_lead$
+    {
+      "business_name": "Clínica Renacer: Trascendencia del Trauma",
+      "idea_description": "Terapia psicológica 1 a 1 cobrada por hora. Los pacientes abandonan al sentirse un poco mejor, no completan la transformación profunda.",
+      "target_audience": "Personas con trauma complejo",
+      "core_problem": "Falta de adherencia al tratamiento",
+      "monetization": "Cobro por sesión",
+      "marketing": "Boca a boca",
+      "tech_stack": "Agenda física y WhatsApp"
+    }
+    $json_psico_lead$::jsonb
+  );
+
+  UPDATE public.business_blueprints
+  SET
+    public_id = 'demo-psicologia',
+    lifecycle_stage = 'delivered',
+    delivery_progress = 7,
+    intake_payload = $json_psico_payload$
+    {
+      "real_problem": "Modelo de cobro que incentiva el abandono precoz",
+      "value_prop": "Programa de 12 semanas para alquimia del dolor",
+      "unit_economics": "High ticket ($2,500 USD por programa en lugar de $50 USD por hora)",
+      "anti_segment": "Personas que solo buscan validación, no transformación."
+    }
+    $json_psico_payload$::jsonb,
+    metadata = COALESCE(metadata, '{}'::jsonb) || jsonb_build_object(
+      'preliminary',
+      $pre_psico$
+      La dependencia del cobro por hora está erosionando tu energía clínica y la transformación del paciente.
+      $pre_psico$,
+      'markdown',
+      $md_psico$
+# El Imperio Lógico: Clínica Renacer
 
 > *El trauma no superado es la prisión del potencial humano. Tu modelo actual de "cobro por hora" no solo es un error financiero, es una falla ética: le permite al paciente huir cuando el trabajo profundo recién comienza.*
 
 ## 1. Patología Operativa y Foso Defensivo (Moat)
 Tu cuello de botella no es la falta de pacientes, es **la estructura comercial del sufrimiento**.
 - **Problema Raíz:** Vendes tiempo, no resultados. El paciente asiste 3 sesiones, siente alivio temporal y abandona. No hay transformación, solo sedación.
-- **Arma Desproporcionada (Unfair Advantage):** Tu metodología clínica cruzada con un **Programa de Alto Compromiso**. Cuando blindas el proceso (pago anticipado de 12 semanas), obligas al paciente a cruzar el fuego. 
+- **Arma Desproporcionada (Unfair Advantage):** Tu metodología clínica cruzada con un **Programa de Alto Compromiso**. Cuando blindas el proceso (pago anticipado de 12 semanas), obligas al paciente a cruzar el fuego.
 
 ## 2. Ingeniería de Rentabilidad (Unit Economics)
 Tienes que abandonar la trinchera del terapeuta que sobrevive sesión a sesión:
 - **Modelo Antiguo:** $50 USD/hora. Riesgo de cancelación altísimo. LTV (Valor de por vida): $300 USD.
-- **Nuevo Modelo Operativo:** Programa Transformacional "Alquimia del Dolor": $2,500 USD (Pago inicial). 
+- **Nuevo Modelo Operativo:** Programa Transformacional "Alquimia del Dolor": $2,500 USD (Pago inicial).
 - **Matriz de Ganancia:** Tu facturación aumenta 800% por cliente, atendiendo a **menos pacientes con un compromiso absoluto**.
 
 ## 3. Exclusión Estratégica (Anti-Segmento)
@@ -71,35 +97,57 @@ Para escalar sin volverte loco, el filtro de entrada debe ser despiadado:
 - **Acepta:** Individuos cuya oscuridad personal amenaza su estructura vital (ejecutivos, emprendedores, líderes) y que valoran el tiempo por encima del capital.
 
 ### Próximo Paso
-El modelo es viable, pero la arquitectura de adquisición está rota. Requiere implementación inmediata del **Bloque 03 (MVP de Validación)** para estructurar el funnel de agendamiento y el checkout del programa High-Ticket.'
+El modelo es viable, pero la arquitectura de adquisición está rota. Requiere implementación inmediata del **Bloque 03 (MVP de Validación)** para estructurar el funnel de agendamiento y el checkout del programa High-Ticket.
+      $md_psico$
     )
-  );
+  WHERE source_lead_id = psicologia_lead_id;
 
-  -- -------------------------------------------------------------------------
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'No se encontró business_blueprints para psicologia_lead_id=%; revisa trigger tr_sync_lead_to_blueprint.', psicologia_lead_id;
+  END IF;
+
+  -- ---------------------------------------------------------------------------
   -- CASO 2: AGENCIA DE MARKETING / GROWTH B2B
-  -- -------------------------------------------------------------------------
-  
-  INSERT INTO public.leads (id, name, email, whatsapp, status, score, diagnostic_answers)
-  VALUES (
-    agencia_lead_id, 
-    'Fundador Agencia Demo',
-    'demo2@bloquecero.com', 
-    '5550000002', 
-    'new',
-    65,
-    '{"business_name": "Nexus Growth Ops", "idea_description": "Agencia digital ofreciendo de todo (Pauta, Redes, Web). El margen es mínimo y los clientes exigen como si fuéramos sus socios.", "target_audience": "Cualquier Pyme con presupuesto", "monetization": "Retainer mensual bajo"}'::jsonb
-  );
-
-  INSERT INTO public.business_blueprints (
-    public_id, source_lead_id, lifecycle_stage, delivery_progress, 
-    intake_payload, metadata
+  -- ---------------------------------------------------------------------------
+  INSERT INTO public.leads (
+    id, name, email, whatsapp, status, score, diagnostic_answers
   )
   VALUES (
-    'demo-agencia', agencia_lead_id, 'delivered', 7,
-    '{"real_problem": "Generalización extrema. Cero estandarización del fulfillment.", "value_prop": "Sistemas de Adquisición B2B para Consultoras Financieras"}'::jsonb,
-    jsonb_build_object(
-      'preliminary', 'La generalización te condena a competir por precio. Operas como una fábrica de tareas, no como un socio de crecimiento.',
-      'markdown', '# El Imperio Lógico: Nexus Growth Ops
+    agencia_lead_id,
+    'Fundador Agencia Demo',
+    'demo2@bloquecero.com',
+    '5550000002',
+    'new',
+    65,
+    $json_agencia_lead$
+    {
+      "business_name": "Nexus Growth Ops",
+      "idea_description": "Agencia digital ofreciendo de todo (Pauta, Redes, Web). El margen es mínimo y los clientes exigen como si fuéramos sus socios.",
+      "target_audience": "Cualquier Pyme con presupuesto",
+      "monetization": "Retainer mensual bajo"
+    }
+    $json_agencia_lead$::jsonb
+  );
+
+  UPDATE public.business_blueprints
+  SET
+    public_id = 'demo-agencia',
+    lifecycle_stage = 'delivered',
+    delivery_progress = 7,
+    intake_payload = $json_agencia_payload$
+    {
+      "real_problem": "Generalización extrema. Cero estandarización del fulfillment.",
+      "value_prop": "Sistemas de Adquisición B2B para Consultoras Financieras"
+    }
+    $json_agencia_payload$::jsonb,
+    metadata = COALESCE(metadata, '{}'::jsonb) || jsonb_build_object(
+      'preliminary',
+      $pre_agencia$
+      La generalización te condena a competir por precio. Operas como una fábrica de tareas, no como un socio de crecimiento.
+      $pre_agencia$,
+      'markdown',
+      $md_agencia$
+# El Imperio Lógico: Nexus Growth Ops
 
 > *Ser una agencia "full-service" es la ruta garantizada hacia el agotamiento. Estás absorbiendo el caos operativo de tus clientes por márgenes ridículos.*
 
@@ -112,35 +160,56 @@ El modelo es viable, pero la arquitectura de adquisición está rota. Requiere i
 - **Nuevo Modelo Operativo:** Implementación de Infraestructura + Comisión por Lead Calificado. Setup de $3,000 USD + $1,500/mes base. Margen operativo proyectado superior al 70% estandarizando procesos en n8n.
 
 ## 3. Puntos de Ruptura
-Si multiplicas tu demanda actual x10, tu equipo (y tú) colapsarían en 48 horas. El "fulfillment" manual es el veneno. Tienes que desacoplar tu tiempo de la entrega del servicio automatizando la extracción de reportes y la gestión del canal con IA.'
+Si multiplicas tu demanda actual x10, tu equipo (y tú) colapsarían en 48 horas. El "fulfillment" manual es el veneno. Tienes que desacoplar tu tiempo de la entrega del servicio automatizando la extracción de reportes y la gestión del canal con IA.
+      $md_agencia$
     )
-  );
+  WHERE source_lead_id = agencia_lead_id;
 
-  -- -------------------------------------------------------------------------
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'No se encontró business_blueprints para agencia_lead_id=%; revisa trigger tr_sync_lead_to_blueprint.', agencia_lead_id;
+  END IF;
+
+  -- ---------------------------------------------------------------------------
   -- CASO 3: SAAS B2B / SOFTWARE VERTICAL
-  -- -------------------------------------------------------------------------
-  
-  INSERT INTO public.leads (id, name, email, whatsapp, status, score, diagnostic_answers)
-  VALUES (
-    saas_lead_id, 
-    'SaaS Founders Demo',
-    'demo3@bloquecero.com', 
-    '5550000003', 
-    'new',
-    78,
-    '{"business_name": "Vectra: ERP para Ferreterías", "idea_description": "Software en la nube para inventario. Los clientes no entienden cómo usarlo y la rotación (churn) es del 30% en los primeros meses.", "monetization": "Suscripción 30 USD/mes"}'::jsonb
-  );
-
-  INSERT INTO public.business_blueprints (
-    public_id, source_lead_id, lifecycle_stage, delivery_progress, 
-    intake_payload, metadata
+  -- ---------------------------------------------------------------------------
+  INSERT INTO public.leads (
+    id, name, email, whatsapp, status, score, diagnostic_answers
   )
   VALUES (
-    'demo-saas', saas_lead_id, 'delivered', 7,
-    '{"real_problem": "Complejidad técnica del usuario superando la interfaz", "anti_segment": "Ferreterías de dueño único sin operador decicado."}'::jsonb,
-    jsonb_build_object(
-      'preliminary', 'Tu software no falla por código, falla por adopción. Estás vendiendo tecnología a dueños que valoran el control manual.',
-      'markdown', '# El Imperio Lógico: Vectra (SaaS)
+    saas_lead_id,
+    'SaaS Founders Demo',
+    'demo3@bloquecero.com',
+    '5550000003',
+    'new',
+    78,
+    $json_saas_lead$
+    {
+      "business_name": "Vectra: ERP para Ferreterías",
+      "idea_description": "Software en la nube para inventario. Los clientes no entienden cómo usarlo y la rotación (churn) es del 30% en los primeros meses.",
+      "monetization": "Suscripción 30 USD/mes"
+    }
+    $json_saas_lead$::jsonb
+  );
+
+  UPDATE public.business_blueprints
+  SET
+    public_id = 'demo-saas',
+    lifecycle_stage = 'delivered',
+    delivery_progress = 7,
+    intake_payload = $json_saas_payload$
+    {
+      "real_problem": "Complejidad técnica del usuario superando la interfaz",
+      "anti_segment": "Ferreterías de dueño único sin operador dedicado."
+    }
+    $json_saas_payload$::jsonb,
+    metadata = COALESCE(metadata, '{}'::jsonb) || jsonb_build_object(
+      'preliminary',
+      $pre_saas$
+      Tu software no falla por código, falla por adopción. Estás vendiendo tecnología a dueños que valoran el control manual.
+      $pre_saas$,
+      'markdown',
+      $md_saas$
+# El Imperio Lógico: Vectra (SaaS)
 
 > *Desarrollaste un Ferrari, pero se lo vendes a personas que no saben conducir y no les gusta la gasolina. Tu métrica de Churn es un síntoma de un error catastrófico de fricción en la adopción (Activation).*
 
@@ -153,8 +222,14 @@ Si multiplicas tu demanda actual x10, tu equipo (y tú) colapsarían en 48 horas
 - **Reestructuración:** Incrementa el precio a $149 USD/mes pero incluye un scanner físico en comodato. Aumentas la utilidad percibida, reduces el Churn al <3% (por lock-in físico y migración completada).
 
 ## 3. Ecosistema de Adquisición
-Abandona la pauta digital genérica y Facebook Ads. Tu cliente no compra software por Instagram. Tu estrategia de "Content-Led Growth" requiere alianzas directas con las Asociaciones de Distribuidores Ferreteros. Un solo canal, dominado con autoridad absoluta.'
+Abandona la pauta digital genérica y Facebook Ads. Tu cliente no compra software por Instagram. Tu estrategia de "Content-Led Growth" requiere alianzas directas con las Asociaciones de Distribuidores Ferreteros. Un solo canal, dominado con autoridad absoluta.
+      $md_saas$
     )
-  );
+  WHERE source_lead_id = saas_lead_id;
 
-END $$;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'No se encontró business_blueprints para saas_lead_id=%; revisa trigger tr_sync_lead_to_blueprint.', saas_lead_id;
+  END IF;
+
+END
+$seed$;
