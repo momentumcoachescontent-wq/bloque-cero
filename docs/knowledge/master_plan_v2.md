@@ -94,33 +94,30 @@ Este documento redefine el plan maestro de Bloque Cero a partir del estado real 
 
 ---
 
-### Fase 5 — Automatización Avanzada y Reportes (Bloque F) [EN EJECUCIÓN]
+### Fase 5 — Automatización Avanzada y Reportes (Bloque F) [COMPLETADA]
 **Objetivo:** elevar el valor percibido del Blueprint mediante entregables de alta consultoría.
 
 **Trabajo principal:**
-- **Upgrade UX:** Migrar de Polling (reintentos) a **Supabase Realtime** en el formulario de diagnóstico para redirección inmediata.
-- **Blueprint Generator:** Corregir y activar el flujo de n8n para generar el reporte estratégico real.
-- **Notificación:** Automatizar avisos vía WhatsApp/Email al cambiar estado a `delivered`.
-- **Monetización:** Integración de Stripe para desbloqueo de Blueprints Premium.
-
-**Resultado esperado:** El cliente vive una experiencia de "magia técnica": termina su diagnóstico y su reporte premium aparece/se descarga instantáneamente.
+- Upgrade UX: Migrar de Polling a **Supabase Realtime** para redirección inmediata.
+- Arquitectura Zero-Trust y estabilización técnica.
+- Investigación de monetización (Stripe LATAM).
 
 ---
 
-### Fase 5 — Automatización Avanzada y Reportes (Bloque F) [SIGUIENTE PASO]
-**Objetivo:** elevar el valor percibido del Blueprint mediante entregables de alta consultoría.
+### Fase 6 — Go-To-Market (GTM) y "Golden Loops" [SIGUIENTE PASO]
+**Objetivo:** Generar "Casos de Uso Perfectos" (Golden Loops) que sirvan como material de venta y demuestren el ecosistema completo funcionando por vertical.
 
 **Trabajo principal:**
-- Implementar generador de Reportes PDF estratégicos en n8n (Blueprint Generator).
-- Integrar almacenamiento automático en buckets `radar_deliverables` / `blueprint_deliverables`.
-- Automatizar la notificación multicanal (WhatsApp/Email) sincronizada con el estado `delivered`.
-- Aplicar IA para personalización profunda de recomendaciones tácticas.
+- **Inyección de Casos de Éxito:** Generar ejemplos de Blueprints completos (e.g., Clínica Dental, Agencia B2B, SaaS) y anclarlos a URLs públicas (`/b/demo-clinica`).
+- **Refinamiento Analítico:** Afinar el prompt de n8n para que el resultado de estos ciclos funcionales sea calidad "Consultora Big-6".
+- **Playbooks de Venta:** Estructurar de manera que cada demo pueda enviarse a prospectos reales de diferentes mercados.
+- **Transición a Cobro:** Activar Stripe Checkout al final del ciclo funcional para probar la conversión de la demo a un cliente real (Bloque MVP).
 
-**Resultado esperado:** El cliente recibe un activo digital premium minutos después de completar su diagnóstico/wizard.
+**Resultado esperado:** Biblioteca de demostraciones funcionales (URLs interactivas) listas para usarse en campañas de adquisición.
 
 ---
 
-### Fase 6 — Escalamiento, resiliencia y offline-first selectivo
+### Fase 7 — Escalamiento, resiliencia y offline-first selectivo
 **Objetivo:** robustecer la plataforma para crecimiento real.
 
 **Trabajo principal:**
@@ -133,12 +130,9 @@ Este documento redefine el plan maestro de Bloque Cero a partir del estado real 
 **Resultado esperado:** base más resiliente y lista para escalar verticalmente.
 
 ## Secuencia recomendada
-1. Fase 1
-2. Fase 2
-3. Fase 3
-4. Fase 4
-5. Fase 5
-6. Fase 6
+1. Fase 1 al 5 (Completadas)
+2. Fase 6 (GTM & Casos de Uso)
+3. Fase 7 (Escalamiento)
 
 ## Skills / capacidades requeridas
 

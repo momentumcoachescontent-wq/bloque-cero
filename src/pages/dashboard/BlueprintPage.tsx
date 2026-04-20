@@ -712,92 +712,129 @@ export default function BlueprintWizard() {
               {existingRequest.delivery_progress >= 7 && (
                 <div className="space-y-12 mt-12 mb-20 animate-in fade-in slide-in-from-bottom-8 duration-700">
                   
-                  {/* Next Step Strategic Card */}
-                  <div className="bg-primary/5 border border-primary/20 rounded-2xl p-8 md:p-12 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                      <Rocket className="w-32 h-32 text-primary" />
-                    </div>
-                    
-                    <div className="relative z-10 max-w-2xl text-left">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-4 uppercase tracking-wider">
-                        <Zap className="w-3 h-3" /> Siguiente Paso Estratégico
+                  {publicId?.startsWith('demo-') ? (
+                    {/* DEMO CTA MAESTRO */}
+                    <div className="bg-primary/5 border border-primary/20 rounded-2xl p-8 md:p-12 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                        <Target className="w-32 h-32 text-primary" />
                       </div>
-                      <h3 className="text-2xl md:text-3xl font-bold mb-4">Has blindado tu idea. Ahora es momento de darle vida.</h3>
-                      <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-                        El plano está listo. La ejecución es lo que separa a los soñadores de los fundadores. Como cliente de Blueprint, tienes un **20% de descuento directo** en tu primer bloque de implementación.
-                      </p>
                       
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <Button 
-                          onClick={() => window.location.href = '/dashboard/mvp'}
-                          className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 h-12 shadow-md"
-                        >
-                          Ir al MVP de Validación (Bloque 03)
-                        </Button>
-                        <Button 
-                          variant="outline"
-                          onClick={() => window.location.href = '/dashboard/automatizaciones'}
-                          className="border-primary/30 text-primary hover:bg-primary/5 font-semibold px-8 h-12"
-                        >
-                          Explorar Automatizaciones (Bloque 05)
-                        </Button>
+                      <div className="relative z-10 max-w-2xl text-left">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-4 uppercase tracking-wider">
+                          <Zap className="w-3 h-3" /> Arquitectura Operacional Probada
+                        </div>
+                        <h3 className="text-2xl md:text-3xl font-bold mb-4">Este es el estándar operativo de Bloque Cero.</h3>
+                        <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
+                          La diferencia entre operar desde el miedo y operar desde el poder es la arquitectura. Estás viendo la calidad real que inyectamos en cada proyecto. Transforma tu caos actual en un sistema escalable hoy mismo.
+                        </p>
+                        
+                        <div className="flex flex-col sm:flex-row gap-4">
+                          <Button 
+                            onClick={() => window.location.href = '/diagnostico'}
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 h-12 shadow-md gap-2"
+                          >
+                            <Brain className="w-5 h-5" /> Generar Mi Propio Blueprint (Gratis)
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            onClick={() => window.location.href = '/contacto'}
+                            className="border-primary/30 text-primary hover:bg-primary/5 font-semibold px-8 h-12"
+                          >
+                            Agendar Llamada Estratégica
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Feedback & QA */}
-                  <div className="bg-muted/30 border border-border/50 rounded-xl p-8 text-center max-w-2xl mx-auto">
-                    {!answers.qa_completed ? (
-                      <>
-                        <h4 className="font-bold text-lg mb-2">Aseguramiento de Calidad (QA)</h4>
-                        <p className="text-sm text-muted-foreground mb-6">
-                          Como firma boutique, nuestro equipo de soporte prioriza resultados por encima del protocolo. ¿El Blueprint superó tus expectativas operativas?
-                        </p>
-                        <div className="flex justify-center flex-wrap gap-4">
-                          <Button 
-                            variant="secondary" 
-                            onClick={() => setAnswers({...answers, qa_completed: "true"})}
-                            className="bg-background shadow-sm hover:bg-muted font-semibold"
-                          >
-                            ¡Mente Volada! (Satisfecho)
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            onClick={() => window.location.href = '/contacto?subject=blueprint_qa'}
-                            className="text-primary border-primary/50 hover:bg-primary/10 bg-transparent"
-                          >
-                            Requiero Aclaración Operacional
-                          </Button>
+                  ) : (
+                    <>
+                      {/* Next Step Strategic Card Para Usuarios Propios */}
+                      <div className="bg-primary/5 border border-primary/20 rounded-2xl p-8 md:p-12 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                          <Rocket className="w-32 h-32 text-primary" />
                         </div>
-                      </>
-                    ) : (
-                      <div className="animate-in fade-in zoom-in duration-500">
-                        <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4 border border-green-500/20">
-                          <CheckCircle2 className="w-8 h-8 text-green-500" />
-                        </div>
-                        <h4 className="font-bold text-xl mb-2 text-foreground">¡Satisfechos de trabajar contigo!</h4>
                         
-                        <div className="p-4 bg-muted/50 rounded-xl mb-6 border border-border/50">
-                           <p className="text-xs text-muted-foreground leading-relaxed">
-                             <ShieldCheck className="w-3 h-3 inline mr-1 text-primary" /> 
-                             Al aprobar el testimonio, autorizas el uso de la lógica de tu caso para fines educativos, eliminando nombres, métricas exactas e identificadores privados.
-                           </p>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
-                          <Button variant="default" className="bg-primary hover:bg-primary/90 w-full sm:w-auto font-bold px-8 shadow-lg shadow-primary/20">
-                            Aprobar Testimonio
-                          </Button>
-                          <Button variant="outline" onClick={handleMakePrivate} className="border-border text-muted-foreground hover:bg-muted w-full sm:w-auto">
-                            Mantener Privado
-                          </Button>
-                          <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 w-full sm:w-auto font-semibold" onClick={() => window.location.href = '/contacto?subject=blueprint_qa'}>
-                            Solicitar Revisión Estratégica
-                          </Button>
+                        <div className="relative z-10 max-w-2xl text-left">
+                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-4 uppercase tracking-wider">
+                            <Zap className="w-3 h-3" /> Siguiente Paso Estratégico
+                          </div>
+                          <h3 className="text-2xl md:text-3xl font-bold mb-4">Has blindado tu idea. Ahora es momento de darle vida.</h3>
+                          <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
+                            El plano está listo. La ejecución es lo que separa a los soñadores de los fundadores. Como cliente de Blueprint, tienes un **20% de descuento directo** en tu primer bloque de implementación.
+                          </p>
+                          
+                          <div className="flex flex-col sm:flex-row gap-4">
+                            <Button 
+                              onClick={() => window.location.href = '/dashboard/mvp'}
+                              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 h-12 shadow-md"
+                            >
+                              Ir al MVP de Validación (Bloque 03)
+                            </Button>
+                            <Button 
+                              variant="outline"
+                              onClick={() => window.location.href = '/dashboard/automatizaciones'}
+                              className="border-primary/30 text-primary hover:bg-primary/5 font-semibold px-8 h-12"
+                            >
+                              Explorar Automatizaciones (Bloque 05)
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    )}
-                  </div>
+
+                      {/* Feedback & QA */}
+                      <div className="bg-muted/30 border border-border/50 rounded-xl p-8 text-center max-w-2xl mx-auto">
+                        {!answers.qa_completed ? (
+                          <>
+                            <h4 className="font-bold text-lg mb-2">Aseguramiento de Calidad (QA)</h4>
+                            <p className="text-sm text-muted-foreground mb-6">
+                              Como firma boutique, nuestro equipo de soporte prioriza resultados por encima del protocolo. ¿El Blueprint superó tus expectativas operativas?
+                            </p>
+                            <div className="flex justify-center flex-wrap gap-4">
+                              <Button 
+                                variant="secondary" 
+                                onClick={() => setAnswers({...answers, qa_completed: "true"})}
+                                className="bg-background shadow-sm hover:bg-muted font-semibold"
+                              >
+                                ¡Mente Volada! (Satisfecho)
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                onClick={() => window.location.href = '/contacto?subject=blueprint_qa'}
+                                className="text-primary border-primary/50 hover:bg-primary/10 bg-transparent"
+                              >
+                                Requiero Aclaración Operacional
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="animate-in fade-in zoom-in duration-500">
+                            <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4 border border-green-500/20">
+                              <CheckCircle2 className="w-8 h-8 text-green-500" />
+                            </div>
+                            <h4 className="font-bold text-xl mb-2 text-foreground">¡Satisfechos de trabajar contigo!</h4>
+                            
+                            <div className="p-4 bg-muted/50 rounded-xl mb-6 border border-border/50">
+                               <p className="text-xs text-muted-foreground leading-relaxed">
+                                 <ShieldCheck className="w-3 h-3 inline mr-1 text-primary" /> 
+                                 Al aprobar el testimonio, autorizas el uso de la lógica de tu caso para fines educativos, eliminando nombres, métricas exactas e identificadores privados.
+                               </p>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
+                              <Button variant="default" className="bg-primary hover:bg-primary/90 w-full sm:w-auto font-bold px-8 shadow-lg shadow-primary/20">
+                                Aprobar Testimonio
+                              </Button>
+                              <Button variant="outline" onClick={handleMakePrivate} className="border-border text-muted-foreground hover:bg-muted w-full sm:w-auto">
+                                Mantener Privado
+                              </Button>
+                              <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10 w-full sm:w-auto font-semibold" onClick={() => window.location.href = '/contacto?subject=blueprint_qa'}>
+                                Solicitar Revisión Estratégica
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 
