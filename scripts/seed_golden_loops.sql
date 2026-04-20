@@ -9,13 +9,15 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 DO $$ 
 DECLARE
-  psicologia_lead_id UUID := uuid_generate_v4();
-  agencia_lead_id UUID := uuid_generate_v4();
-  saas_lead_id UUID := uuid_generate_v4();
+  -- UUIDs FIJOS para asegurar idempotencia total en re-ejecución
+  psicologia_lead_id UUID := '8fdf00d4-d8ea-49fb-bf7b-11d64f08d0bd';
+  agencia_lead_id UUID := '9c9e0edb-8d6f-4c92-9e8a-3f1a23456789';
+  saas_lead_id UUID := '7b6a5d4c-3e2f-1a0b-9c8d-7e6f5a4b3c2d';
 BEGIN
 
-  -- 1. LIMPIAR VERSIONES PREVIAS SI EXISTEN (Idempotencia)
+  -- 1. LIMPIAR VERSIONES PREVIAS (Orden correcto por integridad referencial)
   DELETE FROM public.business_blueprints WHERE public_id IN ('demo-psicologia', 'demo-agencia', 'demo-saas');
+  DELETE FROM public.leads WHERE id IN (psicologia_lead_id, agencia_lead_id, saas_lead_id);
 
   -- -------------------------------------------------------------------------
   -- CASO 1: PSICOLOGÍA CLÍNICA / COACHING TRANSFORMACIONAL
