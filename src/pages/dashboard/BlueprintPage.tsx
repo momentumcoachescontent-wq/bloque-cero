@@ -713,7 +713,6 @@ export default function BlueprintWizard() {
                 <div className="space-y-12 mt-12 mb-20 animate-in fade-in slide-in-from-bottom-8 duration-700">
                   
                   {publicId?.startsWith('demo-') ? (
-                    {/* DEMO CTA MAESTRO */}
                     <div className="bg-primary/5 border border-primary/20 rounded-2xl p-8 md:p-12 relative overflow-hidden group">
                       <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                         <Target className="w-32 h-32 text-primary" />
