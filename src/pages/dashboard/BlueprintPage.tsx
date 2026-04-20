@@ -19,7 +19,9 @@ import {
   XCircle,
   Zap,
   ShieldCheck,
-  Rocket
+  Rocket,
+  Lock,
+  CreditCard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,6 +113,7 @@ export default function BlueprintWizard() {
   // State Machine
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const [checkingOut, setCheckingOut] = useState(false);
   
   // Form State
   const [selectedLeadId, setSelectedLeadId] = useState<string>("");
@@ -197,6 +200,48 @@ export default function BlueprintWizard() {
   const handleClaimBlueprint = () => {
     const loginUrl = publicId ? `/login?claim=${publicId}` : '/login';
     navigate(loginUrl);
+  };
+
+  const handleUpgradeToPremium = async () => {
+    if (!existingRequest) return;
+    setCheckingOut(true);
+    try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      const token = currentSession?.access_token;
+      
+      if (!token) {
+        toast.error("Debes iniciar sesión para desbloquear el Blueprint.");
+        setCheckingOut(false);
+        return;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            blueprint_id: existingRequest.public_id || existingRequest.id,
+            email: profile?.email,
+            return_url: window.location.origin
+          })
+        }
+      );
+
+      const result = await response.json();
+      
+      if (response.ok && result.url) {
+        window.location.href = result.url;
+      } else {
+        throw new Error(result.error || "No se pudo generar el checkout");
+      }
+    } catch (e: any) {
+      toast.error(`Error al procesar pago: ${e.message}`);
+      setCheckingOut(false);
+    }
   };
 
   const handleCreateRequest = async () => {
@@ -664,13 +709,46 @@ export default function BlueprintWizard() {
               </div>
 
               {existingRequest.delivery_progress >= 7 && (existingRequest.metadata as { markdown?: string })?.markdown && (
-                <div className="border border-border/50 rounded-xl p-8 bg-card shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <h3 className="font-semibold mb-6 flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-primary" />
-                    Contenido del Blueprint
-                  </h3>
-                  <div className="whitespace-pre-wrap text-sm text-muted-foreground leading-relaxed max-h-[600px] overflow-y-auto pr-2">
-                    {(existingRequest.metadata as { markdown?: string }).markdown}
+                <div className="border border-border/50 rounded-xl bg-card shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden relative">
+                  
+                  {/* Paywall Overlay */}
+                  {!existingRequest.is_premium && !publicId?.startsWith('demo-') && (
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/60 backdrop-blur-md p-8 text-center">
+                      <div className="w-16 h-16 bg-primary/10 rounded-full flex flex-col items-center justify-center mb-6 border border-primary/20 shadow-lg shadow-primary/10">
+                        <Lock className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="text-2xl font-bold mb-2">Bóveda Estratégica Bloqueada</h3>
+                      <p className="text-muted-foreground mb-8 max-w-md">
+                        Has validado la viabilidad. Para acceder al documento maestro, el roadmap de 90 días y descargar los activos, requieres Desbloqueo Estratégico.
+                      </p>
+                      <Button 
+                        onClick={handleUpgradeToPremium} 
+                        disabled={checkingOut}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 py-6 h-auto shadow-xl shadow-primary/20 flex flex-col gap-1 items-center rounded-xl"
+                      >
+                        {checkingOut ? (
+                          <><Loader2 className="w-5 h-5 animate-spin" /> Procesando Bóveda...</>
+                        ) : (
+                          <>
+                            <span className="flex items-center gap-2"><CreditCard className="w-5 h-5" /> Desbloquear Arquitectura Completa</span>
+                            <span className="text-xs font-medium opacity-80">$499 MXN — Pago Único</span>
+                          </>
+                        )}
+                      </Button>
+                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground/50 mt-6 mt-4 flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3" /> Transacción encriptada por Stripe
+                      </p>
+                    </div>
+                  )}
+
+                  <div className={`p-8 ${!existingRequest.is_premium && !publicId?.startsWith('demo-') ? 'opacity-30 blur-sm select-none pointer-events-none max-h-[400px] overflow-hidden' : ''}`}>
+                    <h3 className="font-semibold mb-6 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-primary" />
+                      Contenido del Blueprint
+                    </h3>
+                    <div className="whitespace-pre-wrap text-sm text-foreground/80 leading-relaxed max-h-[800px] overflow-y-auto pr-2">
+                      {(existingRequest.metadata as { markdown?: string }).markdown}
+                    </div>
                   </div>
                 </div>
               )}

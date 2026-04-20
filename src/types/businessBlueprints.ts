@@ -32,6 +32,10 @@ export interface BusinessBlueprint {
   ltvEstimated: number;
   slaRiskScore: number;
   adminNotes: string | null;
+  isPremium: boolean;
+  stripeCustomerId: string | null;
+  stripeSessionId: string | null;
+  paymentStatus: string;
   createdAt: string;
   updatedAt: string;
   metadata: any;
@@ -64,6 +68,10 @@ export const mapRowToBusinessBlueprint = (row: any): BusinessBlueprint => {
     ltvEstimated: Number(row.ltv_estimated || 0),
     slaRiskScore: Number(row.sla_risk_score || 0),
     adminNotes: row.admin_notes,
+    isPremium: row.is_premium || false,
+    stripeCustomerId: row.stripe_customer_id,
+    stripeSessionId: row.stripe_session_id,
+    paymentStatus: row.payment_status || 'pending',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     metadata: row.metadata || {},
