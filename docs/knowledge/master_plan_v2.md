@@ -104,35 +104,51 @@ Este documento redefine el plan maestro de Bloque Cero a partir del estado real 
 
 ---
 
-### Fase 6 — Go-To-Market (GTM) y "Golden Loops" [SIGUIENTE PASO]
+### Fase 6 — Go-To-Market (GTM) y "Golden Loops" [COMPLETADA]
 **Objetivo:** Generar "Casos de Uso Perfectos" (Golden Loops) que sirvan como material de venta y demuestren el ecosistema completo funcionando por vertical.
 
-**Trabajo principal:**
-- **Inyección de Casos de Éxito:** Generar ejemplos de Blueprints completos (e.g., Clínica Dental, Agencia B2B, SaaS) y anclarlos a URLs públicas (`/b/demo-clinica`).
-- **Refinamiento Analítico:** Afinar el prompt de n8n para que el resultado de estos ciclos funcionales sea calidad "Consultora Big-6".
-- **Playbooks de Venta:** Estructurar de manera que cada demo pueda enviarse a prospectos reales de diferentes mercados.
-- **Transición a Cobro:** Activar Stripe Checkout al final del ciclo funcional para probar la conversión de la demo a un cliente real (Bloque MVP).
-
-**Resultado esperado:** Biblioteca de demostraciones funcionales (URLs interactivas) listas para usarse en campañas de adquisición.
+**Resultado:**
+- Inyección de Casos de Éxito: Scripts de semilla activos (`seed_golden_loops.sql`) con rutas reales `/b/demo-psicologia`, `/b/demo-agencia`.
+- Refinamiento Analítico: Dashboards operativos que muestran la robustez de la solución.
+- URLs Públicas: Capacidad de compartir demostraciones funcionales de alta consultoría.
 
 ---
 
-### Fase 7 — Escalamiento, resiliencia y offline-first selectivo
-**Objetivo:** robustecer la plataforma para crecimiento real.
+### Fase 7 — Escalamiento, resiliencia y telemetría [COMPLETADA]
+**Objetivo:** robustecer la plataforma para crecimiento real y visibilidad operativa.
+
+**Resultado:**
+- Sistema de Telemetría: Tabla `system_logs` activa capturando latencia y errores.
+- Observabilidad: Dashboards internos que permiten monitorear la salud del despacho de n8n.
+- Endurecimiento Operativo: RLS optimizado y manejo de errores centralizado.
+
+---
+
+### Fase 8 — Monetización (Stripe LATAM) [COMPLETADA]
+**Objetivo:** Establecer la capa de ingresos mediante el desbloqueo de activos premium.
 
 **Trabajo principal:**
-- observabilidad y logging
-- reintentos y manejo de errores
-- criterios de offline-first para módulos específicos
-- estrategia de sincronización y conflictos
-- endurecimiento operativo
+- Infraestructura de Pagos: Edge Functions `stripe-checkout` y `stripe-webhook` desplegadas.
+- Paywall Estratégico: Bloqueo visual (blur) y control de acceso en `BlueprintPage.tsx`.
+- Checkout Dinámico: Soporte para cobros en MXN ($499) y reconciliación automática de `is_premium`.
 
-**Resultado esperado:** base más resiliente y lista para escalar verticalmente.
+---
 
-## Secuencia recomendada
-1. Fase 1 al 5 (Completadas)
-2. Fase 6 (GTM & Casos de Uso)
-3. Fase 7 (Escalamiento)
+### Fase 9 — Optimización de Conversión (CRO) y Expansión [SIGUIENTE PASO]
+**Objetivo:** Maximizar el retorno de la inversión y expandir el catálogo de servicios.
+
+**Trabajo principal:**
+- A/B Testing del Paywall: Probar diferentes niveles de ofuscación y copys de "confronte".
+- Expansión de Verticales: Implementar Blueprints especializados para E-commerce y Real Estate.
+- Dashboards de Negocio para Clientes: Visualización de KPIs de crecimiento post-traumático del negocio.
+- Integración de Agenda: Conexión directa con consultoría humana tras el pago del Blueprint.
+
+---
+
+## Secuencia de Ejecución
+1. Fase 1 al 8 (Completadas)
+2. Fase 9 (CRO & Expansión)
+3. Fase 10 (Escalamiento Masivo)
 
 ## Skills / capacidades requeridas
 

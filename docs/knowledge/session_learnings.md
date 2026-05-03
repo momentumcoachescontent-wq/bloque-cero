@@ -75,21 +75,21 @@ Primera sesión de trabajo del agente. Objetivo: analizar el proyecto existente 
 4. Definir el schema completo de la base de datos antes de escribir código
 
 ---
-## Sesión 003 — 2026-04-19 (Sincronización de Memoria y Orquestación MCP)
+## Sesión 004 — 2026-05-20 (Monetización y Vigilancia Estratégica)
 
 ### Contexto
-Revisión del estado del Plan Maestro v2 y sincronización de la documentación técnica con la realidad del repositorio después de la consolidación lógica del dominio.
+Implementación del túnel de ingresos (Stripe) y la infraestructura de observabilidad (Telemetría). El objetivo fue cerrar el ciclo de negocio permitiendo el cobro por los activos generados.
 
 ### Lo que funcionó
-- **Memoria Técnica Vívela:** La documentación técnica (`technical_memory.md`) se mantuvo como la fuente de verdad más precisa del proyecto, superando al README histórico.
-- **Integración n8n-mcp:** Se validó la visibilidad de los flujos de automatización desde el agente, permitiendo una auditoría profunda de la lógica de "Fulfillment".
-- **Estructura Zero-Trust:** Confirmación de que las URLs de infraestructura están protegidas tras el `n8n-bridge`.
+- **Paywall Infranqueable**: Se implementó una lógica de `is_premium` que bloquea visualmente los Blueprints no pagados con un efecto blur elegante.
+- **Checkout Híbrido**: La redirección a Stripe desde el Dashboard central funciona sin fricciones mediante la Edge Function `stripe-checkout`.
+- **Telemetría Automática**: La tabla `system_logs` ya está registrando eventos críticos, permitiendo una visibilidad real sobre fallos en el despacho de n8n.
+- **Golden Loops**: Los scripts de semilla ahora generan ejemplos de alta conversión que sirven como demostraciones comerciales.
 
-### Lo que se detectó (Gaps)
-- **Desincronización por Seguridad:** La decisión de no ejecutar la migración física SQL (`consolidate_business_blueprints.sql`) genera una discrepancia entre el modelo de tipos (canónico) y las tablas base (heredadas). Se manejó con adapters en `src/lib/`.
-- **Fase 5 Pendiente:** La lógica de entrega de reportes ("Delivered" state) aún no existe en el frontend del panel administrativo.
+### Lecciones Aprendidas
+- **Gobernanza de Datos**: La importancia de los webhooks asíncronos para reconciliar estados de pago sin intervención humana. El webhook es el "Cerebro Silencioso" que desbloquea la bóveda.
+- **Psicología del Paywall**: El uso de términos como "Bóveda Estratégica" y "Desbloqueo Arquitectónico" refuerza el valor del producto sobre el precio, alineándose con la identidad *Beyond Fear*.
 
 ### Decisiones Tomadas
-- **Mantener Dualismo de Datos:** Priorizar la estabilidad de producción sobre la elegancia del esquema. Se opera con el Read Model canónico en el admin.
-- **Preparar Bloque F:** Definir la Fase 5 como el próximo hito crítico para cerrar el ciclo de valor del Blueprint.
-- **Formalización de Skills:** Catalogar los 6 skills agénticos para asegurar que futuras sesiones mantengan la estética "Beyond Fear" y la disciplina arquitectónica.
+- Ejecutar migraciones SQL incrementales (`05_stripe_monetization.sql`) en lugar de refactors masivos para mantener la operatividad y reducir el riesgo de downtime.
+- Centralizar los secretos de Stripe exclusivamente en las Edge Functions de Supabase para evitar fugas en el cliente.

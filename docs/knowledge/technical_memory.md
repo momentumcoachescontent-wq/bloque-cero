@@ -321,7 +321,26 @@ Se han formalizado 6 bibliotecas de habilidades en `.agents/skills/` para guiar 
 - **Flujo de Entrega:** Integración de la lógica de buckets de Supabase para la descarga directa de Blueprints generados.
 
 ### Próximos Objetivos Operativos
-1. Activación del **Blueprint Generator** en n8n con el mapeo corregido.
-2. Implementación de **Supabase Realtime** en `DiagnosticForm` para eliminar el polling de experiencia de usuario.
-3. Investigación e integración de **Stripe** para la monetización del Bloque F (Premium).
+## Actualización de Memoria — Fase 7: Telemetría y Observabilidad (Mayo 2026)
+### Infraestructura de Monitoreo
+- **Sistema de Logs:** Implementación de la tabla `system_logs` para captura de eventos críticos, errores y latencia de servicios.
+- **Indexación:** Optimización de búsqueda por `service_name`, `log_level` y `created_at`.
+- **Seguridad RLS:** Acceso restringido para `service_role` y lectura limitada para auditoría técnica.
+
+## Actualización de Memoria — Fase 8: Monetización (Stripe LATAM)
+### Integración de Pagos
+- **Modelo de Datos:** Expansión de la tabla `business_blueprints` con campos nativos para Stripe (`is_premium`, `stripe_customer_id`, `stripe_session_id`).
+- **Edge Functions:**
+    - `stripe-checkout`: Orquestador de sesiones de pago dinámicas con soporte para MXN.
+    - `stripe-webhook`: Listener seguro con validación de firmas para reconciliación de estados de pago.
+- **Frontend Paywall:**
+    - Implementación de lógica de "Bóveda Estratégica" en `BlueprintPage.tsx`.
+    - Ofuscación visual (blur) de contenido markdown para Blueprints no premium (excepto demos).
+    - Botón de conversión integrado asíncronamente con el middleware de Supabase.
+
+### Estado Final de la Sesión
+El sistema ha pasado de ser un flujo de consultoría gratuita a un modelo de **Agencia-Producto (Productized Service)** automatizado, con telemetría para asegurar la estabilidad del túnel de conversión y un Paywall que protege el valor intelectual del Blueprint generado.
+
+---
+**Próximo Horizonte (Fase 9):** Optimización de Conversión (CRO), A/B Testing del Paywall y Expansión de Verticales (E-commerce / Real Estate).
 
