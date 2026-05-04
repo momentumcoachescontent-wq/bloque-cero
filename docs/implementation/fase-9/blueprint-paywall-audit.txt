@@ -1,0 +1,551 @@
+
+  const handleClaimBlueprint = () => {
+    const loginUrl = publicId ? `/login?claim=${publicId}` : '/login';
+    navigate(loginUrl);
+  };
+
+  const handleUpgradeToPremium = async () => {
+    if (!existingRequest) return;
+    setCheckingOut(true);
+    try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      const token = currentSession?.access_token;
+      
+      if (!token) {
+        toast.error("Debes iniciar sesión para desbloquear el Blueprint.");
+        setCheckingOut(false);
+        return;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            blueprint_id: existingRequest.public_id || existingRequest.id,
+            email: profile?.email,
+            return_url: window.location.origin
+          })
+        }
+      );
+
+      const result = await response.json();
+      
+      if (response.ok && result.url) {
+        window.location.href = result.url;
+      } else {
+        throw new Error(result.error || "No se pudo generar el checkout");
+      }
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "No se pudo procesar el pago.";
+      toast.error(`Error al procesar pago: ${message}`);
+      setCheckingOut(false);
+    }
+  };
+
+  const handleCreateRequest = async () => {
+    if (!selectedLeadId || Object.keys(answers).length < BIG_6_QUESTIONS.length || !selectedFormat) {
+      toast.error("Por favor completa toda la información.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { data, error } = await supabase
+        .from('business_blueprints')
+        .insert({
+          user_id: profile!.id,
+          source_lead_id: selectedLeadId,
+          intake_payload: answers,
+          requested_formats: selectedFormat.split('_'),
+          lifecycle_stage: 'captured',
+          delivery_progress: 1
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      // Buscamos el lead original para enviar el análisis base del Blueprint a n8n
+      const selectedLead = leadsData.find((l) => l.id === selectedLeadId);
+
+      const { error: functionError } = await supabase.functions.invoke('n8n-bridge', {
+        body: {
+          action: 'blueprint',
+          payload: {
+            type: 'nuevo_blueprint_request',
+            request_id: data.id,
+            user_id: profile!.id,
+            lead_id: selectedLeadId,
+            intake_answers: selectedLead?.diagnostic_answers || {},
+            diagnostic_answers: answers,
+            created_at: data.created_at,
+            format_configuration: {
+              pdf: selectedFormat.includes('pdf'),
+              presentation: selectedFormat.includes('presentation'),
+              infographic: selectedFormat.includes('infographic')
+            }
+          }
+        }
+      });
+
+      if (functionError) throw functionError;
+      
+      toast.success("¡Blueprint en marcha!");
+      await queryClient.invalidateQueries({ queryKey: ['business_blueprints', profile?.id] });
+      setStep(4);
+      
+    } catch (err) {
+      console.error(err);
+      toast.error("Error al despachar el Blueprint.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto pb-24">
+      {loading ? (
+        <div className="space-y-8 animate-pulse">
+           <div className="h-10 w-64 bg-muted rounded-lg mb-4" />
+           <div className="h-24 w-full bg-muted rounded-xl" />
+           <div className="space-y-4">
+             <div className="h-40 w-full bg-muted/50 rounded-xl" />
+             <div className="h-40 w-full bg-muted/50 rounded-xl" />
+           </div>
+        </div>
+      ) : (
+        <>
+          <div className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h1 className="text-3xl font-bold tracking-tight mb-2">Blueprint Operativo</h1>
+            <p className="text-muted-foreground">
+              {step < 4 
+                ? "Elevaremos tu diagnóstico cero a un nivel de consultoría Big-6 para estructurar tu negocio."
+                : "Monitorea la producción algorítmica de tu plano táctico."}
+            </p>
+          </div>
+
+          {step === 1 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
+              <div className="bg-card border border-border/50 rounded-xl p-8 shadow-sm">
+                <h2 className="text-xl font-bold flex items-center gap-2 mb-6">
+                  <Target className="w-5 h-5 text-primary" />
+                  Paso 1: Confirma tu Tesis
+                </h2>
+                <p className="text-muted-foreground mb-6">Hemos detectado los ingresos previos de Blueprint asociados a tu cuenta. Selecciona sobre cuál construiremos tu Blueprint extendido.</p>
+                
+                {leads.length === 0 ? (
+                  <div className="bg-muted/30 p-6 rounded-lg text-center border border-dashed border-border/50">
+                    <p>No tienes ingresos previos de Blueprint registrados.</p>
+                    <Button variant="outline" className="mt-4" onClick={() => window.location.href = "/diagnostico"}>Iniciar Blueprint de Negocio</Button>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {leads.map(lead => {
+                      const projectName = lead.diagnostic_answers?.business_name || lead.business_name || "Proyecto Sin Nombre";
+                      const projectDesc = lead.diagnostic_answers?.idea_description || lead.idea_description;
+                      return (
+                      <div 
+                        key={lead.id}
+                        onClick={() => setSelectedLeadId(lead.id)}
+                        className={`p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                          selectedLeadId === lead.id 
+                            ? "border-primary bg-primary/5" 
+                            : "border-border/50 hover:border-primary/50"
+                        }`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-lg">
+                              {projectName}
+                            </h3>
+                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                              {projectDesc || "Descrito en tu diagnóstico inicial."}
+                            </p>
+                          </div>
+                          {lead.score !== undefined && lead.score !== null && (
+                            <div className="text-right flex-shrink-0 ml-4">
+                              <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${lead.score >= 75 ? "bg-green-500/10 text-green-500" : lead.score >= 50 ? "bg-yellow-500/10 text-yellow-500" : "bg-red-500/10 text-red-500"}`}>
+                                {lead.score}/100
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div className="flex justify-end mt-8 pt-6 border-t border-border/10">
+                  <Button disabled={!selectedLeadId} onClick={() => setStep(2)}>
+                    Siguiente: Deep Diagnostic <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
+               <div className="bg-card border border-border/50 rounded-xl p-8 shadow-sm">
+                <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
+                  <Brain className="w-5 h-5 text-primary" />
+                  Paso 2: Deep Diagnostic (Nivel Big 6)
+                </h2>
+                <p className="text-muted-foreground mb-8">
+                  Para generar un Blueprint invulnerable, los asesores top requieren comprender tus cuellos de botella reales. Demuestra el filo de tu visión.
+                </p>
+
+                <div className="space-y-10">
+                  {BIG_6_QUESTIONS.map((q, idx) => (
+                    <div key={q.id} className="relative pl-6 border-l-2 border-primary/20">
+                      <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-background border-2 border-primary"></div>
+                      <h3 className="font-bold text-lg mb-1">{idx + 1}. {q.question}</h3>
+                      <p className="text-sm text-muted-foreground mb-4">{q.description}</p>
+                      
+                      <div className="relative">
+                        <Textarea 
+                          value={answers[q.id] || ""}
+                          onChange={(e) => setAnswers({...answers, [q.id]: e.target.value})}
+                          placeholder="Tu respuesta incisiva..."
+                          className="min-h-[100px] resize-y bg-background"
+                        />
+                        <Button 
+                          variant="secondary" 
+                          size="sm"
+                          onClick={() => setAnswers({...answers, [q.id]: q.ai_suggestion})}
+                          className="absolute bottom-3 right-3 h-7 text-xs gap-1 border border-primary/20 text-primary hover:bg-primary/10"
+                        >
+                          <Wand2 className="w-3 h-3" /> Ejemplo de respuesta
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-between mt-10 pt-6 border-t border-border/10">
+                  <Button variant="ghost" onClick={() => setStep(1)}>Atrás</Button>
+                  <Button 
+                    disabled={Object.keys(answers).length < BIG_6_QUESTIONS.length} 
+                    onClick={() => setStep(3)}
+                  >
+                    Configurar Entregable <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
+               <div className="bg-card border border-border/50 rounded-xl p-8 shadow-sm">
+                <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
+                  <Aperture className="w-5 h-5 text-primary" />
+                  Paso 3: Formato del Entregable
+                </h2>
+                <p className="text-muted-foreground mb-8">
+                  Selecciona el empaque ideal en el que la inteligencia artificial despachará tu solución.
+                </p>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  {[
+                    { id: "pdf_infographic", label: "Documento PDF + Infografía", icon: FileText },
+                    { id: "presentation_infographic", label: "Presentación Pitch + Infografía", icon: Presentation },
+                    { id: "pdf_presentation", label: "Documento PDF + Presentación", icon: LayoutTemplate }
+                  ].map(format => (
+                    <div 
+                      key={format.id}
+                      onClick={() => setSelectedFormat(format.id)}
+                      className={`flex flex-col items-center justify-center p-8 rounded-xl border-2 text-center transition-all cursor-pointer ${
+                        selectedFormat === format.id
+                          ? "border-primary bg-primary/5" 
+                          : "border-border/50 hover:border-primary/50"
+                      }`}
+                    >
+                      <format.icon className={`w-10 h-10 mb-4 ${selectedFormat === format.id ? "text-primary": "text-muted-foreground"}`} />
+                      <span className="font-semibold text-sm">{format.label}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-between mt-10 pt-6 border-t border-border/10">
+                  <Button variant="ghost" onClick={() => setStep(2)}>Atrás</Button>
+                  <Button 
+                    disabled={!selectedFormat || submitting} 
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground min-w-[200px]"
+                    onClick={handleCreateRequest}
+                  >
+                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Despachar al Laboratorio"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && existingRequest && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+
+              {/* BASELINE DEL RADAR: Conectividad con el inicio */}
+              {(() => {
+                const lead = sourceLead;
+                if (!lead) return null;
+                const projectName = lead.diagnostic_answers?.business_name || lead.business_name || "Proyecto en análisis";
+                
+                return (
+                  <div className="bg-muted/30 border border-border/50 rounded-xl p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-500">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Target className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Análisis base del Blueprint</p>
+                        <p className="text-sm font-bold text-foreground">{projectName}</p>
+                      </div>
+                    </div>
+                    {lead.score !== undefined && lead.score !== null && (
+                      <div className="text-right">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Viabilidad Inicial</p>
+                        <p className={`text-sm font-bold ${lead.score >= 75 ? "text-green-500" : lead.score >= 50 ? "text-yellow-500" : "text-red-500"}`}>
+                          {lead.score}/100
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {existingRequest.lifecycle_stage === 'archived' && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 flex items-start gap-3">
+                  <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-red-500 text-sm">Error en el procesamiento</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Hubo un problema generando tu Blueprint. Por favor{" "}
+                      <a href="/contacto" className="text-primary hover:underline">contacta soporte</a>{" "}
+                      para resolverlo.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-card/30 border border-primary/20 backdrop-blur-sm rounded-2xl p-8 md:p-12 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
+                
+                <div className="relative z-10">
+                  <h2 className="text-2xl font-bold mb-2">Construyendo tu Imperio Lógico</h2>
+                  <p className="text-muted-foreground mb-10 max-w-xl">
+                    Nuestro Motor de IA está procesando tu modelo táctico en tiempo real. Cruzando variables estructurales para ensamblar tu Blueprint de Negocio de forma inmediata.
+                  </p>
+
+                  <div className="relative mb-20 px-2">
+                    <div className="absolute top-1/2 left-0 w-full h-1.5 bg-muted/30 -translate-y-1/2 rounded-full overflow-hidden">
+                       <div 
+                          className="h-full bg-gradient-to-r from-primary/40 via-primary to-primary shadow-[0_0_15px_rgba(var(--primary),0.5)] transition-all duration-1000 ease-out relative" 
+                          style={{ width: `${Math.min(100, (existingRequest.delivery_progress / 7) * 100)}%` }}
+                       >
+                          <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.3)_50%,transparent_100%)] animate-[shimmer_2s_infinite]" />
+                       </div>
+                    </div>
+                    
+                    <div className="relative flex justify-between">
+                      {[
+                        { progress: 1, label: "Ingestión", d: "Datos Base" },
+                        { progress: 3, label: "Motor IA", d: "Viabilidad y Unit Economics" },
+                        { progress: 5, label: "Ensamblaje", d: "Estructura Operativa" },
+                        { progress: 7, label: "Despliegue", d: "Liberado" }
+                      ].map((milestone, idx) => {
+                        const isCompleted = existingRequest.delivery_progress >= milestone.progress;
+                        const isCurrent = existingRequest.delivery_progress === milestone.progress;
+                        
+                        return (
+                          <div key={milestone.progress} className="flex flex-col items-center group relative">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center border-4 shadow-xl z-20 transition-all duration-700 ${
+                              isCompleted 
+                                ? "bg-primary border-primary/20 text-white scale-110 shadow-primary/30" 
+                                : isCurrent
+                                  ? "bg-background border-primary text-primary ring-8 ring-primary/5 animate-pulse"
+                                  : "bg-background border-muted text-muted-foreground/30"
+                            }`}>
+                              {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : <span className="text-sm font-bold">{idx + 1}</span>}
+                            </div>
+                            <div className="text-center mt-4 absolute top-10 w-32 -translate-x-1/2 left-1/2">
+                              <p className={`text-[10px] font-black uppercase tracking-widest ${isCompleted || isCurrent ? "text-primary" : "text-muted-foreground/40"}`}>
+                                {milestone.progress === 7 ? "LIBERADO" : `FASE ${idx + 1}`}
+                              </p>
+                              <p className={`text-[10px] leading-tight mt-1 transition-opacity ${isCompleted || isCurrent ? "opacity-100 text-muted-foreground" : "opacity-0"}`}>
+                                {milestone.label}
+                              </p>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* SISTEMA DE HITOS DINÁMICOS: CERTIDUMBRE PROACTIVA */}
+                  {existingRequest.delivery_progress < 7 && (
+                    <div className="mb-10 p-5 bg-background border border-border/50 rounded-xl shadow-sm animate-in fade-in slide-in-from-left-4 duration-1000">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                           </div>
+                           <h4 className="text-sm font-bold uppercase tracking-widest">Estado del Algoritmo</h4>
+                        </div>
+                        <span className="text-[10px] font-black bg-primary/20 text-primary px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                          Procesando {existingRequest.delivery_progress < 3 ? "Fase 1" : existingRequest.delivery_progress < 5 ? "Fase 2" : "Fase 3"}
+                        </span>
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                         <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/40">
+                             {existingRequest.delivery_progress < 3 ? <FolderSearch className="w-4 h-4 text-primary" /> : <Database className="w-4 h-4 text-primary" />}
+                             <div>
+                                <p className="text-[11px] font-bold text-foreground">Hito Actual</p>
+                                <p className="text-[11px] text-muted-foreground leading-snug">
+                                   {existingRequest.delivery_progress < 3 
+                                     ? "Cruzando intake base con Deep Diagnostic e inyectando contexto." 
+                                     : existingRequest.delivery_progress < 5 
+                                       ? "Extrayendo Unit Economics y proyecciones operativas."
+                                       : "Ensamblando arquitectura de GTM y Blindaje Competitivo (Moat)."}
+                                </p>
+                             </div>
+                         </div>
+                         <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border border-border/40 relative opacity-60">
+                             <LineChart className="w-4 h-4 text-muted-foreground" />
+                             <div>
+                                <p className="text-[11px] font-bold text-foreground">Próximo Hito: {existingRequest.delivery_progress < 3 ? "Fase 2" : existingRequest.delivery_progress < 5 ? "Fase 3" : "Fase Final"}</p>
+                                <p className="text-[11px] text-muted-foreground leading-snug">
+                                   {existingRequest.delivery_progress < 3 
+                                     ? "Generación de Modelo Estructural IA." 
+                                     : existingRequest.delivery_progress < 5 
+                                       ? "Maquetación de Documentos y PDFs."
+                                       : "Liberación Inmediata de Activos."}
+                                </p>
+                             </div>
+                             <ChevronRight className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
+                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Análisis Preliminar Inyectado */}
+                  {preliminaryAnalysis && (
+                    <div className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-xl animate-in fade-in slide-in-from-top-4 duration-1000">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Zap className="w-4 h-4 text-primary" />
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-primary">Inyección de Análisis Inicial</h3>
+                      </div>
+                      <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap italic">
+                        {preliminaryAnalysis}
+                      </div>
+                      <p className="text-[10px] text-primary/60 mt-4 uppercase tracking-tighter">
+                        * Este análisis inicial fue procesado al instante. El Blueprint completo está finalizando su renderizado ahora mismo.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* SKELETON MOCK VIEW SIEMPRE VISIBLE */}
+              <div className="border border-border/50 rounded-2xl p-8 bg-card shadow-sm relative overflow-hidden h-[450px]">
+                 <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center transition-all ${existingRequest.delivery_progress >= 7 ? 'bg-background/80 backdrop-blur-sm' : 'pointer-events-none'}`}>
+                    {existingRequest.delivery_progress < 7 ? (
+                      <div className="absolute top-6 right-6 flex items-center gap-2 bg-card/90 border border-primary/20 px-4 py-2 rounded-full shadow-md animate-pulse">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-primary">Mapificando Estructura</span>
+                      </div>
+                    ) : (
+                      <div className="text-center animate-in fade-in zoom-in duration-500">
+                        <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3 drop-shadow-sm" />
+                        <p className="text-sm font-semibold text-foreground uppercase tracking-widest mb-6">Blueprint Finalizado</p>
+                        <div className="flex justify-center flex-wrap gap-3 pointer-events-auto">
+                          {existingRequest.requested_formats?.includes('pdf') && existingRequest.pdf_url && (
+                            <Button variant="outline" onClick={() => window.open(existingRequest.pdf_url, '_blank')} className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
+                              <FileDown className="w-4 h-4" /> Bajar PDF
+                            </Button>
+                          )}
+                          {existingRequest.requested_formats?.includes('presentation') && existingRequest.presentation_url && (
+                            <Button variant="outline" onClick={() => window.open(existingRequest.presentation_url, '_blank')} className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
+                              <Presentation className="w-4 h-4" /> Bajar Pitch
+                            </Button>
+                          )}
+                          {existingRequest.requested_formats?.includes('infographic') && existingRequest.infographic_url && (
+                            <Button variant="outline" onClick={() => window.open(existingRequest.infographic_url, '_blank')} className="gap-2 bg-background border-primary text-primary hover:bg-primary/10 transition-colors">
+                              <Aperture className="w-4 h-4" /> Bajar Infografía
+                            </Button>
+                          )}
+                           {/* NUEVO: ACCESO A DRIVE AUTOMATIZADO (ESTRUCTURAL) */}
+                           <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20" onClick={() => window.open(`https://drive.google.com/drive/search?q=${existingRequest.id}`, '_blank')}>
+                              <HardDrive className="w-4 h-4" /> Ver Carpeta Estratégica
+                           </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                 
+                 {/* Mock UI layout, visible even while loading */}
+                 <div className="grid grid-cols-3 gap-4 pointer-events-none mb-6">
+                   {[
+                     "Foso Defensivo", "Unit Econ.", "Anti-Segmento"
+                   ].map((title) => (
+                     <div key={title} className={`h-24 rounded-xl flex flex-col items-center justify-center p-2 text-center transition-all duration-1000 ${existingRequest.delivery_progress < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-primary/10 border border-primary/50 text-primary/80 shadow-sm'}`}>
+                       <span className="text-[10px] font-black uppercase tracking-widest">{title}</span>
+                       {existingRequest.delivery_progress >= 7 && <CheckCircle2 className="w-3 h-3 mt-2 text-primary/40" />}
+                     </div>
+                   ))}
+                 </div>
+                 
+                 <div className="grid grid-cols-5 gap-4 pointer-events-none">
+                   <div className={`h-64 rounded-xl col-span-2 flex items-center justify-center p-4 text-center transition-all duration-1000 ${existingRequest.delivery_progress < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-card border border-primary/30 shadow-sm'}`}>
+                     <span className={`text-[10px] font-black uppercase tracking-widest ${existingRequest.delivery_progress < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Estructura Operativa</span>
+                   </div>
+                   <div className={`h-64 rounded-xl col-span-3 flex items-center justify-center p-4 text-center transition-all duration-1000 ${existingRequest.delivery_progress < 7 ? 'bg-muted/30 border-2 border-dashed border-primary/20 text-muted-foreground/50' : 'bg-card border border-primary/30 shadow-sm'}`}>
+                     <span className={`text-[10px] font-black uppercase tracking-widest ${existingRequest.delivery_progress < 7 ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>Framework de Adquisición</span>
+                   </div>
+                 </div>
+              </div>
+
+              {existingRequest.delivery_progress >= 7 && (existingRequest.metadata as { markdown?: string })?.markdown && (
+                <div className="border border-border/50 rounded-xl bg-card shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden relative">
+                  
+                  {/* Paywall Overlay */}
+                  {!existingRequest.is_premium && !publicId?.startsWith('demo-') && (
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/60 backdrop-blur-md p-8 text-center">
+                      <div className="w-16 h-16 bg-primary/10 rounded-full flex flex-col items-center justify-center mb-6 border border-primary/20 shadow-lg shadow-primary/10">
+                        <Lock className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="text-2xl font-bold mb-2">Bóveda Estratégica Bloqueada</h3>
+                      <p className="text-muted-foreground mb-8 max-w-md">
+                        Has validado la viabilidad. Para acceder al documento maestro, el roadmap de 90 días y descargar los activos, requieres Desbloqueo Estratégico.
+                      </p>
+                      <Button 
+                        onClick={handleUpgradeToPremium} 
+                        disabled={checkingOut}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 py-6 h-auto shadow-xl shadow-primary/20 flex flex-col gap-1 items-center rounded-xl"
+                      >
+                        {checkingOut ? (
+                          <><Loader2 className="w-5 h-5 animate-spin" /> Procesando Bóveda...</>
+                        ) : (
+                          <>
+                            <span className="flex items-center gap-2"><CreditCard className="w-5 h-5" /> Desbloquear Arquitectura Completa</span>
+                            <span className="text-xs font-medium opacity-80">$499 MXN — Pago Único</span>
+                          </>
+                        )}
+                      </Button>
+                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground/50 mt-6 mt-4 flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3" /> Transacción encriptada por Stripe
+                      </p>
+                    </div>
+                  )}
+
+                  <div className={`p-8 ${!existingRequest.is_premium && !publicId?.startsWith('demo-') ? 'opacity-30 blur-sm select-none pointer-events-none max-h-[400px] overflow-hidden' : ''}`}>
+                    <h3 className="font-semibold mb-6 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-primary" />
+                      Contenido del Blueprint
+                    </h3>
