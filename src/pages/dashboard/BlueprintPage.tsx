@@ -114,6 +114,23 @@ const BIG_6_QUESTIONS = [
   }
 ];
 
+type PaywallTrackingPayload = {
+  blueprint_id: string;
+  source: "public_blueprint" | "dashboard_blueprint";
+  is_demo: boolean;
+  delivery_progress: number;
+  payment_status: string;
+  price_mxn: number;
+};
+
+const trackCroEvent = (eventName: string, payload: PaywallTrackingPayload) => {
+  try {
+    track(eventName, payload);
+  } catch (error) {
+    console.warn(`CRO analytics event failed: ${eventName}`, error);
+  }
+};
+
 import { useParams } from "react-router-dom";
 
 export default function BlueprintWizard() {
@@ -178,6 +195,23 @@ export default function BlueprintWizard() {
   });
 
   const existingRequest = publicRequestData || requestData;
+  const isDemoBlueprint = Boolean(publicId?.startsWith("demo-"));
+  const paywallTrackingPayload: PaywallTrackingPayload | null = existingRequest
+    ? {
+        blueprint_id: existingRequest.public_id || existingRequest.id || "unknown",
+        source: publicId ? "public_blueprint" : "dashboard_blueprint",
+        is_demo: isDemoBlueprint,
+        delivery_progress: existingRequest.delivery_progress || 0,
+        payment_status: existingRequest.payment_status || "unknown",
+        price_mxn: 499,
+      }
+    : null;
+  const isLockedPaywallVisible = Boolean(
+    existingRequest &&
+    existingRequest.delivery_progress >= 7 &&
+    !existingRequest.is_premium &&
+    !isDemoBlueprint
+  );
   const preliminaryAnalysis = getPreliminaryAnalysis(existingRequest?.metadata);
 
   // Query para el Lead de origen específico (para usuarios anónimos o directos)
@@ -203,6 +237,19 @@ export default function BlueprintWizard() {
       setStep(4);
     }
   }, [existingRequest]);
+
+  useEffect(() => {
+    if (!isLockedPaywallVisible || !paywallTrackingPayload) return;
+
+    trackCroEvent("paywall_viewed", paywallTrackingPayload);
+  }, [
+    isLockedPaywallVisible,
+    paywallTrackingPayload?.blueprint_id,
+    paywallTrackingPayload?.source,
+    paywallTrackingPayload?.is_demo,
+    paywallTrackingPayload?.delivery_progress,
+    paywallTrackingPayload?.payment_status,
+  ]);
 
   const handleMakePrivate = () => {
     toast.success("Tu privacidad es prioritaria. Tu caso ha sido blindado y quedará fuera de los casos de éxito.", { icon: "🔒" });
@@ -264,11 +311,23 @@ export default function BlueprintWizard() {
       const result = await response.json();
       
       if (response.ok && result.url) {
+        if (paywallTrackingPayload) {
+          trackCroEvent("checkout_started", paywallTrackingPayload);
+        }
+
         window.location.href = result.url;
       } else {
+        if (paywallTrackingPayload) {
+          trackCroEvent("checkout_failed", paywallTrackingPayload);
+        }
+
         throw new Error(result.error || "No se pudo generar el checkout");
       }
     } catch (e: unknown) {
+      if (paywallTrackingPayload) {
+        trackCroEvent("checkout_failed", paywallTrackingPayload);
+      }
+
       const message = e instanceof Error ? e.message : "No se pudo procesar el pago.";
       toast.error(`Error al procesar pago: ${message}`);
       setCheckingOut(false);
@@ -743,7 +802,7 @@ export default function BlueprintWizard() {
                 <div className="border border-border/50 rounded-xl bg-card shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden relative">
                   
                   {/* Paywall Overlay */}
-                  {!existingRequest.is_premium && !publicId?.startsWith('demo-') && (
+                  {!existingRequest.is_premium && !isDemoBlueprint && (
                     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/60 backdrop-blur-md p-8 text-center">
                       <div className="w-16 h-16 bg-primary/10 rounded-full flex flex-col items-center justify-center mb-6 border border-primary/20 shadow-lg shadow-primary/10">
                         <Lock className="w-8 h-8 text-primary" />
@@ -793,7 +852,7 @@ export default function BlueprintWizard() {
                     </div>
                   )}
 
-                  <div className={`p-8 ${!existingRequest.is_premium && !publicId?.startsWith('demo-') ? 'opacity-30 blur-sm select-none pointer-events-none max-h-[400px] overflow-hidden' : ''}`}>
+                  <div className={`p-8 ${!existingRequest.is_premium && !isDemoBlueprint ? 'opacity-30 blur-sm select-none pointer-events-none max-h-[400px] overflow-hidden' : ''}`}>
                     <h3 className="font-semibold mb-6 flex items-center gap-2">
                       <FileText className="w-4 h-4 text-primary" />
                       Contenido del Blueprint
