@@ -344,3 +344,46 @@ El sistema ha pasado de ser un flujo de consultoría gratuita a un modelo de **A
 ---
 **Próximo Horizonte (Fase 9):** Optimización de Conversión (CRO), A/B Testing del Paywall y Expansión de Verticales (E-commerce / Real Estate).
 
+
+## Actualización de Memoria — Fase 9 CRO / Paywall Analytics
+
+### Estado alcanzado
+Se completó el baseline técnico para iniciar la Fase 9 de Optimización de Conversión.
+
+#### Validación técnica
+- `npm audit fix` aplicado sin `--force`.
+- Se evitó `npm audit fix --force` porque implicaba cambios breaking potenciales en Vite/jsdom.
+- `npm run lint` quedó en 0 errores y 9 warnings conocidos.
+- `npm test` pasa correctamente.
+- `npm run build` pasa correctamente.
+- GitHub quedó sincronizado con `main`.
+
+#### CRO Paywall
+Se mejoró el paywall de `BlueprintPage.tsx` con:
+- copy más claro de desbloqueo.
+- CTA explícito: `Desbloquear Blueprint por $499 MXN`.
+- value stack con 3 beneficios visibles:
+  - roadmap de 90 días.
+  - arquitectura operativa.
+  - recomendación del siguiente bloque.
+
+#### Analytics CRO
+Se agregó base de medición no bloqueante:
+- `@vercel/analytics/react` montado en `App.tsx`.
+- helper de tracking CRO en `BlueprintPage.tsx`.
+- eventos:
+  - `paywall_viewed`
+  - `paywall_unlock_clicked`
+  - `checkout_started`
+  - `checkout_failed`
+
+### Decisión técnica clave
+El tracking CRO nunca debe bloquear el checkout. Si analytics falla, el usuario debe poder continuar con el pago.
+
+### Aprendizajes operativos
+- Los commits estaban locales y `main` estaba ahead de `origin/main`; la solución fue hacer push explícito.
+- El paywall estaba bien concentrado en `BlueprintPage.tsx`, permitiendo iteración segura sin modificar Stripe, Supabase schema ni Edge Functions.
+- Antes de mejorar conversión fue necesario estabilizar el baseline de lint/build/test.
+
+### Siguiente paso
+Validar eventos CRO en runtime y luego implementar medición de embudo: vista del paywall → click → checkout iniciado → pago completado.
