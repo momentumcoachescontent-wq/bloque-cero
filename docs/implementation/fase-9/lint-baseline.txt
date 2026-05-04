@@ -1,0 +1,79 @@
+
+> vite_react_shadcn_ts@0.0.0 lint
+> eslint .
+
+
+/Users/neto_alvarez/bloque-cero/src/components/DiagnosticForm.tsx
+  115:50  error  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  233:19  error  Promise executor functions should not be async  no-async-promise-executor
+  261:24  error  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  333:41  error  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+
+/Users/neto_alvarez/bloque-cero/src/components/ui/badge.tsx
+  29:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/neto_alvarez/bloque-cero/src/components/ui/button.tsx
+  47:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/neto_alvarez/bloque-cero/src/components/ui/command.tsx
+  24:11  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+/Users/neto_alvarez/bloque-cero/src/components/ui/form.tsx
+  129:10  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/neto_alvarez/bloque-cero/src/components/ui/navigation-menu.tsx
+  111:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/neto_alvarez/bloque-cero/src/components/ui/sidebar.tsx
+  636:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/neto_alvarez/bloque-cero/src/components/ui/sonner.tsx
+  27:19  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/neto_alvarez/bloque-cero/src/components/ui/textarea.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+/Users/neto_alvarez/bloque-cero/src/components/ui/toggle.tsx
+  37:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/neto_alvarez/bloque-cero/src/context/AuthContext.tsx
+  140:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/neto_alvarez/bloque-cero/src/hooks/useFulfillmentQueue.ts
+  68:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/neto_alvarez/bloque-cero/src/pages/admin/FulfillmentAdmin.tsx
+  63:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/neto_alvarez/bloque-cero/src/pages/dashboard/BlueprintPage.tsx
+  241:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  271:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  635:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  642:55  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/neto_alvarez/bloque-cero/src/pages/dashboard/DashboardIndex.tsx
+   48:6    warning  React Hook useEffect has a missing dependency: 'expandedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   77:106  error    Unexpected any. Specify a different type                                                                       @typescript-eslint/no-explicit-any
+   81:21   error    Unexpected any. Specify a different type                                                                       @typescript-eslint/no-explicit-any
+  238:133  error    Unexpected any. Specify a different type                                                                       @typescript-eslint/no-explicit-any
+
+/Users/neto_alvarez/bloque-cero/src/types/businessBlueprints.ts
+  25:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  47:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/neto_alvarez/bloque-cero/supabase/functions/n8n-bridge/index.ts
+  84:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/neto_alvarez/bloque-cero/supabase/functions/stripe-checkout/index.ts
+  90:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/neto_alvarez/bloque-cero/supabase/functions/stripe-webhook/index.ts
+  29:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  66:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/neto_alvarez/bloque-cero/tailwind.config.ts
+  90:13  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+✖ 32 problems (23 errors, 9 warnings)
+
