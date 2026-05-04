@@ -1,5 +1,46 @@
 import { Lead, BlueprintRequest } from "@/types/database.types";
 
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: JsonValue }
+  | JsonValue[];
+
+interface BusinessBlueprintRow {
+  id: string;
+  public_id: string;
+  source_lead_id: string | null;
+  source_blueprint_id: string | null;
+  user_id: string | null;
+  lifecycle_stage: BusinessBlueprintStage | null;
+  client_name: string | null;
+  client_email: string | null;
+  client_phone: string | null;
+  business_name: string | null;
+  intake_score: number | null;
+  intake_recommendation: string | null;
+  intake_payload: JsonValue | null;
+  delivery_progress: number | null;
+  requested_formats: string[] | null;
+  pdf_url: string | null;
+  presentation_url: string | null;
+  infographic_url: string | null;
+  cac_estimated: number | null;
+  ltv_estimated: number | null;
+  sla_risk_score: number | null;
+  admin_notes: string | null;
+  is_premium: boolean | null;
+  stripe_customer_id: string | null;
+  stripe_session_id: string | null;
+  payment_status: string | null;
+  created_at: string;
+  updated_at: string;
+  metadata: JsonValue | null;
+}
+
+
 export type BusinessBlueprintStage =
   | 'captured'
   | 'scored'
@@ -22,7 +63,7 @@ export interface BusinessBlueprint {
   businessName: string;
   intakeScore: number | null;
   intakeRecommendation: string | null;
-  intakePayload: any | null;
+  intakePayload: JsonValue | null;
   deliveryProgress: number | null;
   requestedFormats: string[];
   pdfUrl: string | null;
@@ -38,13 +79,13 @@ export interface BusinessBlueprint {
   paymentStatus: string;
   createdAt: string;
   updatedAt: string;
-  metadata: any;
+  metadata: JsonValue;
 }
 
 /**
  * Mapea una fila de la base de datos (snake_case) al objeto de la aplicación (camelCase)
  */
-export const mapRowToBusinessBlueprint = (row: any): BusinessBlueprint => {
+export const mapRowToBusinessBlueprint = (row: BusinessBlueprintRow): BusinessBlueprint => {
   return {
     id: row.id,
     publicId: row.public_id,

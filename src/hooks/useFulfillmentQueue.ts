@@ -65,7 +65,7 @@ export const useFulfillmentQueue = () => {
       });
 
       blueprints.sort((a, b) => {
-        const getRemainingDays = (item: any) => {
+        const getRemainingDays = (item: Pick<FulfillmentItem, 'createdAt' | 'deadlineDays'>) => {
           const start = new Date(item.createdAt);
           const deadline = new Date(start.getTime() + item.deadlineDays * 24 * 60 * 60 * 1000);
           return (deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24);

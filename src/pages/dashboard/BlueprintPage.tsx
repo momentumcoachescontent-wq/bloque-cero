@@ -34,6 +34,16 @@ import {
   HardDrive
 } from "lucide-react";
 
+type BlueprintMetadata = {
+  preliminary?: unknown;
+};
+
+const getPreliminaryAnalysis = (metadata: unknown): string | null => {
+  if (!metadata || typeof metadata !== "object") return null;
+  const preliminary = (metadata as BlueprintMetadata).preliminary;
+  return typeof preliminary === "string" ? preliminary : null;
+};
+
 const BIG_6_QUESTIONS = [
   {
     id: "real_problem",
@@ -167,6 +177,7 @@ export default function BlueprintWizard() {
   });
 
   const existingRequest = publicRequestData || requestData;
+  const preliminaryAnalysis = getPreliminaryAnalysis(existingRequest?.metadata);
 
   // Query para el Lead de origen específico (para usuarios anónimos o directos)
   const { data: sourceLead, isLoading: loadingSourceLead } = useQuery({
@@ -238,8 +249,9 @@ export default function BlueprintWizard() {
       } else {
         throw new Error(result.error || "No se pudo generar el checkout");
       }
-    } catch (e: any) {
-      toast.error(`Error al procesar pago: ${e.message}`);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "No se pudo procesar el pago.";
+      toast.error(`Error al procesar pago: ${message}`);
       setCheckingOut(false);
     }
   };
@@ -268,7 +280,7 @@ export default function BlueprintWizard() {
       if (error) throw error;
       
       // Buscamos el lead original para enviar el análisis base del Blueprint a n8n
-      const selectedLead = leadsData.find((l: any) => l.id === selectedLeadId);
+      const selectedLead = leadsData.find((l) => l.id === selectedLeadId);
 
       const { error: functionError } = await supabase.functions.invoke('n8n-bridge', {
         body: {
@@ -632,14 +644,14 @@ export default function BlueprintWizard() {
                   )}
 
                   {/* Análisis Preliminar Inyectado */}
-                  {(existingRequest.metadata as any)?.preliminary && (
+                  {preliminaryAnalysis && (
                     <div className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-xl animate-in fade-in slide-in-from-top-4 duration-1000">
                       <div className="flex items-center gap-2 mb-3">
                         <Zap className="w-4 h-4 text-primary" />
                         <h3 className="text-sm font-bold uppercase tracking-widest text-primary">Inyección de Análisis Inicial</h3>
                       </div>
                       <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap italic">
-                        {(existingRequest.metadata as any).preliminary}
+                        {preliminaryAnalysis}
                       </div>
                       <p className="text-[10px] text-primary/60 mt-4 uppercase tracking-tighter">
                         * Este análisis inicial fue procesado al instante. El Blueprint completo está finalizando su renderizado ahora mismo.

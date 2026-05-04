@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
-import { mapRowToBusinessBlueprint } from "@/types/businessBlueprints";
+import { mapRowToBusinessBlueprint, type BusinessBlueprint } from "@/types/businessBlueprints";
 import { Target, AlertTriangle, Zap, Trash2, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -74,12 +74,13 @@ const DashboardIndex = () => {
 
       toast.success("Análisis eliminado correctamente");
       // Actualizar la caché en lugar de hacer refetch
-      queryClient.setQueryData(['business-blueprints-dashboard', profile?.email, profile?.id], (oldData: any[]) => 
-        oldData ? oldData.filter(b => b.id !== id) : []
+      queryClient.setQueryData(['business-blueprints-dashboard', profile?.email, profile?.id], (oldData: BusinessBlueprint[] | undefined) => 
+        oldData ? oldData.filter((b) => b.id !== id) : []
       );
       if (expandedId === id) setExpandedId(null);
-    } catch (error: any) {
-      toast.error("Error al eliminar el análisis: " + error.message);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error desconocido";
+      toast.error("Error al eliminar el análisis: " + message);
     }
   };
 
@@ -235,7 +236,7 @@ const DashboardIndex = () => {
                             <Target className="w-4 h-4" /> Evaluación de Ejes Estratégicos (Big 6)
                           </h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {(bp.intakePayload?.big6 || bp.intakePayload?.n8n_payload?.diagnostic_results?.big6 || []).map((metric: any, idx: number) => (
+                            {(bp.intakePayload?.big6 || bp.intakePayload?.n8n_payload?.diagnostic_results?.big6 || []).map((metric: { name?: string; signal?: string; rationale?: string; logic?: string; score?: number }, idx: number) => (
                               <div key={idx} className="bg-background border border-border/50 rounded-xl p-4 flex flex-col justify-between hover:border-primary/30 transition-colors shadow-sm">
                                 <div>
                                   <div className="flex justify-between items-start mb-2">

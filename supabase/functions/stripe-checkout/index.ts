@@ -7,6 +7,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error)
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -87,11 +90,12 @@ serve(async (req) => {
       status: 200,
     })
 
-  } catch (error: any) {
-    console.error('Error en stripe-checkout:', error.message)
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = getErrorMessage(error)
+    console.error('Error en stripe-checkout:', message)
+    return new Response(JSON.stringify({ error: message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: error.message === 'Unauthorized' ? 401 : 400,
+      status: message === 'Unauthorized' ? 401 : 400,
     })
   }
 })

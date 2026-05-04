@@ -13,6 +13,9 @@ const supabaseAdmin = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 )
 
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error)
+
 serve(async (req) => {
   const signature = req.headers.get('Stripe-Signature')
 
@@ -26,9 +29,10 @@ serve(async (req) => {
       throw new Error('Falta firma o webhook secret no configurado.')
     }
     event = stripe.webhooks.constructEvent(body, signature, endpointSecret)
-  } catch (err: any) {
-    console.error(`Webhook signature verification failed.`, err.message)
-    return new Response(JSON.stringify({ error: err.message }), { status: 400 })
+  } catch (err: unknown) {
+    const message = getErrorMessage(err)
+    console.error(`Webhook signature verification failed.`, message)
+    return new Response(JSON.stringify({ error: message }), { status: 400 })
   }
 
   try {
@@ -63,8 +67,9 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify({ received: true }), { status: 200 })
-  } catch (err: any) {
-    console.error(`Webhook handler failed.`, err.message)
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 })
+  } catch (err: unknown) {
+    const message = getErrorMessage(err)
+    console.error(`Webhook handler failed.`, message)
+    return new Response(JSON.stringify({ error: message }), { status: 500 })
   }
 })

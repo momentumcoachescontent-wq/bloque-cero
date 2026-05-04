@@ -60,10 +60,11 @@ const FulfillmentAdmin = () => {
       toast.success("Notificación Disparada", { 
         description: `Los entregables de ${item.clientName} fueron enviados al orquestador seguro.` 
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error disparando bridge:", err);
+      const message = err instanceof Error ? err.message : "No se pudo conectar con el puente seguro de n8n.";
       toast.error("Error de Comunicación", { 
-        description: err.message || "No se pudo conectar con el puente seguro de n8n." 
+        description: message
       });
     }
   };

@@ -112,7 +112,7 @@ const DiagnosticForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<ScoringResult | null>(null);
-  const [submitError, setSubmitError] = useState<any>(null);
+  const [submitError, setSubmitError] = useState<unknown>(null);
   const [form, setForm] = useState<FormData>({
     name: "", email: "", whatsapp: "",
     businessName: "",
@@ -230,7 +230,7 @@ const DiagnosticForm = () => {
 
     // REDIRECCIÓN A BLUEPRINT UNIFICADO (REALTIME SUBSCRIPTION)
     toast.promise(
-      new Promise(async (resolve, reject) => {
+      new Promise<string>((resolve) => {
         const timeout = setTimeout(() => {
           subscription.unsubscribe();
           setResult(scoring); // Fallback a resultado local
@@ -258,7 +258,7 @@ const DiagnosticForm = () => {
       }),
       {
         loading: 'Unificando tu Blueprint de Negocio...',
-        success: (msg: any) => msg,
+        success: (msg: string) => msg,
         error: 'Error al conectar con la base de datos.',
       }
     );
@@ -330,7 +330,7 @@ const DiagnosticForm = () => {
               Evaluación de Ejes Estratégicos (Big 6)
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {result.big6.map((metric: any, idx: number) => (
+              {result.big6.map((metric, idx: number) => (
                 <div key={idx} className="bg-muted/10 border border-border/50 rounded-xl p-4 flex flex-col justify-between hover:border-primary/30 transition-colors">
                   <div>
                     <div className="flex justify-between items-start mb-2">
