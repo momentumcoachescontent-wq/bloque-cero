@@ -729,7 +729,7 @@ export default function BlueprintWizard() {
                       <div className="w-16 h-16 bg-primary/10 rounded-full flex flex-col items-center justify-center mb-6 border border-primary/20 shadow-lg shadow-primary/10">
                         <Lock className="w-8 h-8 text-primary" />
                       </div>
-                      <h3 className="text-2xl font-bold mb-2">Bóveda Estratégica Bloqueada</h3>
+                      <h3 className="text-2xl font-bold mb-2">Desbloquea tu Blueprint Estratégico Completo</h3>
                       <p className="text-muted-foreground mb-8 max-w-md">
                         Has validado la viabilidad. Para acceder al documento maestro, el roadmap de 90 días y descargar los activos, requieres Desbloqueo Estratégico.
                       </p>
@@ -739,10 +739,10 @@ export default function BlueprintWizard() {
                         className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 py-6 h-auto shadow-xl shadow-primary/20 flex flex-col gap-1 items-center rounded-xl"
                       >
                         {checkingOut ? (
-                          <><Loader2 className="w-5 h-5 animate-spin" /> Procesando Bóveda...</>
+                          <><Loader2 className="w-5 h-5 animate-spin" /> Preparando checkout seguro...</>
                         ) : (
                           <>
-                            <span className="flex items-center gap-2"><CreditCard className="w-5 h-5" /> Desbloquear Arquitectura Completa</span>
+                            <span className="flex items-center gap-2"><CreditCard className="w-5 h-5" /> Desbloquear Blueprint por $499 MXN</span>
                             <span className="text-xs font-medium opacity-80">$499 MXN — Pago Único</span>
                           </>
                         )}
