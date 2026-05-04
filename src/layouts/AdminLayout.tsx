@@ -1,6 +1,6 @@
 import { Navigate, Outlet, NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, Users, Activity, Settings, LogOut, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Loader2, Users, Activity, Settings, LogOut, ArrowLeft, CheckCircle2, FileSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const AdminLayout = () => {
@@ -39,6 +39,7 @@ const AdminLayout = () => {
   const navLinks = [
     { title: "Resumen Global", icon: Activity, path: "/admin" },
     { title: "Control de Entregables", icon: CheckCircle2, path: "/admin/fulfillment" },
+    { title: "Inventario Blueprints", icon: FileSearch, path: "/admin/blueprints" },
     { title: "Gestión de Usuarios", icon: Users, path: "/admin/usuarios" },
     { title: "Métricas & Tests", icon: Settings, path: "/admin/sistema" },
   ];

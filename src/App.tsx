@@ -29,6 +29,7 @@ import ImplementationRoadmap from "./pages/dashboard/ImplementationRoadmap";
 import UsersAdmin from "./pages/admin/UsersAdmin";
 import SystemAdmin from "./pages/admin/SystemAdmin";
 import FulfillmentAdmin from "./pages/admin/FulfillmentAdmin";
+import BlueprintInventoryAdmin from "./pages/admin/BlueprintInventoryAdmin";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -112,6 +113,7 @@ const App = () => (
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminIndex />} />
               <Route path="/admin/fulfillment" element={<FulfillmentAdmin />} />
+              <Route path="/admin/blueprints" element={<BlueprintInventoryAdmin />} />
               <Route path="/admin/usuarios" element={<UsersAdmin />} />
               <Route path="/admin/sistema" element={<SystemAdmin />} />
             </Route>
