@@ -730,9 +730,30 @@ export default function BlueprintWizard() {
                         <Lock className="w-8 h-8 text-primary" />
                       </div>
                       <h3 className="text-2xl font-bold mb-2">Desbloquea tu Blueprint Estratégico Completo</h3>
-                      <p className="text-muted-foreground mb-8 max-w-md">
-                        Has validado la viabilidad. Para acceder al documento maestro, el roadmap de 90 días y descargar los activos, requieres Desbloqueo Estratégico.
+                      <p className="text-muted-foreground mb-6 max-w-md">
+                        Has validado la viabilidad. Desbloquea el documento maestro y conviértelo en una ruta ejecutable de crecimiento.
                       </p>
+
+                      <div className="grid gap-3 w-full max-w-md mb-8 text-left">
+                        <div className="flex items-start gap-3 rounded-xl border border-primary/15 bg-primary/5 px-4 py-3">
+                          <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                          <p className="text-sm text-foreground">
+                            Roadmap de 90 días con prioridades, fases y próximos movimientos.
+                          </p>
+                        </div>
+                        <div className="flex items-start gap-3 rounded-xl border border-primary/15 bg-primary/5 px-4 py-3">
+                          <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                          <p className="text-sm text-foreground">
+                            Arquitectura operativa para ordenar ventas, entrega y automatización.
+                          </p>
+                        </div>
+                        <div className="flex items-start gap-3 rounded-xl border border-primary/15 bg-primary/5 px-4 py-3">
+                          <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                          <p className="text-sm text-foreground">
+                            Recomendación del siguiente bloque para avanzar sin improvisar.
+                          </p>
+                        </div>
+                      </div>
                       <Button 
                         onClick={handleUpgradeToPremium} 
                         disabled={checkingOut}
