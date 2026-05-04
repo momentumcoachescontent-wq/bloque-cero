@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { track } from "@vercel/analytics";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
@@ -213,8 +214,26 @@ export default function BlueprintWizard() {
     navigate(loginUrl);
   };
 
+  const trackPaywallUnlockClicked = () => {
+    if (!existingRequest) return;
+
+    try {
+      track("paywall_unlock_clicked", {
+        blueprint_id: existingRequest.public_id || existingRequest.id || "unknown",
+        source: publicId ? "public_blueprint" : "dashboard_blueprint",
+        is_demo: Boolean(publicId?.startsWith("demo-")),
+        delivery_progress: existingRequest.delivery_progress || 0,
+        payment_status: existingRequest.payment_status || "unknown",
+        price_mxn: 499,
+      });
+    } catch (error) {
+      console.warn("Paywall analytics event failed:", error);
+    }
+  };
+
   const handleUpgradeToPremium = async () => {
     if (!existingRequest) return;
+    trackPaywallUnlockClicked();
     setCheckingOut(true);
     try {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
