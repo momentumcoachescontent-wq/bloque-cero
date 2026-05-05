@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { track } from "@vercel/analytics";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
@@ -34,6 +33,12 @@ import {
   LineChart,
   HardDrive
 } from "lucide-react";
+
+const track = (eventName: string, payload: Record<string, unknown>) => {
+  if (import.meta.env.DEV) {
+    console.debug("[CRO_ANALYTICS_DISABLED]", eventName, payload);
+  }
+};
 
 type BlueprintMetadata = {
   preliminary?: unknown;
@@ -201,6 +206,7 @@ export default function BlueprintWizard() {
   });
 
   const existingRequest = publicRequestData || requestData;
+  const isPaymentRequired = getPaymentRequired(existingRequest?.metadata);
   const isDemoBlueprint = Boolean(publicId?.startsWith("demo-"));
   const paywallTrackingPayload: PaywallTrackingPayload | null = existingRequest
     ? {
