@@ -30,8 +30,7 @@ import {
   FolderSearch, 
   ChevronRight,
   Database,
-  LineChart,
-  HardDrive
+  LineChart
 } from "lucide-react";
 
 const track = (eventName: string, payload: Record<string, unknown>) => {
@@ -781,9 +780,6 @@ export default function BlueprintWizard() {
                             </Button>
                           )}
                            {/* NUEVO: ACCESO A DRIVE AUTOMATIZADO (ESTRUCTURAL) */}
-                           <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20" onClick={() => window.open(`https://drive.google.com/drive/search?q=${existingRequest.id}`, '_blank')}>
-                              <HardDrive className="w-4 h-4" /> Ver Carpeta Estratégica
-                           </Button>
                         </div>
                       </div>
                     )}
