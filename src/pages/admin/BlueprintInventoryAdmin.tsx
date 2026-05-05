@@ -32,6 +32,7 @@ type BlueprintInventoryItem = {
   updated_at: string | null;
   data_class: string;
   requires_follow_up: boolean;
+  payment_required: boolean;
   admin_note: string | null;
   has_preliminary: boolean;
   has_markdown: boolean;
@@ -347,6 +348,9 @@ const BlueprintInventoryAdmin = () => {
                         <span className={item.is_premium ? "text-green-600" : "text-muted-foreground"}>
                           {item.is_premium ? "✓ Premium" : "— Premium"}
                         </span>
+                        <span className={item.payment_required ? "text-yellow-600" : "text-green-600"}>
+                          {item.payment_required ? "✓ Cobro activo" : "✓ Sin cobro"}
+                        </span>
                       </div>
                     </td>
 
@@ -417,6 +421,28 @@ const BlueprintInventoryAdmin = () => {
 
                         <Button
                           size="sm"
+                          variant={item.payment_required ? "default" : "outline"}
+                          disabled={savingId === item.id}
+                          onClick={() =>
+                            updateBlueprint(
+                              item,
+                              {
+                                metadataPatch: {
+                                  payment_required: !item.payment_required,
+                                  admin_note: !item.payment_required
+                                    ? "Cobro activado desde Admin Blueprint Inventory"
+                                    : "Cobro desactivado desde Admin Blueprint Inventory",
+                                },
+                              },
+                              !item.payment_required ? "Cobro activado" : "Cobro desactivado"
+                            )
+                          }
+                        >
+                          {item.payment_required ? "Desactivar cobro" : "Activar cobro"}
+                        </Button>
+
+                        <Button
+                          size="sm"
                           variant="outline"
                           disabled={savingId === item.id}
                           onClick={() =>
@@ -451,6 +477,7 @@ const BlueprintInventoryAdmin = () => {
                                 metadataPatch: {
                                   data_class: item.data_class === "real_or_unclassified" ? "qa_fixture" : item.data_class,
                                   requires_follow_up: false,
+                                  payment_required: false,
                                   markdown: createQaMarkdown(item),
                                   admin_note: "Avanzado manualmente a delivered desde Admin Blueprint Inventory",
                                 },

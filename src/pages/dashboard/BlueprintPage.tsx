@@ -37,12 +37,18 @@ import {
 
 type BlueprintMetadata = {
   preliminary?: unknown;
+  payment_required?: unknown;
 };
 
 const getPreliminaryAnalysis = (metadata: unknown): string | null => {
   if (!metadata || typeof metadata !== "object") return null;
   const preliminary = (metadata as BlueprintMetadata).preliminary;
   return typeof preliminary === "string" ? preliminary : null;
+};
+
+const getPaymentRequired = (metadata: unknown): boolean => {
+  if (!metadata || typeof metadata !== "object") return false;
+  return (metadata as BlueprintMetadata).payment_required === true;
 };
 
 const BIG_6_QUESTIONS = [
@@ -210,7 +216,8 @@ export default function BlueprintWizard() {
     existingRequest &&
     existingRequest.delivery_progress >= 7 &&
     !existingRequest.is_premium &&
-    !isDemoBlueprint
+    !isDemoBlueprint &&
+    isPaymentRequired
   );
   const preliminaryAnalysis = getPreliminaryAnalysis(existingRequest?.metadata);
 
@@ -802,7 +809,7 @@ export default function BlueprintWizard() {
                 <div className="border border-border/50 rounded-xl bg-card shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden relative">
                   
                   {/* Paywall Overlay */}
-                  {!existingRequest.is_premium && !isDemoBlueprint && (
+                  {!existingRequest.is_premium && !isDemoBlueprint && isPaymentRequired && (
                     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/60 backdrop-blur-md p-8 text-center">
                       <div className="w-16 h-16 bg-primary/10 rounded-full flex flex-col items-center justify-center mb-6 border border-primary/20 shadow-lg shadow-primary/10">
                         <Lock className="w-8 h-8 text-primary" />
@@ -852,7 +859,7 @@ export default function BlueprintWizard() {
                     </div>
                   )}
 
-                  <div className={`p-8 ${!existingRequest.is_premium && !isDemoBlueprint ? 'opacity-30 blur-sm select-none pointer-events-none max-h-[400px] overflow-hidden' : ''}`}>
+                  <div className={`p-8 ${!existingRequest.is_premium && !isDemoBlueprint && isPaymentRequired ? 'opacity-30 blur-sm select-none pointer-events-none max-h-[400px] overflow-hidden' : ''}`}>
                     <h3 className="font-semibold mb-6 flex items-center gap-2">
                       <FileText className="w-4 h-4 text-primary" />
                       Contenido del Blueprint
