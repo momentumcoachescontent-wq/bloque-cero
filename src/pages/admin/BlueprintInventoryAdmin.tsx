@@ -88,7 +88,7 @@ const getBadgeClass = (value: string) => {
 //  }
 
   return fallback;
-};
+// };
 
 //const createQaMarkdown = (item: BlueprintInventoryItem) => {
 //  const metadata = toMetadataRecord(item.metadata);
