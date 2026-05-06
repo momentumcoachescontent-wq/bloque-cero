@@ -79,34 +79,34 @@ const getBadgeClass = (value: string) => {
   return "bg-yellow-500/10 text-yellow-600 border-yellow-500/20";
 };
 
-const getMetadataText = (metadata: JsonRecord, keys: string[], fallback = "") => {
-  for (const key of keys) {
-    const value = metadata[key];
-    if (typeof value === "string" && value.trim().length > 0) {
-      return value.trim();
-    }
-  }
+// const getMetadataText = (metadata: JsonRecord, keys: string[], fallback = "") => {
+//  for (const key of keys) {
+//    const value = metadata[key];
+//    if (typeof value === "string" && value.trim().length > 0) {
+//      return value.trim();
+//    }
+//  }
 
   return fallback;
 };
 
-const createQaMarkdown = (item: BlueprintInventoryItem) => {
-  const metadata = toMetadataRecord(item.metadata);
-  const projectName = item.business_name?.trim() || "Proyecto sin nombre";
-  const preliminary = getMetadataText(
-    metadata,
-    ["preliminary", "preliminary_markdown", "preliminary_report", "summary", "idea_summary", "business_summary"],
-    "El proyecto cuenta con información inicial suficiente para generar un Blueprint estratégico de validación. Este reporte debe tratarse como versión QA/manual hasta que el flujo n8n Blueprint Completion quede conectado."
-  );
-  const industry = getMetadataText(
-    metadata,
-    ["industry", "sector", "business_type", "category"],
-    "servicio profesional / operación PyME"
-  );
-  const generatedAt = new Date().toLocaleString("es-MX", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+//const createQaMarkdown = (item: BlueprintInventoryItem) => {
+//  const metadata = toMetadataRecord(item.metadata);
+//  const projectName = item.business_name?.trim() || "Proyecto sin nombre";
+//  const preliminary = getMetadataText(
+//    metadata,
+//    ["preliminary", "preliminary_markdown", "preliminary_report", "summary", "idea_summary", "business_summary"],
+//    "El proyecto cuenta con información inicial suficiente para generar un Blueprint estratégico de validación. Este reporte debe tratarse como versión QA/manual hasta que el flujo n8n Blueprint Completion quede conectado."
+//  );
+//  const industry = getMetadataText(
+//    metadata,
+//    ["industry", "sector", "business_type", "category"],
+//    "servicio profesional / operación PyME"
+//  );
+//  const generatedAt = new Date().toLocaleString("es-MX", {
+//    dateStyle: "medium",
+//    timeStyle: "short",
+//  });
 
   return `# Blueprint Estratégico v2 Big6 — ${projectName}
 
