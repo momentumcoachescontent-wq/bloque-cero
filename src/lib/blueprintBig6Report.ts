@@ -123,11 +123,14 @@ const inferContext = (input: BlueprintBig6ReportInput) => {
 
 const section = (title: string, body: string) => `## ${title}\n\n${body.trim()}`;
 
-export const createBlueprintBig6Markdown = (input: BlueprintBig6ReportInput, generatedAt = new Date().toISOString()) => {
+export const createBlueprintBig6Markdown = (input: BlueprintBig6ReportInput) => {
   const metadata = toMetadataRecord(input.metadata);
   const context = inferContext(input);
   const businessName = input.businessName || "Proyecto sin nombre";
-  const preliminary = context.preliminary || "El Blueprint fue generado desde Admin como versión QA manual. La información disponible permite construir una primera lectura estratégica, pero debe evolucionar con datos reales de operación, ventas y entrega.";
+  const generatedAt = new Date().toISOString();
+  const preliminary =
+    context.preliminary ||
+    "El Blueprint fue generado desde Admin como versión QA manual. La información disponible permite construir una primera lectura estratégica, pero debe evolucionar con datos reales de operación, ventas y entrega.";
   const email = input.clientEmail ? `\n- Contacto asociado: ${input.clientEmail}` : "";
   const publicId = input.publicId ? `\n- Public ID: ${input.publicId}` : "";
   const sourceNote = normalizeText(metadata.source) || normalizeText(metadata.origin) || "Admin Blueprint Inventory";
@@ -339,7 +342,7 @@ Resultado esperado al finalizar el bloque:
 `;
 };
 
-export const createBlueprintBig6MetadataPatch = (input: BlueprintBig6ReportInput) => ({
+export const createBlueprintBig6MetadataPatch = (input: BlueprintBig6ReportInput): JsonRecord => ({
   payment_required: false,
   markdown: createBlueprintBig6Markdown(input),
   report_version: BLUEPRINT_BIG6_REPORT_VERSION,
