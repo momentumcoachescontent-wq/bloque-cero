@@ -106,7 +106,7 @@ const getBadgeClass = (value: string) => {
 //  const generatedAt = new Date().toLocaleString("es-MX", {
 //    dateStyle: "medium",
 //    timeStyle: "short",
-//  });
+  });
 
   return `# Blueprint Estratégico v2 Big6 — ${projectName}
 
