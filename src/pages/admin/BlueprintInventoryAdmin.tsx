@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { createBlueprintBig6MetadataPatch } from "@/lib/blueprintBig6Report";
 import { supabase } from "@/lib/supabase";
 
 type JsonRecord = Record<string, unknown>;
