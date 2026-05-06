@@ -415,7 +415,17 @@ Objetivo del bloque:
 ${projectName} tiene potencial si se construye como sistema. La oportunidad no está solo en vender más, sino en operar con mayor claridad. Un negocio que controla su proceso comercial, su entrega y sus métricas puede crecer con menos fricción y tomar mejores decisiones.
 `;
 };
-
+const createDeliveredMetadataPatch = (item: BlueprintInventoryItem): JsonRecord => ({
+  data_class: item.data_class === "real_or_unclassified" ? "qa_fixture" : item.data_class,
+  requires_follow_up: false,
+  ...createBlueprintBig6MetadataPatch({
+    businessName: item.business_name,
+    clientEmail: item.client_email,
+    publicId: item.public_id,
+    metadata: item.metadata,
+  }),
+  admin_note: "Avanzado manualmente a delivered con Blueprint v2 Big6 desde Admin Blueprint Inventory",
+});
 const BlueprintInventoryAdmin = () => {
   const [items, setItems] = useState<BlueprintInventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -774,16 +784,7 @@ const BlueprintInventoryAdmin = () => {
                                 lifecycle_stage: "delivered",
                                 delivery_progress: 7,
                                 payment_status: item.payment_status || "pending",
-                                metadataPatch: {
-                                  data_class: item.data_class === "real_or_unclassified" ? "qa_fixture" : item.data_class,
-                                  requires_follow_up: false,
-                                  payment_required: false,
-                                  markdown: createQaMarkdown(item),
-                                  blueprint_version: "v2-big6-qa-manual",
-                                  blueprint_generated_by: "admin_blueprint_inventory",
-                                  blueprint_generated_at: new Date().toISOString(),
-                                  admin_note: "Avanzado manualmente a delivered con Blueprint v2 Big6 desde Admin Blueprint Inventory",
-                                },
+                                metadataPatch: createDeliveredMetadataPatch(item),
                               },
                               "Blueprint v2 Big6 generado y avanzado a delivered"
                             )
