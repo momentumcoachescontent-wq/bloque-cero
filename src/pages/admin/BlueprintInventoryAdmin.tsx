@@ -414,7 +414,7 @@ Objetivo del bloque:
 
 ${projectName} tiene potencial si se construye como sistema. La oportunidad no está solo en vender más, sino en operar con mayor claridad. Un negocio que controla su proceso comercial, su entrega y sus métricas puede crecer con menos fricción y tomar mejores decisiones.
 `;
-};
+//};
 const createDeliveredMetadataPatch = (item: BlueprintInventoryItem): JsonRecord => ({
   data_class: item.data_class === "real_or_unclassified" ? "qa_fixture" : item.data_class,
   requires_follow_up: false,
