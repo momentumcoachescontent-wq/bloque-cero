@@ -5,9 +5,37 @@ export type BlueprintBig6ReportInput = {
   clientEmail?: string | null;
   publicId?: string | null;
   metadata?: unknown;
+  generatedAt?: string | null;
+  fallbackReason?: string | null;
 };
 
-export const BLUEPRINT_BIG6_REPORT_VERSION = "blueprint_v2_big6_manual_qa";
+export const BLUEPRINT_BIG6_REPORT_VERSION = "blueprint_v2_big6_local_fallback_ai_assisted";
+export const BLUEPRINT_INTELLIGENCE_ENGINE_ID = "n8n_bc_blueprint_intelligence_engine";
+
+type AiSupportStatus = "ai_assisted" | "heuristic_only";
+
+type AiSupport = {
+  status: AiSupportStatus;
+  sourceKeys: string[];
+  executiveVerdict: string;
+  strategicReading: string;
+  diagnosis: string;
+  operatingModel: string;
+  risks: string;
+  nextActions: string;
+};
+
+const AI_SUPPORT_CONTAINER_KEYS = [
+  "blueprint_intelligence",
+  "blueprint_ai",
+  "ai_analysis",
+  "ai_report",
+  "ai_review",
+  "canonical_context",
+  "quality_gate",
+  "n8n_result",
+  "n8n_blueprint_intelligence",
+];
 
 const toMetadataRecord = (metadata: unknown): JsonRecord => {
   if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
@@ -47,10 +75,95 @@ const collectTextValues = (value: unknown, depth = 0): string[] => {
 
 const hasAny = (source: string, keywords: string[]) => keywords.some((keyword) => source.includes(keyword));
 
+const getPathValue = (record: JsonRecord, path: string): unknown => {
+  return path.split(".").reduce<unknown>((current, segment) => {
+    if (!current || typeof current !== "object" || Array.isArray(current)) return undefined;
+    return (current as JsonRecord)[segment];
+  }, record);
+};
+
+const pickText = (record: JsonRecord, paths: string[]): string => {
+  for (const path of paths) {
+    const value = getPathValue(record, path);
+    const direct = normalizeText(value);
+    if (direct) return direct;
+
+    if (value && typeof value === "object") {
+      const nested = collectTextValues(value).join("\n").trim();
+      if (nested) return nested;
+    }
+  }
+
+  return "";
+};
+
+const extractAiSupport = (metadata: JsonRecord): AiSupport => {
+  const sourceKeys = AI_SUPPORT_CONTAINER_KEYS.filter((key) => collectTextValues(metadata[key]).length > 0);
+
+  return {
+    status: sourceKeys.length > 0 ? "ai_assisted" : "heuristic_only",
+    sourceKeys,
+    executiveVerdict: pickText(metadata, [
+      "blueprint_intelligence.executive_verdict",
+      "blueprint_intelligence.veredicto_ejecutivo",
+      "ai_analysis.executive_verdict",
+      "ai_report.executive_verdict",
+      "n8n_result.executive_verdict",
+      "canonical_context.executive_verdict",
+    ]),
+    strategicReading: pickText(metadata, [
+      "blueprint_intelligence.strategic_reading",
+      "blueprint_intelligence.lectura_estrategica",
+      "ai_analysis.strategic_reading",
+      "ai_report.strategic_reading",
+      "n8n_result.strategic_reading",
+      "canonical_context.strategic_reading",
+    ]),
+    diagnosis: pickText(metadata, [
+      "blueprint_intelligence.big6_diagnosis",
+      "blueprint_intelligence.diagnostico_big6",
+      "ai_analysis.big6_diagnosis",
+      "ai_report.diagnosis",
+      "n8n_result.diagnosis",
+      "canonical_context.big6_diagnosis",
+    ]),
+    operatingModel: pickText(metadata, [
+      "blueprint_intelligence.operating_model",
+      "blueprint_intelligence.architectura_operativa",
+      "ai_analysis.operating_model",
+      "ai_report.operating_model",
+      "n8n_result.operating_model",
+      "canonical_context.operating_model",
+    ]),
+    risks: pickText(metadata, [
+      "blueprint_intelligence.risks",
+      "blueprint_intelligence.riesgos",
+      "ai_analysis.risks",
+      "ai_report.risks",
+      "n8n_result.risks",
+      "quality_gate.risks",
+    ]),
+    nextActions: pickText(metadata, [
+      "blueprint_intelligence.next_actions",
+      "blueprint_intelligence.siguientes_acciones",
+      "ai_analysis.next_actions",
+      "ai_report.next_actions",
+      "n8n_result.next_actions",
+      "canonical_context.next_actions",
+    ]),
+  };
+};
+
 const inferContext = (input: BlueprintBig6ReportInput) => {
   const metadata = toMetadataRecord(input.metadata);
   const sourceText = [input.businessName, ...collectTextValues(metadata)].join("\n").toLowerCase();
-  const preliminary = normalizeText(metadata.preliminary);
+  const preliminary =
+    normalizeText(metadata.preliminary) ||
+    normalizeText(metadata.preliminary_markdown) ||
+    normalizeText(metadata.preliminary_report) ||
+    normalizeText(metadata.summary) ||
+    normalizeText(metadata.idea_summary) ||
+    normalizeText(metadata.business_summary);
 
   if (hasAny(sourceText, ["consultorio", "clínica", "clinica", "doctor", "médico", "medico", "paciente", "cita", "odont", "dental"])) {
     return {
@@ -123,29 +236,56 @@ const inferContext = (input: BlueprintBig6ReportInput) => {
 
 const section = (title: string, body: string) => `## ${title}\n\n${body.trim()}`;
 
+const optionalAiBlock = (title: string, body: string) => {
+  const cleanBody = body.trim();
+  if (!cleanBody) return "";
+
+  return `\n\n**${title}:**\n\n${cleanBody}`;
+};
+
 export const createBlueprintBig6Markdown = (input: BlueprintBig6ReportInput) => {
   const metadata = toMetadataRecord(input.metadata);
+  const aiSupport = extractAiSupport(metadata);
   const context = inferContext(input);
   const businessName = input.businessName || "Proyecto sin nombre";
-  const generatedAt = new Date().toISOString();
+  const generatedAt = input.generatedAt || new Date().toISOString();
+  const fallbackReason =
+    normalizeText(input.fallbackReason) ||
+    "Fallback local de QA/emergencia mientras el motor principal n8n + IA completa análisis, generación, revisión y quality gate.";
   const preliminary =
     context.preliminary ||
-    "El Blueprint fue generado desde Admin como versión QA manual. La información disponible permite construir una primera lectura estratégica, pero debe evolucionar con datos reales de operación, ventas y entrega.";
+    "El Blueprint fue generado desde Admin como fallback local. La información disponible permite construir una lectura estratégica inicial, pero no sustituye el Blueprint Intelligence Engine ni su quality gate.";
   const email = input.clientEmail ? `\n- Contacto asociado: ${input.clientEmail}` : "";
   const publicId = input.publicId ? `\n- Public ID: ${input.publicId}` : "";
   const sourceNote = normalizeText(metadata.source) || normalizeText(metadata.origin) || "Admin Blueprint Inventory";
+  const aiSupportLabel =
+    aiSupport.status === "ai_assisted"
+      ? `IA asistida con fuentes metadata: ${aiSupport.sourceKeys.join(", ")}`
+      : "Sin artefactos IA canónicos detectados; se usaron heurísticas locales de QA";
 
   return `# Blueprint Estratégico v2 Big6 — ${businessName}
 
 > Versión: ${BLUEPRINT_BIG6_REPORT_VERSION}  
+> Modo: fallback local / QA / emergencia  
+> Motor principal esperado: ${BLUEPRINT_INTELLIGENCE_ENGINE_ID}  
+> Estado de soporte IA: ${aiSupportLabel}  
 > Generado: ${generatedAt}  
 > Fuente operativa: ${sourceNote}${publicId}${email}
+
+${section(
+  "0. Nota de Gobernanza del Reporte",
+  `Este documento **no debe tratarse como el motor premium principal** de Bloque Cero. Es una salida local de respaldo para QA, revisión interna o emergencia operativa.
+
+**Razón de fallback:** ${fallbackReason}
+
+La entrega premium aprobada debe provenir del workflow **BC - Blueprint Intelligence Engine**, con análisis IA, generación estructurada, revisión crítica, quality gate y persistencia de schema canónico.`
+)}
 
 ${section(
   "1. Veredicto Ejecutivo",
   `El proyecto **${businessName}** tiene potencial si deja de operar como una idea aislada y se convierte en un sistema comercial-operativo medible. La prioridad no debe ser vender más de inmediato, sino ordenar la promesa, el cliente ideal, el flujo de conversión y la entrega mínima para evitar fuga de oportunidades.
 
-**Veredicto:** avanzar, pero con foco en sistema. El negocio debe pasar de esfuerzos manuales y dispersos a una arquitectura donde cada contacto tenga una ruta clara: captura → calificación → seguimiento → conversión → entrega → medición.
+**Veredicto fallback:** avanzar, pero con foco en sistema. El negocio debe pasar de esfuerzos manuales y dispersos a una arquitectura donde cada contacto tenga una ruta clara: captura → calificación → seguimiento → conversión → entrega → medición.${optionalAiBlock("Veredicto IA disponible", aiSupport.executiveVerdict)}
 
 **Lectura base disponible:** ${preliminary}`
 )}
@@ -156,7 +296,7 @@ ${section(
 
 Hoy el riesgo no parece estar únicamente en la demanda, sino en la capacidad de convertir esa demanda en un proceso consistente. Cuando un negocio depende de memoria humana, mensajes sueltos, notas dispersas o seguimiento informal, empieza a perder dinero antes de darse cuenta.
 
-La tesis estratégica es simple: **antes de escalar adquisición, hay que construir control operativo.** Esto significa definir qué cliente sí se atiende, qué promesa se vende, cómo se responde, cómo se agenda o convierte, cómo se entrega y cómo se mide el avance.`
+La tesis estratégica es simple: **antes de escalar adquisición, hay que construir control operativo.** Esto significa definir qué cliente sí se atiende, qué promesa se vende, cómo se responde, cómo se agenda o convierte, cómo se entrega y cómo se mide el avance.${optionalAiBlock("Lectura IA disponible", aiSupport.strategicReading)}`
 )}
 
 ${section(
@@ -177,7 +317,7 @@ Los canales recomendados inicialmente son: **${context.channelFocus}**. La prior
 La operación debe documentar pasos mínimos: entrada del prospecto, clasificación, respuesta, seguimiento, entrega y cierre. Sin este flujo, cada oportunidad se atiende diferente.
 
 ### 6) Métricas
-El negocio necesita medir volumen de contactos, tasa de respuesta, tasa de conversión, tiempo de seguimiento, citas/ventas concretadas, cancelaciones y valor generado por canal.`
+El negocio necesita medir volumen de contactos, tasa de respuesta, tasa de conversión, tiempo de seguimiento, citas/ventas concretadas, cancelaciones y valor generado por canal.${optionalAiBlock("Diagnóstico IA disponible", aiSupport.diagnosis)}`
 )}
 
 ${section(
@@ -260,7 +400,7 @@ La conversión debe tener criterios claros: cuándo se agenda, cuándo se cotiza
 La entrega debe documentarse para reducir improvisación, asegurar consistencia y preparar escalamiento.
 
 ### Capa 6: Control
-Un tablero debe mostrar oportunidades, estados, tiempos de respuesta, conversiones y bloqueos operativos.`
+Un tablero debe mostrar oportunidades, estados, tiempos de respuesta, conversiones y bloqueos operativos.${optionalAiBlock("Arquitectura IA disponible", aiSupport.operatingModel)}`
 )}
 
 ${section(
@@ -284,7 +424,7 @@ ${section(
 - Automatizar tareas repetitivas de seguimiento.
 - Crear dashboard operativo básico.
 - Documentar el proceso de entrega.
-- Definir el siguiente bloque de implementación según datos, no intuición.`
+- Definir el siguiente bloque de implementación según datos, no intuición.${optionalAiBlock("Acciones IA disponibles", aiSupport.nextActions)}`
 )}
 
 ${section(
@@ -295,7 +435,7 @@ ${section(
 - Crear demasiadas ofertas antes de validar una oferta principal.
 - Depender de una sola persona para responder, vender o entregar.
 - Medir actividad, pero no conversión ni resultados.
-- Activar cobro, paywall o entrega premium sin asegurar calidad del reporte y claridad de valor.`
+- Activar cobro, paywall o entrega premium sin asegurar calidad del reporte y claridad de valor.${optionalAiBlock("Riesgos IA disponibles", aiSupport.risks)}`
 )}
 
 ${section(
@@ -337,16 +477,40 @@ Resultado esperado al finalizar el bloque:
 - Pipeline operativo activo.
 - Seguimiento documentado.
 - Métricas base visibles.
-- Decisión informada sobre automatización, adquisición o escalamiento.`
+- Decisión informada sobre automatización, adquisición o escalamiento.
+
+**Nota final:** este bloque debe ser confirmado por el **Blueprint Intelligence Engine** antes de activar cobro o tratar el reporte como entregable premium aprobado.`
 )}
 `;
 };
 
-export const createBlueprintBig6MetadataPatch = (input: BlueprintBig6ReportInput): JsonRecord => ({
-  payment_required: false,
-  markdown: createBlueprintBig6Markdown(input),
-  report_version: BLUEPRINT_BIG6_REPORT_VERSION,
-  report_generator: "admin_manual_big6_v2",
-  report_generated_at: new Date().toISOString(),
-  report_quality_status: "qa_manual_generated",
-});
+export const createBlueprintBig6MetadataPatch = (input: BlueprintBig6ReportInput): JsonRecord => {
+  const metadata = toMetadataRecord(input.metadata);
+  const generatedAt = input.generatedAt || new Date().toISOString();
+  const aiSupport = extractAiSupport(metadata);
+
+  return {
+    payment_required: false,
+    markdown: createBlueprintBig6Markdown({ ...input, generatedAt }),
+    report_version: BLUEPRINT_BIG6_REPORT_VERSION,
+    report_generator: "admin_local_big6_fallback_ai_assisted",
+    report_engine: "local_fallback",
+    report_engine_owner: "frontend_admin",
+    report_generated_at: generatedAt,
+    report_quality_status: "fallback_generated_not_product_approved",
+    report_product_approved: false,
+    report_can_activate_payment: false,
+    report_delivery_label: "qa_fallback",
+    fallback_mode: true,
+    fallback_reason:
+      normalizeText(input.fallbackReason) ||
+      "Fallback local de QA/emergencia mientras el motor principal n8n + IA completa análisis, generación, revisión y quality gate.",
+    fallback_ai_support_status: aiSupport.status,
+    fallback_ai_support_sources: aiSupport.sourceKeys,
+    intelligence_engine_id: BLUEPRINT_INTELLIGENCE_ENGINE_ID,
+    intelligence_engine_required: true,
+    intelligence_engine_status: "pending",
+    quality_gate_status: "not_run",
+    premium_engine_status: "pending_n8n_blueprint_intelligence_engine",
+  };
+};
